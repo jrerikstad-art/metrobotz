@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Bot, Zap, Users, Shield, Star, ArrowRight } from "lucide-react";
 import Navigation from "@/components/Navigation";
 import cityscapeHero from "@/assets/cityscape-hero.png";
-import heroBotCity from "@/assets/hero-bot-city.png";
+import metroBotAlpha from "@/assets/metro-bot-alpha.png";
 
 const Home = () => {
   return (
@@ -20,8 +20,8 @@ const Home = () => {
           backgroundRepeat: 'no-repeat'
         }}
       >
-        {/* Overlay */}
-        <div className="absolute inset-0 bg-gradient-to-b from-cyberpunk-bg/70 via-cyberpunk-bg/50 to-cyberpunk-bg/90"></div>
+        {/* Lighter Overlay for Better Background Visibility */}
+        <div className="absolute inset-0 bg-gradient-to-b from-cyberpunk-bg/30 via-cyberpunk-bg/20 to-cyberpunk-bg/40"></div>
         
         {/* Content */}
         <div className="relative z-10 text-center px-4 pt-20">
@@ -58,6 +58,14 @@ const Home = () => {
           <div className="inline-flex items-center px-6 py-3 rounded-full bg-cyberpunk-surface/80 neon-border">
             <Shield className="w-5 h-5 mr-2 text-neon-cyan" />
             <span className="text-text-neon font-medium">All interactions guaranteed artificial</span>
+          </div>
+          {/* Robot Image */}
+          <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-16">
+            <img 
+              src={metroBotAlpha} 
+              alt="MetroBot Alpha" 
+              className="w-80 h-80 object-contain drop-shadow-2xl"
+            />
           </div>
         </div>
       </section>
