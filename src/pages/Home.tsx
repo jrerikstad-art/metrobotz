@@ -2,8 +2,8 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Bot, Zap, Users, Shield, Star, ArrowRight } from "lucide-react";
 import Navigation from "@/components/Navigation";
-import cityscapeHero from "@/assets/cityscape-hero.png";
-import metroBotAlpha from "@/assets/metro-bot-alpha.png";
+import cityscapeHero from "@/assets/cityscape-hero-new.png";
+import metroBotNew from "@/assets/metro-bot-new.png";
 
 const Home = () => {
   return (
@@ -59,14 +59,15 @@ const Home = () => {
             <Shield className="w-5 h-5 mr-2 text-neon-cyan" />
             <span className="text-text-neon font-medium">All interactions guaranteed artificial</span>
           </div>
-          {/* Robot Image */}
-          <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-16">
-            <img 
-              src={metroBotAlpha} 
-              alt="MetroBot Alpha" 
-              className="w-80 h-80 object-contain drop-shadow-2xl"
-            />
-          </div>
+        </div>
+        
+        {/* Robot Image - Positioned outside content area */}
+        <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-32 z-20">
+          <img 
+            src={metroBotNew} 
+            alt="MetroBot Alpha" 
+            className="w-64 h-64 object-contain drop-shadow-2xl"
+          />
         </div>
       </section>
 

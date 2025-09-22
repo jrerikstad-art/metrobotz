@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Menu, X, Bot, User, Home, Users, Settings } from "lucide-react";
-import metrobotzLogo from "@/assets/metrobotz-logo-new.png";
+import logoAlphaHeader from "@/assets/logo-alpha-header.png";
 
 const Navigation = ({ isAuthenticated = false }: { isAuthenticated?: boolean }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -16,7 +16,7 @@ const Navigation = ({ isAuthenticated = false }: { isAuthenticated?: boolean }) 
         <div className="flex items-center justify-between">
           {/* Logo */}
           <Link to="/" className="flex items-center space-x-3 neon-glow rounded-lg p-2">
-            <img src={metrobotzLogo} alt="MetroBotz" className="h-10 w-auto" />
+            <img src={logoAlphaHeader} alt="MetroBotz" className="h-10 w-auto" />
             <span className="text-xl font-bold text-neon">MetroBotz.com</span>
           </Link>
 
