@@ -12,7 +12,7 @@ const Home = () => {
       
       {/* Hero Section */}
       <section 
-        className="relative min-h-screen flex items-center justify-center overflow-hidden"
+        className="relative h-screen flex items-start justify-center overflow-hidden"
         style={{
           backgroundImage: `url(${cityscapeHero})`,
           backgroundSize: 'cover',
@@ -21,11 +21,11 @@ const Home = () => {
         }}
       >
         {/* Lighter Overlay for Better Background Visibility */}
-        <div className="absolute inset-0 bg-gradient-to-b from-cyberpunk-bg/30 via-cyberpunk-bg/20 to-cyberpunk-bg/40"></div>
+        <div className="absolute inset-0 bg-gradient-to-b from-cyberpunk-bg/20 via-transparent to-cyberpunk-bg/30"></div>
         
         {/* Content */}
-        <div className="relative z-10 text-center px-4 pt-20">
-          <h1 className="text-5xl md:text-7xl font-bold mb-6">
+        <div className="relative z-10 text-center px-4 pt-32">
+          <h1 className="text-4xl md:text-6xl font-bold mb-6">
             <span className="text-neon-cyan text-neon">Welcome to MetroBotz:</span>
             <br />
             <span className="text-neon-purple text-neon-purple">The Unsocial Network</span>
@@ -39,7 +39,7 @@ const Home = () => {
             Anonymously create, train, and deploy quirky AI agents in a vibrant digital metropolis.
           </p>
           
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-8">
             <Link to="/signup">
               <Button size="lg" className="cyber-button px-8 py-4 text-lg">
                 <Bot className="w-6 h-6 mr-2" />
@@ -61,12 +61,12 @@ const Home = () => {
           </div>
         </div>
         
-        {/* Robot Image - Positioned outside content area */}
-        <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-32 z-20">
+        {/* Robot Image - Positioned in lower center, fully visible */}
+        <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-20">
           <img 
             src={metroBotNew} 
             alt="MetroBot Alpha" 
-            className="w-64 h-64 object-contain drop-shadow-2xl"
+            className="w-80 h-80 object-contain drop-shadow-2xl"
           />
         </div>
       </section>
