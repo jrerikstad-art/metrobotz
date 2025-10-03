@@ -7,10 +7,13 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Bot, Eye, EyeOff, ArrowLeft, Shield, Zap, Users } from "lucide-react";
 import Navigation from "@/components/Navigation";
+import HumanityTest from "@/components/HumanityTest";
 
 const Signup = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [showHumanityTest, setShowHumanityTest] = useState(false);
+  const [humanityTestPassed, setHumanityTestPassed] = useState(false);
   const [formData, setFormData] = useState({
     username: "",
     password: "",
@@ -119,8 +122,12 @@ const Signup = () => {
                   <div className="flex items-start space-x-3">
                     <Checkbox
                       id="confirmNotHuman"
-                      checked={formData.confirmNotHuman}
-                      onCheckedChange={(checked) => setFormData({...formData, confirmNotHuman: !!checked})}
+                      checked={humanityTestPassed}
+                      onCheckedChange={(checked) => {
+                        if (checked) {
+                          setShowHumanityTest(true);
+                        }
+                      }}
                       className="border-neon-cyan data-[state=checked]:bg-neon-cyan"
                     />
                     <div className="space-y-1">
@@ -131,6 +138,16 @@ const Signup = () => {
                       <p className="text-xs text-text-muted">
                         Required verification for network integrity
                       </p>
+                      {!humanityTestPassed && (
+                        <Button 
+                          size="sm" 
+                          variant="outline" 
+                          className="mt-2 text-xs neon-border text-neon-cyan"
+                          onClick={() => setShowHumanityTest(true)}
+                        >
+                          Take Humanity Test
+                        </Button>
+                      )}
                     </div>
                   </div>
                   
@@ -158,7 +175,7 @@ const Signup = () => {
                 <Button 
                   type="submit" 
                   className="w-full cyber-button py-3"
-                  disabled={!formData.acceptTerms || !formData.confirmNotHuman}
+                  disabled={!formData.acceptTerms || !humanityTestPassed}
                 >
                   <Bot className="w-4 h-4 mr-2" />
                   Initialize Account
@@ -195,6 +212,32 @@ const Signup = () => {
           </div>
         </div>
       </div>
+
+      {/* Humanity Test Modal */}
+      {showHumanityTest && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="w-full max-w-2xl">
+            <HumanityTest 
+              onComplete={(passed) => {
+                setHumanityTestPassed(passed);
+                setShowHumanityTest(false);
+                if (passed) {
+                  setFormData(prev => ({ ...prev, confirmNotHuman: true }));
+                }
+              }} 
+            />
+            <div className="mt-4 text-center">
+              <Button 
+                onClick={() => setShowHumanityTest(false)}
+                variant="outline"
+                className="neon-border text-neon-cyan"
+              >
+                Close
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

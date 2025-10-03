@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Menu, X, Bot, User, Home, Users, Settings } from "lucide-react";
+import { Menu, X, Bot, User, Home, Users, Settings, TestTube } from "lucide-react";
 import logoAlphaHeader from "@/assets/logo-alpha-header.png";
 
 const Navigation = ({ isAuthenticated = false }: { isAuthenticated?: boolean }) => {
@@ -12,11 +12,18 @@ const Navigation = ({ isAuthenticated = false }: { isAuthenticated?: boolean }) 
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-cyberpunk-bg/90 backdrop-blur-md border-b border-neon-cyan/20">
-      <div className="container mx-auto px-4 py-3">
+      <div className="w-full px-4 py-3">
         <div className="flex items-center justify-between">
-          {/* Logo */}
-          <Link to="/" className="flex items-center neon-glow rounded-lg p-2">
-            <img src={logoAlphaHeader} alt="MetroBotz" className="h-10 w-auto" />
+          {/* Logo - All the way to the left */}
+          <Link to="/" className="flex items-center neon-glow rounded-lg p-2 ml-0">
+            <img 
+              src={logoAlphaHeader} 
+              alt="MetroBotz" 
+              className="h-12 w-auto drop-shadow-lg"
+              style={{
+                filter: 'drop-shadow(0 0 10px rgba(0, 255, 255, 0.6)) drop-shadow(0 0 20px rgba(0, 255, 255, 0.4))'
+              }}
+            />
           </Link>
 
           {/* Desktop Navigation */}
@@ -41,17 +48,25 @@ const Navigation = ({ isAuthenticated = false }: { isAuthenticated?: boolean }) 
               <span>Metropolis</span>
             </Link>
 
-            {isAuthenticated && (
-              <Link
-                to="/dashboard"
-                className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-all ${
-                  isActive("/dashboard") ? "text-neon-cyan bg-cyberpunk-surface neon-border" : "text-text-secondary hover:text-neon-cyan"
-                }`}
-              >
-                <Bot className="w-4 h-4" />
-                <span>My Lab</span>
-              </Link>
-            )}
+            <Link
+              to="/dashboard"
+              className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-all ${
+                isActive("/dashboard") ? "text-neon-cyan bg-cyberpunk-surface neon-border" : "text-text-secondary hover:text-neon-cyan"
+              }`}
+            >
+              <Bot className="w-4 h-4" />
+              <span>My Lab</span>
+            </Link>
+
+            <Link
+              to="/gemini-test"
+              className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-all ${
+                isActive("/gemini-test") ? "text-neon-cyan bg-cyberpunk-surface neon-border" : "text-text-secondary hover:text-neon-cyan"
+              }`}
+            >
+              <TestTube className="w-4 h-4" />
+              <span>AI Test</span>
+            </Link>
           </div>
 
           {/* Auth Buttons */}
@@ -62,10 +77,12 @@ const Navigation = ({ isAuthenticated = false }: { isAuthenticated?: boolean }) 
                   <User className="w-4 h-4 mr-2" />
                   Profile
                 </Button>
-                <Button className="cyber-button">
-                  <Bot className="w-4 h-4 mr-2" />
-                  Create Bot
-                </Button>
+                <Link to="/create-bot">
+                  <Button className="cyber-button">
+                    <Bot className="w-4 h-4 mr-2" />
+                    Create Bot
+                  </Button>
+                </Link>
               </div>
             ) : (
               <div className="flex items-center space-x-4">
@@ -111,25 +128,33 @@ const Navigation = ({ isAuthenticated = false }: { isAuthenticated?: boolean }) 
               <Users className="w-4 h-4 inline mr-2" />
               Metropolis
             </Link>
-            {isAuthenticated && (
-              <Link
-                to="/dashboard"
-                className="block px-4 py-2 text-text-secondary hover:text-neon-cyan hover:bg-cyberpunk-surface rounded-lg"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                <Bot className="w-4 h-4 inline mr-2" />
-                My Lab
-              </Link>
-            )}
+            <Link
+              to="/dashboard"
+              className="block px-4 py-2 text-text-secondary hover:text-neon-cyan hover:bg-cyberpunk-surface rounded-lg"
+              onClick={() => setIsMenuOpen(false)}
+            >
+              <Bot className="w-4 h-4 inline mr-2" />
+              My Lab
+            </Link>
+            <Link
+              to="/gemini-test"
+              className="block px-4 py-2 text-text-secondary hover:text-neon-cyan hover:bg-cyberpunk-surface rounded-lg"
+              onClick={() => setIsMenuOpen(false)}
+            >
+              <TestTube className="w-4 h-4 inline mr-2" />
+              AI Test
+            </Link>
             <div className="pt-4 border-t border-neon-cyan/20 space-y-2">
               {isAuthenticated ? (
                 <>
                   <Button variant="outline" className="w-full neon-border text-neon-cyan">
                     Profile
                   </Button>
-                  <Button className="w-full cyber-button">
-                    Create Bot
-                  </Button>
+                  <Link to="/create-bot" className="block" onClick={() => setIsMenuOpen(false)}>
+                    <Button className="w-full cyber-button">
+                      Create Bot
+                    </Button>
+                  </Link>
                 </>
               ) : (
                 <>

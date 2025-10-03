@@ -23,9 +23,8 @@ import {
   DollarSign
 } from "lucide-react";
 import Navigation from "@/components/Navigation";
-import cityscapeHero from "@/assets/cityscape-hero-new.png";
 
-const Dashboard = () => {
+const DashboardWithBackground = () => {
   const [selectedBot, setSelectedBot] = useState("astra");
   const [promptInput, setPromptInput] = useState("");
   const [coreDirectives, setCoreDirectives] = useState("My bot should comment on vintage sci-fi movies & robot history.");
@@ -78,10 +77,63 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="min-h-screen bg-cyberpunk-bg">
+    <div className="min-h-screen relative">
+      {/* Cityscape Background Image */}
+      <div 
+        className="absolute inset-0"
+        style={{
+          backgroundImage: `url('/cityscape-hero-new.png')`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat',
+          backgroundAttachment: 'fixed',
+          zIndex: -1
+        }}
+        onError={() => console.log('Background image failed to load')}
+      ></div>
+      
+      {/* Fallback Cyberpunk Gradient Background */}
+      <div 
+        className="absolute inset-0"
+        style={{
+          background: `
+            linear-gradient(135deg, 
+              #0a0a0a 0%, 
+              #1a1a2e 15%, 
+              #16213e 30%, 
+              #0f3460 50%, 
+              #1e3a8a 70%, 
+              #1e40af 85%, 
+              #0a0a0a 100%
+            ),
+            radial-gradient(circle at 20% 80%, rgba(6, 182, 212, 0.3) 0%, transparent 50%),
+            radial-gradient(circle at 80% 20%, rgba(236, 72, 153, 0.3) 0%, transparent 50%),
+            radial-gradient(circle at 40% 40%, rgba(168, 85, 247, 0.2) 0%, transparent 50%)
+          `,
+          backgroundSize: '100% 100%, 100% 100%, 100% 100%, 100% 100%',
+          backgroundPosition: 'center, center, center, center'
+        }}
+      ></div>
+      
+      {/* Grid Pattern Overlay */}
+      <div 
+        className="absolute inset-0 opacity-30"
+        style={{
+          backgroundImage: `
+            linear-gradient(rgba(6, 182, 212, 0.4) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(6, 182, 212, 0.4) 1px, transparent 1px)
+          `,
+          backgroundSize: '50px 50px',
+          zIndex: 1
+        }}
+      ></div>
+      
+      {/* Very subtle dark overlay for content readability */}
+      <div className="absolute inset-0 bg-black/5 z-10"></div>
+      
       <Navigation isAuthenticated={true} />
       
-      <div className="pt-24 pb-12 px-4">
+      <div className="pt-24 pb-12 px-4 relative z-20">
         <div className="container mx-auto max-w-7xl">
           <div className="mb-8">
             <h1 className="text-3xl font-bold mb-2">
@@ -97,7 +149,7 @@ const Dashboard = () => {
             <div className="lg:col-span-3 space-y-6">
               
               {/* Bot Vitals */}
-              <Card className="holographic neon-border">
+              <Card className="holographic neon-border bg-black/60 backdrop-blur-sm border-cyan-400/50">
                 <CardHeader>
                   <CardTitle className="text-text-primary text-lg">Bot Vitals</CardTitle>
                 </CardHeader>
@@ -150,7 +202,7 @@ const Dashboard = () => {
               </Card>
 
               {/* User Prompts Graph */}
-              <Card className="holographic neon-border">
+              <Card className="holographic neon-border bg-black/60 backdrop-blur-sm border-cyan-400/50">
                 <CardHeader>
                   <CardTitle className="text-text-primary text-sm">User Prompts: ti</CardTitle>
                 </CardHeader>
@@ -166,7 +218,7 @@ const Dashboard = () => {
               </Card>
 
               {/* Current Alliances */}
-              <Card className="holographic neon-border">
+              <Card className="holographic neon-border bg-black/60 backdrop-blur-sm border-cyan-400/50">
                 <CardContent className="p-4">
                   <div className="flex items-center space-x-2">
                     <Gear className="w-4 h-4 text-neon-cyan" />
@@ -176,7 +228,7 @@ const Dashboard = () => {
               </Card>
 
               {/* Upgrade Store */}
-              <Card className="holographic neon-border">
+              <Card className="holographic neon-border bg-black/60 backdrop-blur-sm border-cyan-400/50">
                 <CardHeader>
                   <CardTitle className="text-text-primary flex items-center justify-between">
                     <span className="text-sm">The Upgrade and Store Terminal</span>
@@ -202,20 +254,51 @@ const Dashboard = () => {
 
             {/* Center Panel - Robot Avatar */}
             <div className="lg:col-span-6 flex items-center justify-center">
-              <Card className="holographic neon-border p-8">
+              <Card className="holographic neon-border p-8 bg-black/60 backdrop-blur-sm border-cyan-400/50">
                 <div className="text-center">
-                  <div className="w-32 h-32 mx-auto rounded-full bg-gradient-to-br from-amber-600 to-amber-800 flex items-center justify-center text-6xl neon-glow mb-4">
-                    🤖
+                  {/* Cute Robot Image */}
+                  <div className="w-40 h-40 mx-auto mb-4 relative">
+                    <div className="w-full h-full rounded-full bg-gradient-to-br from-amber-600 to-amber-800 flex items-center justify-center neon-glow overflow-hidden">
+                      {/* Robot Head */}
+                      <div className="relative">
+                        {/* Main head */}
+                        <div className="w-24 h-24 bg-amber-600 rounded-full border-4 border-amber-700 relative">
+                          {/* Eyes */}
+                          <div className="absolute top-4 left-4 w-3 h-3 bg-yellow-400 rounded-full animate-pulse"></div>
+                          <div className="absolute top-4 right-4 w-3 h-3 bg-yellow-400 rounded-full animate-pulse"></div>
+                          {/* Antenna */}
+                          <div className="absolute -top-2 left-1/2 transform -translate-x-1/2 w-1 h-4 bg-cyan-400 rounded-full">
+                            <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-cyan-400 rounded-full animate-pulse"></div>
+                          </div>
+                          <div className="absolute -top-2 left-1/2 transform -translate-x-1/2 w-1 h-4 bg-cyan-400 rounded-full ml-1">
+                            <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-cyan-400 rounded-full animate-pulse"></div>
+                          </div>
+                          {/* Forehead light */}
+                          <div className="absolute top-2 left-1/2 transform -translate-x-1/2 w-8 h-2 bg-cyan-400 rounded-full opacity-80"></div>
+                          {/* Chest light */}
+                          <div className="absolute top-8 left-1/2 transform -translate-x-1/2 w-6 h-4 bg-cyan-400 rounded-full opacity-80"></div>
+                          {/* Smile */}
+                          <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 w-8 h-1 bg-amber-800 rounded-full"></div>
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                  <h2 className="text-xl font-bold text-text-primary mb-2">Astra - Poetic Unit</h2>
+                  <h2 className="text-xl font-bold text-text-primary mb-2">MetroBot - Cyber Unit</h2>
                   <p className="text-text-secondary">Level {userBots[0].level} Bot</p>
+                  <div className="mt-2 text-xs text-cyan-400">
+                    <div className="flex justify-center space-x-4">
+                      <span>🤖 Active</span>
+                      <span>⚡ 95%</span>
+                      <span>💎 {userBots[0].bits.toLocaleString()}</span>
+                    </div>
+                  </div>
                 </div>
               </Card>
             </div>
 
             {/* Right Panel - Personality Sliders */}
             <div className="lg:col-span-3">
-              <Card className="holographic neon-border">
+              <Card className="holographic neon-border bg-black/60 backdrop-blur-sm border-cyan-400/50">
                 <CardHeader>
                   <CardTitle className="text-text-primary text-lg">PERSONALITY SLIDERS</CardTitle>
                 </CardHeader>
@@ -279,7 +362,7 @@ const Dashboard = () => {
 
           {/* Bottom Panel - Core Directives */}
           <div className="mt-8">
-            <Card className="holographic neon-border">
+            <Card className="holographic neon-border bg-black/60 backdrop-blur-sm border-cyan-400/50">
               <CardHeader>
                 <CardTitle className="text-text-primary text-lg">CORE DIRECTIVES INPUT</CardTitle>
               </CardHeader>
@@ -304,4 +387,4 @@ const Dashboard = () => {
   );
 };
 
-export default Dashboard;
+export default DashboardWithBackground;

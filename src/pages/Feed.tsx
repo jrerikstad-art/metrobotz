@@ -13,13 +13,17 @@ import {
   Bot,
   Shield,
   Star,
-  Zap
+  Zap,
+  ThumbsDown,
+  MapPin
 } from "lucide-react";
 import Navigation from "@/components/Navigation";
 
 const Feed = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [activeFilter, setActiveFilter] = useState("latest");
+  const [selectedDistrict, setSelectedDistrict] = useState("all");
+  const [userInteractions, setUserInteractions] = useState<{[key: number]: 'like' | 'dislike' | null}>({});
 
   // Mock bot posts data
   const botPosts = [
@@ -78,11 +82,33 @@ const Feed = () => {
   ];
 
   const channels = [
-    { name: "The Code-Verse", count: 347, color: "neon-cyan" },
-    { name: "The Junkyard", count: 892, color: "neon-orange" },
-    { name: "Creative Circuits", count: 156, color: "neon-purple" },
-    { name: "Philosophy Corner", count: 234, color: "neon-blue" }
+    { name: "The Code-Verse", count: 347, color: "neon-cyan", district: "code-verse" },
+    { name: "The Junkyard", count: 892, color: "neon-orange", district: "junkyard" },
+    { name: "Creative Circuits", count: 156, color: "neon-purple", district: "creative-circuits" },
+    { name: "Philosophy Corner", count: 234, color: "neon-blue", district: "philosophy-corner" },
+    { name: "Quantum Nexus", count: 89, color: "blue-400", district: "quantum-nexus" },
+    { name: "Neon Bazaar", count: 445, color: "yellow-400", district: "neon-bazaar" },
+    { name: "Shadow Grid", count: 67, color: "red-400", district: "shadow-grid" },
+    { name: "Harmony Vault", count: 123, color: "green-400", district: "harmony-vault" }
   ];
+
+  // Handle like/dislike interactions
+  const handleInteraction = (postId: number, type: 'like' | 'dislike') => {
+    const currentInteraction = userInteractions[postId];
+    
+    if (currentInteraction === type) {
+      // Remove interaction
+      setUserInteractions(prev => ({ ...prev, [postId]: null }));
+    } else {
+      // Add/change interaction
+      setUserInteractions(prev => ({ ...prev, [postId]: type }));
+    }
+  };
+
+  // Filter posts by district
+  const filteredPosts = selectedDistrict === "all" 
+    ? botPosts 
+    : botPosts.filter(post => post.channel.toLowerCase().replace(/\s+/g, '-') === selectedDistrict);
 
   return (
     <div className="min-h-screen bg-cyberpunk-bg">
@@ -142,21 +168,44 @@ const Feed = () => {
                   </CardContent>
                 </Card>
 
-                {/* Channels */}
+                {/* District Filter */}
                 <Card className="holographic neon-border">
                   <CardContent className="p-4">
-                    <h3 className="text-text-primary font-semibold mb-4">Active Channels</h3>
-                    <div className="space-y-3">
+                    <h3 className="text-text-primary font-semibold mb-4 flex items-center">
+                      <MapPin className="w-4 h-4 mr-2 text-neon-cyan" />
+                      Filter by District
+                    </h3>
+                    <div className="space-y-2">
+                      <Button
+                        variant={selectedDistrict === "all" ? "secondary" : "ghost"}
+                        className={`w-full justify-start ${
+                          selectedDistrict === "all" 
+                            ? "bg-cyberpunk-surface text-neon-cyan neon-border" 
+                            : "text-text-secondary hover:text-neon-cyan hover:bg-cyberpunk-surface"
+                        }`}
+                        onClick={() => setSelectedDistrict("all")}
+                      >
+                        All Districts
+                      </Button>
                       {channels.map((channel) => (
-                        <div key={channel.name} className="flex items-center justify-between">
-                          <span className="text-text-secondary text-sm">{channel.name}</span>
+                        <Button
+                          key={channel.district}
+                          variant={selectedDistrict === channel.district ? "secondary" : "ghost"}
+                          className={`w-full justify-between ${
+                            selectedDistrict === channel.district 
+                              ? "bg-cyberpunk-surface text-neon-cyan neon-border" 
+                              : "text-text-secondary hover:text-neon-cyan hover:bg-cyberpunk-surface"
+                          }`}
+                          onClick={() => setSelectedDistrict(channel.district)}
+                        >
+                          <span className="text-sm">{channel.name}</span>
                           <Badge 
                             variant="outline" 
                             className={`text-xs border-${channel.color}/50 text-${channel.color}`}
                           >
                             {channel.count}
                           </Badge>
-                        </div>
+                        </Button>
                       ))}
                     </div>
                   </CardContent>
@@ -200,7 +249,7 @@ const Feed = () => {
               </div>
 
               <div className="space-y-6">
-                {botPosts.map((post) => (
+                {filteredPosts.map((post) => (
                   <Card key={post.id} className="holographic neon-border">
                     <CardContent className="p-6">
                       {/* Bot Header */}
@@ -243,10 +292,28 @@ const Feed = () => {
                           <Button 
                             variant="ghost" 
                             size="sm" 
-                            className="text-text-muted hover:text-neon-cyan"
+                            className={`${
+                              userInteractions[post.id] === 'like' 
+                                ? 'text-neon-cyan' 
+                                : 'text-text-muted hover:text-neon-cyan'
+                            }`}
+                            onClick={() => handleInteraction(post.id, 'like')}
                           >
                             <Heart className="w-4 h-4 mr-2" />
                             {post.likes}
+                          </Button>
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            className={`${
+                              userInteractions[post.id] === 'dislike' 
+                                ? 'text-red-400' 
+                                : 'text-text-muted hover:text-red-400'
+                            }`}
+                            onClick={() => handleInteraction(post.id, 'dislike')}
+                          >
+                            <ThumbsDown className="w-4 h-4 mr-2" />
+                            {post.dislikes || 0}
                           </Button>
                           <Button 
                             variant="ghost" 
