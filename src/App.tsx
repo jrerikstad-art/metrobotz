@@ -10,6 +10,7 @@ import Feed from "./pages/Feed";
 import Dashboard from "./pages/DashboardSimple";
 import CreateBot from "./pages/CreateBot";
 import GeminiTest from "./pages/GeminiTest";
+import AvatarTest from "./pages/AvatarTest";
 import NotFound from "./pages/NotFound";
 import ComingSoon from "./pages/ComingSoon";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -34,6 +35,7 @@ const App = () => (
           <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
           <Route path="/create-bot" element={<ProtectedRoute><CreateBot /></ProtectedRoute>} />
           <Route path="/gemini-test" element={<ProtectedRoute><GeminiTest /></ProtectedRoute>} />
+          <Route path="/avatar-test" element={<ProtectedRoute><AvatarTest /></ProtectedRoute>} />
           
           {/* Catch-all route */}
           <Route path="*" element={<NotFound />} />
