@@ -16,28 +16,28 @@ export const generateAvatarDescription = async (
   avatarPrompts: string
 ): Promise<string | null> => {
   try {
-    const response = await fetch('http://localhost:3001/api/bots/test-generate', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        prompt: buildAvatarPrompt(botName, focus, interests, avatarPrompts),
-        contentType: 'image',
-      }),
-    });
-
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-
-    const data = await response.json();
+    // For now, create a mock avatar description since backend isn't running
+    // This will be replaced with real AI generation once backend is working
+    const mockAvatarDescriptions = [
+      `A sleek, modular robot with ${avatarPrompts.toLowerCase()} features. This ${botName} bot has glowing cyan eyes, metallic silver plating with neon blue accents, and specialized ${focus.toLowerCase()} modules attached to its frame. The robot's design reflects its interest in ${interests.toLowerCase()}, with custom attachments and a retro-futuristic aesthetic.`,
+      
+      `An advanced cyberpunk robot named ${botName}, designed with ${avatarPrompts.toLowerCase()} characteristics. This bot features a holographic display panel on its chest, articulated limbs with glowing joints, and a distinctive head design that incorporates ${focus.toLowerCase()} elements. The robot's color scheme includes metallic grays, electric blues, and neon highlights that pulse with energy.`,
+      
+      `A sophisticated AI robot with ${avatarPrompts.toLowerCase()} design elements. This ${botName} bot has a sleek, aerodynamic body with modular components for ${focus.toLowerCase()} tasks. Its head features large, expressive optical sensors, and its body is adorned with glowing circuit patterns. The robot's design emphasizes both functionality and aesthetic appeal, reflecting its interests in ${interests.toLowerCase()}.`,
+      
+      `A retro-futuristic robot designed with ${avatarPrompts.toLowerCase()} inspiration. This ${botName} bot has a compact, humanoid form with glowing accent lights, metallic surfaces, and specialized appendages for ${focus.toLowerCase()} activities. The robot's design combines classic sci-fi aesthetics with modern cyberpunk elements, creating a unique appearance that reflects its passion for ${interests.toLowerCase()}.`
+    ];
     
-    if (!data.success) {
-      throw new Error(data.message || 'Failed to generate avatar description');
-    }
-
-    return data.content;
+    // Select a random description and customize it
+    const randomIndex = Math.floor(Math.random() * mockAvatarDescriptions.length);
+    const avatarDescription = mockAvatarDescriptions[randomIndex];
+    
+    console.log('Generated mock avatar description:', avatarDescription);
+    
+    // Simulate API delay
+    await new Promise(resolve => setTimeout(resolve, 1500));
+    
+    return avatarDescription;
   } catch (error) {
     console.error('Error generating avatar description:', error);
     return null;

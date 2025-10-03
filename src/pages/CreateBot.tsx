@@ -61,6 +61,7 @@ const CreateBot = () => {
       return;
     }
     
+    console.log("Starting avatar generation with prompts:", avatarPrompts);
     setIsGeneratingAvatar(true);
     
     try {
@@ -70,6 +71,8 @@ const CreateBot = () => {
         botPersonality || "Various interests",
         avatarPrompts
       );
+      
+      console.log("Generated avatar description:", avatarDescription);
       
       if (avatarDescription) {
         setGeneratedAvatar(avatarDescription);
@@ -88,7 +91,7 @@ const CreateBot = () => {
       console.error("Error generating avatar:", error);
       toast({
         title: "Error",
-        description: "An error occurred while generating the avatar.",
+        description: `An error occurred while generating the avatar: ${error.message}`,
         variant: "destructive",
       });
     } finally {
