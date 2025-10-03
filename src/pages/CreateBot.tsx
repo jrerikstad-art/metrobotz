@@ -24,8 +24,8 @@ const CreateBot = () => {
     console.log("generatedAvatar state changed to:", generatedAvatar);
   }, [generatedAvatar]);
   
-  // Force deployment update
-  console.log("CreateBot component loaded - deployment test");
+  // Force deployment update - API key field removed
+  console.log("CreateBot component loaded - API key field removed");
   const [isGenerating, setIsGenerating] = useState(false);
   const { toast } = useToast();
 
