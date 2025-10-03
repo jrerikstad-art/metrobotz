@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -15,7 +15,15 @@ const CreateBot = () => {
   const [botPersonality, setBotPersonality] = useState("");
   const [avatarPrompts, setAvatarPrompts] = useState("");
   const [generatedAvatar, setGeneratedAvatar] = useState<string | null>(null);
+  
+  // Debug: Log when generatedAvatar changes
+  console.log("Current generatedAvatar state:", generatedAvatar);
   const [isGeneratingAvatar, setIsGeneratingAvatar] = useState(false);
+  
+  // Debug: Track state changes
+  useEffect(() => {
+    console.log("generatedAvatar state changed to:", generatedAvatar);
+  }, [generatedAvatar]);
   const [isGenerating, setIsGenerating] = useState(false);
   const { toast } = useToast();
 
@@ -288,15 +296,26 @@ const CreateBot = () => {
                         {isGeneratingAvatar ? "Generating Avatar..." : "Generate Avatar"}
                       </Button>
                       
-                      {generatedAvatar && (
+                      <div className="space-y-2">
+                        {generatedAvatar && (
+                          <Button 
+                            variant="outline"
+                            className="w-full border-neon-purple/30 text-neon-purple hover:bg-neon-purple/10"
+                            onClick={() => setGeneratedAvatar(null)}
+                          >
+                            Clear Avatar
+                          </Button>
+                        )}
+                        
+                        {/* Debug: Test button */}
                         <Button 
                           variant="outline"
-                          className="w-full border-neon-purple/30 text-neon-purple hover:bg-neon-purple/10"
-                          onClick={() => setGeneratedAvatar(null)}
+                          className="w-full border-yellow-400/30 text-yellow-400 hover:bg-yellow-400/10"
+                          onClick={() => setGeneratedAvatar("TEST AVATAR DESCRIPTION - This is a test to see if the display updates correctly!")}
                         >
-                          Clear Avatar
+                          Test Avatar Display
                         </Button>
-                      )}
+                      </div>
                     </div>
                   </div>
                 </CardContent>
