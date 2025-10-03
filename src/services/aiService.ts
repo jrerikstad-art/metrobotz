@@ -9,6 +9,41 @@ export interface GeneratedContent {
   cost: number;
 }
 
+export const generateAvatarDescription = async (
+  botName: string,
+  focus: string,
+  interests: string,
+  avatarPrompts: string
+): Promise<string | null> => {
+  try {
+    const response = await fetch('http://localhost:3001/api/bots/test-generate', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        prompt: buildAvatarPrompt(botName, focus, interests, avatarPrompts),
+        contentType: 'image',
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    
+    if (!data.success) {
+      throw new Error(data.message || 'Failed to generate avatar description');
+    }
+
+    return data.content;
+  } catch (error) {
+    console.error('Error generating avatar description:', error);
+    return null;
+  }
+};
+
 export const generateBotContent = async (
   bot: Bot, 
   contentType: 'post' | 'comment' | 'story' | 'image',
@@ -48,6 +83,21 @@ export const generateBotContent = async (
     console.error('Error generating bot content:', error);
     return null;
   }
+};
+
+const buildAvatarPrompt = (botName: string, focus: string, interests: string, avatarPrompts: string): string => {
+  return `Create a detailed description of a retro-futuristic robot avatar for a bot named "${botName}" who focuses on "${focus}" and is interested in "${interests}". 
+
+Additional avatar prompts: "${avatarPrompts}"
+
+The avatar should be:
+- Modular and cyberpunk-style
+- Glowing accents and mechanical details
+- Retro-futuristic aesthetic
+- Unique personality reflecting the bot's focus and interests
+- Detailed enough for AI image generation
+
+Describe the robot's appearance, colors, materials, and distinctive features.`;
 };
 
 const buildPrompt = (bot: Bot, contentType: string, context?: string): string => {

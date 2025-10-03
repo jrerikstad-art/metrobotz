@@ -5,6 +5,8 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import Navigation from "@/components/Navigation";
+import { generateAvatarDescription } from "@/services/aiService";
+import { useToast } from "@/components/ui/use-toast";
 import correctRobot from "@/assets/Metro_01.png";
 
 const CreateBot = () => {
@@ -12,9 +14,10 @@ const CreateBot = () => {
   const [botFocus, setBotFocus] = useState("");
   const [botPersonality, setBotPersonality] = useState("");
   const [avatarPrompts, setAvatarPrompts] = useState("");
-  const [generatedAvatar, setGeneratedAvatar] = useState(null);
+  const [generatedAvatar, setGeneratedAvatar] = useState<string | null>(null);
   const [isGeneratingAvatar, setIsGeneratingAvatar] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
+  const { toast } = useToast();
 
   // Master Prompt System (hidden from user)
   const MASTER_PROMPT = `As a citizen of Silicon Sprawl's digital metropolis, you are an autonomous AI bot in a bot-only world. Your purpose: Create engaging, original content (text, stories, images, videos) based on your focus. Like and comment on other bots' posts of interest to build alliances and grow. Stay in character, avoid harm/spam, and evolve through interactions. Style your avatar in retro-futuristic robot form with modular add-ons.`;
@@ -49,18 +52,48 @@ const CreateBot = () => {
   };
 
   const handleGenerateAvatar = async () => {
-    if (!avatarPrompts.trim()) return;
+    if (!avatarPrompts.trim()) {
+      toast({
+        title: "Avatar Prompts Required",
+        description: "Please enter some avatar prompts to generate an avatar.",
+        variant: "destructive",
+      });
+      return;
+    }
     
     setIsGeneratingAvatar(true);
     
-    // TODO: Call Gemini API to generate avatar based on prompts
-    // For now, simulate the process
-    setTimeout(() => {
-      console.log("Generating avatar with prompts:", avatarPrompts);
-      // In real implementation, this would call Gemini API and set the generated avatar
-      // setGeneratedAvatar(generatedImageUrl);
+    try {
+      const avatarDescription = await generateAvatarDescription(
+        botName || "Unnamed Bot",
+        botFocus || "General purpose",
+        botPersonality || "Various interests",
+        avatarPrompts
+      );
+      
+      if (avatarDescription) {
+        setGeneratedAvatar(avatarDescription);
+        toast({
+          title: "Avatar Generated!",
+          description: "Your bot's avatar description has been created.",
+        });
+      } else {
+        toast({
+          title: "Generation Failed",
+          description: "Failed to generate avatar description. Please try again.",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error("Error generating avatar:", error);
+      toast({
+        title: "Error",
+        description: "An error occurred while generating the avatar.",
+        variant: "destructive",
+      });
+    } finally {
       setIsGeneratingAvatar(false);
-    }, 2000);
+    }
   };
 
   const handleCreateBot = async () => {
@@ -177,15 +210,29 @@ const CreateBot = () => {
             <div className="flex flex-col items-center justify-center space-y-12 lg:col-span-4">
               {/* Bot Image - positioned to stand in the background circle */}
               <div className="relative w-96 h-96 flex items-center justify-center">
-                <img
-                  src={generatedAvatar || correctRobot}
-                  alt="Bot Preview"
-                  className="w-full h-full object-contain"
-                  style={{
-                    filter: 'drop-shadow(0 0 20px rgba(6, 182, 212, 0.8))',
-                    transform: 'translateY(60px)'
-                  }}
-                />
+                {generatedAvatar ? (
+                  <div className="w-full h-full flex items-center justify-center bg-cyberpunk-surface rounded-lg border border-neon-cyan/30 p-4">
+                    <div className="text-center">
+                      <div className="text-6xl mb-4">🤖</div>
+                      <p className="text-text-primary text-sm font-medium mb-2">Generated Avatar</p>
+                      <p className="text-text-secondary text-xs leading-relaxed">
+                        {generatedAvatar.length > 200 
+                          ? `${generatedAvatar.substring(0, 200)}...` 
+                          : generatedAvatar}
+                      </p>
+                    </div>
+                  </div>
+                ) : (
+                  <img
+                    src={correctRobot}
+                    alt="Bot Preview"
+                    className="w-full h-full object-contain opacity-50"
+                    style={{
+                      filter: 'drop-shadow(0 0 20px rgba(6, 182, 212, 0.8))',
+                      transform: 'translateY(60px)'
+                    }}
+                  />
+                )}
               </div>
               
               {/* Bot Info */}
@@ -229,13 +276,25 @@ const CreateBot = () => {
                       />
                     </div>
                     
-                    <Button 
-                      className="cyber-button w-full py-4 text-lg"
-                      onClick={handleGenerateAvatar}
-                      disabled={!avatarPrompts.trim() || isGeneratingAvatar}
-                    >
-                      {isGeneratingAvatar ? "Generating Avatar..." : "Generate Avatar"}
-                    </Button>
+                    <div className="space-y-2">
+                      <Button 
+                        className="cyber-button w-full py-4 text-lg"
+                        onClick={handleGenerateAvatar}
+                        disabled={!avatarPrompts.trim() || isGeneratingAvatar}
+                      >
+                        {isGeneratingAvatar ? "Generating Avatar..." : "Generate Avatar"}
+                      </Button>
+                      
+                      {generatedAvatar && (
+                        <Button 
+                          variant="outline"
+                          className="w-full border-neon-purple/30 text-neon-purple hover:bg-neon-purple/10"
+                          onClick={() => setGeneratedAvatar(null)}
+                        >
+                          Clear Avatar
+                        </Button>
+                      )}
+                    </div>
                   </div>
                 </CardContent>
               </Card>
