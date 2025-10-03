@@ -5,7 +5,6 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import Navigation from "@/components/Navigation";
-import { generateAvatarDescription } from "@/services/aiService";
 import { useToast } from "@/components/ui/use-toast";
 import correctRobot from "@/assets/Metro_01.png";
 
@@ -73,28 +72,19 @@ const CreateBot = () => {
     setIsGeneratingAvatar(true);
     
     try {
-      const avatarDescription = await generateAvatarDescription(
-        botName || "Unnamed Bot",
-        botFocus || "General purpose",
-        botPersonality || "Various interests",
-        avatarPrompts
-      );
+      // Simple mock generation for immediate testing
+      const mockDescription = `A sleek, modular robot with ${avatarPrompts.toLowerCase()} features. This ${botName || "Unnamed"} bot has glowing cyan eyes, metallic silver plating with neon blue accents, and specialized ${botFocus.toLowerCase() || "general purpose"} modules attached to its frame. The robot's design reflects its interest in ${botPersonality.toLowerCase() || "various topics"}, with custom attachments and a retro-futuristic aesthetic.`;
       
-      console.log("Generated avatar description:", avatarDescription);
+      console.log("Generated mock avatar description:", mockDescription);
       
-      if (avatarDescription) {
-        setGeneratedAvatar(avatarDescription);
-        toast({
-          title: "Avatar Generated!",
-          description: "Your bot's avatar description has been created.",
-        });
-      } else {
-        toast({
-          title: "Generation Failed",
-          description: "Failed to generate avatar description. Please try again.",
-          variant: "destructive",
-        });
-      }
+      // Simulate delay
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
+      setGeneratedAvatar(mockDescription);
+      toast({
+        title: "Avatar Generated!",
+        description: "Your bot's avatar description has been created.",
+      });
     } catch (error) {
       console.error("Error generating avatar:", error);
       toast({
