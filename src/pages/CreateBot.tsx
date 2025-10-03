@@ -14,7 +14,6 @@ const CreateBot = () => {
   const [botPersonality, setBotPersonality] = useState("");
   const [avatarPrompts, setAvatarPrompts] = useState("");
   const [generatedAvatar, setGeneratedAvatar] = useState<string | null>(null);
-  const [geminiApiKey, setGeminiApiKey] = useState<string>("");
   
   // Debug: Log when generatedAvatar changes
   console.log("Current generatedAvatar state:", generatedAvatar);
@@ -76,12 +75,10 @@ const CreateBot = () => {
     setIsGeneratingAvatar(true);
     
     try {
-      if (!geminiApiKey.trim()) {
-        throw new Error("Please enter your Gemini API key first");
-      }
-      
       // Direct Gemini API call (no backend needed)
-      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${geminiApiKey}`, {
+      // Replace YOUR_API_KEY_HERE with your actual Gemini API key
+      const API_KEY = 'YOUR_API_KEY_HERE'; // Replace this with your actual API key
+      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${API_KEY}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -310,21 +307,6 @@ Describe the robot's appearance, colors, materials, and distinctive features in 
                 <CardContent className="flex-grow flex flex-col justify-between">
                   <div className="space-y-4 flex-grow">
                     <div>
-                      <Label htmlFor="geminiApiKey" className="text-text-primary">Gemini API Key</Label>
-                      <Input
-                        id="geminiApiKey"
-                        type="password"
-                        value={geminiApiKey}
-                        onChange={(e) => setGeminiApiKey(e.target.value)}
-                        placeholder="Enter your Gemini API key (AIzaSy...)"
-                        className="mt-1 bg-cyberpunk-surface border-cyberpunk-surface-hover text-text-primary placeholder:text-text-muted focus:border-neon-cyan"
-                      />
-                      <p className="text-xs text-text-muted mt-1">
-                        Get your free API key from <a href="https://aistudio.google.com/" target="_blank" rel="noopener noreferrer" className="text-neon-cyan hover:underline">Google AI Studio</a>
-                      </p>
-                    </div>
-                    
-                    <div>
                       <Label htmlFor="avatarPrompts" className="text-text-primary">Avatar Prompts</Label>
                       <Textarea
                         id="avatarPrompts"
@@ -339,7 +321,7 @@ Describe the robot's appearance, colors, materials, and distinctive features in 
                       <Button 
                         className="cyber-button w-full py-4 text-lg"
                         onClick={handleGenerateAvatar}
-                        disabled={!avatarPrompts.trim() || !geminiApiKey.trim() || isGeneratingAvatar}
+                        disabled={!avatarPrompts.trim() || isGeneratingAvatar}
                       >
                         {isGeneratingAvatar ? "Generating Avatar..." : "Generate Avatar with Gemini AI"}
                       </Button>
