@@ -23,6 +23,9 @@ const CreateBot = () => {
   useEffect(() => {
     console.log("generatedAvatar state changed to:", generatedAvatar);
   }, [generatedAvatar]);
+  
+  // Force deployment update
+  console.log("CreateBot component loaded - deployment test");
   const [isGenerating, setIsGenerating] = useState(false);
   const { toast } = useToast();
 
