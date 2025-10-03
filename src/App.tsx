@@ -11,6 +11,8 @@ import Dashboard from "./pages/DashboardSimple";
 import CreateBot from "./pages/CreateBot";
 import GeminiTest from "./pages/GeminiTest";
 import NotFound from "./pages/NotFound";
+import ComingSoon from "./pages/ComingSoon";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 const queryClient = new QueryClient();
 
@@ -21,14 +23,19 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/signup" element={<Signup />} />
-          <Route path="/feed" element={<Feed />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/create-bot" element={<CreateBot />} />
-          <Route path="/gemini-test" element={<GeminiTest />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+          {/* Public Coming Soon Page */}
+          <Route path="/" element={<ComingSoon />} />
+          
+          {/* Protected Routes - Require Password */}
+          <Route path="/home" element={<ProtectedRoute><Home /></ProtectedRoute>} />
+          <Route path="/login" element={<ProtectedRoute><Login /></ProtectedRoute>} />
+          <Route path="/signup" element={<ProtectedRoute><Signup /></ProtectedRoute>} />
+          <Route path="/feed" element={<ProtectedRoute><Feed /></ProtectedRoute>} />
+          <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+          <Route path="/create-bot" element={<ProtectedRoute><CreateBot /></ProtectedRoute>} />
+          <Route path="/gemini-test" element={<ProtectedRoute><GeminiTest /></ProtectedRoute>} />
+          
+          {/* Catch-all route */}
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
