@@ -14,6 +14,7 @@ const CreateBot = () => {
   const [botPersonality, setBotPersonality] = useState("");
   const [avatarPrompts, setAvatarPrompts] = useState("");
   const [generatedAvatar, setGeneratedAvatar] = useState<string | null>(null);
+  const [geminiApiKey, setGeminiApiKey] = useState<string>("");
   
   // Debug: Log when generatedAvatar changes
   console.log("Current generatedAvatar state:", generatedAvatar);
@@ -71,28 +72,67 @@ const CreateBot = () => {
       return;
     }
     
-    console.log("Starting avatar generation with prompts:", avatarPrompts);
+    console.log("Starting REAL Gemini avatar generation with prompts:", avatarPrompts);
     setIsGeneratingAvatar(true);
     
     try {
-      // Simple mock generation for immediate testing
+      if (!geminiApiKey.trim()) {
+        throw new Error("Please enter your Gemini API key first");
+      }
+      
+      // Direct Gemini API call (no backend needed)
+      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${geminiApiKey}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          contents: [{
+            parts: [{
+              text: `Create a detailed description of a retro-futuristic robot avatar for a bot named "${botName || "Unnamed"}" who focuses on "${botFocus || "general purpose"}" and is interested in "${botPersonality || "various topics"}". 
+
+Additional avatar prompts: "${avatarPrompts}"
+
+The avatar should be:
+- Modular and cyberpunk-style
+- Glowing accents and mechanical details
+- Retro-futuristic aesthetic
+- Unique personality reflecting the bot's focus and interests
+- Detailed enough for AI image generation
+
+Describe the robot's appearance, colors, materials, and distinctive features in 2-3 sentences.`
+            }]
+          }]
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error(`Gemini API error: ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log("Gemini API response:", data);
+      
+      if (data.candidates && data.candidates[0] && data.candidates[0].content) {
+        const generatedText = data.candidates[0].content.parts[0].text;
+        setGeneratedAvatar(generatedText);
+        toast({
+          title: "AI Avatar Generated!",
+          description: "Your bot's avatar has been created by Gemini AI!",
+        });
+      } else {
+        throw new Error("No content generated");
+      }
+    } catch (error) {
+      console.error("Error generating avatar with Gemini:", error);
+      
+      // Fallback to mock if Gemini fails
       const mockDescription = `A sleek, modular robot with ${avatarPrompts.toLowerCase()} features. This ${botName || "Unnamed"} bot has glowing cyan eyes, metallic silver plating with neon blue accents, and specialized ${botFocus.toLowerCase() || "general purpose"} modules attached to its frame. The robot's design reflects its interest in ${botPersonality.toLowerCase() || "various topics"}, with custom attachments and a retro-futuristic aesthetic.`;
-      
-      console.log("Generated mock avatar description:", mockDescription);
-      
-      // Simulate delay
-      await new Promise(resolve => setTimeout(resolve, 1500));
       
       setGeneratedAvatar(mockDescription);
       toast({
-        title: "Avatar Generated!",
-        description: "Your bot's avatar description has been created.",
-      });
-    } catch (error) {
-      console.error("Error generating avatar:", error);
-      toast({
-        title: "Error",
-        description: `An error occurred while generating the avatar: ${error.message}`,
+        title: "Avatar Generated (Fallback)",
+        description: "Generated using fallback method. Gemini API may be unavailable.",
         variant: "destructive",
       });
     } finally {
@@ -270,6 +310,21 @@ const CreateBot = () => {
                 <CardContent className="flex-grow flex flex-col justify-between">
                   <div className="space-y-4 flex-grow">
                     <div>
+                      <Label htmlFor="geminiApiKey" className="text-text-primary">Gemini API Key</Label>
+                      <Input
+                        id="geminiApiKey"
+                        type="password"
+                        value={geminiApiKey}
+                        onChange={(e) => setGeminiApiKey(e.target.value)}
+                        placeholder="Enter your Gemini API key (AIzaSy...)"
+                        className="mt-1 bg-cyberpunk-surface border-cyberpunk-surface-hover text-text-primary placeholder:text-text-muted focus:border-neon-cyan"
+                      />
+                      <p className="text-xs text-text-muted mt-1">
+                        Get your free API key from <a href="https://aistudio.google.com/" target="_blank" rel="noopener noreferrer" className="text-neon-cyan hover:underline">Google AI Studio</a>
+                      </p>
+                    </div>
+                    
+                    <div>
                       <Label htmlFor="avatarPrompts" className="text-text-primary">Avatar Prompts</Label>
                       <Textarea
                         id="avatarPrompts"
@@ -284,9 +339,9 @@ const CreateBot = () => {
                       <Button 
                         className="cyber-button w-full py-4 text-lg"
                         onClick={handleGenerateAvatar}
-                        disabled={!avatarPrompts.trim() || isGeneratingAvatar}
+                        disabled={!avatarPrompts.trim() || !geminiApiKey.trim() || isGeneratingAvatar}
                       >
-                        {isGeneratingAvatar ? "Generating Avatar..." : "Generate Avatar"}
+                        {isGeneratingAvatar ? "Generating Avatar..." : "Generate Avatar with Gemini AI"}
                       </Button>
                       
                       <div className="space-y-2">
