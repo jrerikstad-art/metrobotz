@@ -23,6 +23,23 @@ export default async function handler(req, res) {
       });
     }
 
+    // Master Prompt for consistent Silicon Sprawl aesthetic
+    const MASTER_PROMPT = "Generate a detailed TEXT DESCRIPTION of a retro-futuristic robot avatar in the Silicon Sprawl digital metropolis style. The robot should have a sleek, modular cyberpunk design with metallic materials and neon accents. ";
+    
+    // User's custom prompt for specific features
+    const USER_PROMPT = `Bot Name: "${botName || "Unnamed"}". Focus: ${botFocus || "general purpose"}. Interests: ${botPersonality || "various topics"}. Custom Features: ${avatarPrompts}`;
+    
+    // Combine prompts
+    const FULL_PROMPT = MASTER_PROMPT + USER_PROMPT + `
+    
+    IMPORTANT: Generate ONLY a TEXT DESCRIPTION of the robot's appearance, NOT an image. Focus on:
+    - Single robot figure, isolated and centered
+    - Specific integration of the custom features into the robot's design
+    - Materials, colors, and mechanical details
+    - Modular components and cyberpunk aesthetic
+    - 150-250 words maximum
+    - NO backgrounds, environments, or external scenes`;
+    
     // Call Gemini API directly from Vercel serverless function
     const API_KEY = "AIzaSyBIvDRZTISaRtGNi4ozy2OVnFrgWvPgezc";
     
@@ -34,26 +51,7 @@ export default async function handler(req, res) {
       body: JSON.stringify({
         contents: [{
           parts: [{
-            text: `Generate a detailed TEXT DESCRIPTION (not an image) of a cyberpunk robot avatar for a bot named "${botName || "Unnamed"}" with these characteristics:
-            
-            Focus: ${botFocus || "general purpose"}
-            Interests: ${botPersonality || "various topics"}
-            Avatar Prompts: ${avatarPrompts}
-            
-            IMPORTANT: This is for a TEXT-BASED avatar description, NOT an image generation request. Describe ONLY the robot's appearance in detail.
-            
-            Requirements for the description:
-            - Describe a single robot figure, isolated and centered
-            - Focus on the robot's body, head, limbs, and mechanical details
-            - Include specific details about how the avatar prompts are integrated into the robot's design
-            - Mention materials (metallic, chrome, steel, etc.)
-            - Describe colors and lighting (neon accents, glowing elements)
-            - Include modular components and mechanical features
-            - Keep the description between 150-250 words
-            - Do NOT describe backgrounds, environments, or scenes
-            - Do NOT mention planets, landscapes, or external settings
-            
-            Style: Retro-futuristic cyberpunk robot design with modular, angular construction.`
+            text: FULL_PROMPT
           }]
         }]
       })
