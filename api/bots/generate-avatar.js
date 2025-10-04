@@ -32,8 +32,11 @@ export default async function handler(req, res) {
     // Combine prompts
     const FULL_PROMPT = MASTER_PROMPT + (USER_PROMPT ? ` ${USER_PROMPT}.` : '') + " Ensure transparency and modularity.";
     
+    console.log('Full prompt:', FULL_PROMPT);
+    
     // Gemini API call for IMAGE GENERATION
     const API_KEY = process.env.GEMINI_API_KEY || "AIzaSyBIvDRZTISaRtGNi4ozy2OVnFrgWvPgezc";
+    console.log('Using API key:', API_KEY.substring(0, 10) + '...');
     
     const geminiResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${API_KEY}`, {
       method: 'POST',
@@ -57,12 +60,16 @@ export default async function handler(req, res) {
     });
 
     if (!geminiResponse.ok) {
-      throw new Error(`Gemini API error: ${geminiResponse.status} ${geminiResponse.statusText}`);
+      const errorText = await geminiResponse.text();
+      console.error('Gemini API error response:', errorText);
+      throw new Error(`Gemini API error: ${geminiResponse.status} ${geminiResponse.statusText} - ${errorText}`);
     }
 
     const data = await geminiResponse.json();
+    console.log('Gemini API response:', JSON.stringify(data, null, 2));
     
     if (!data.candidates || !data.candidates[0] || !data.candidates[0].content) {
+      console.error('Invalid response structure:', data);
       throw new Error("Invalid response format from Gemini API");
     }
 
@@ -96,9 +103,13 @@ export default async function handler(req, res) {
 
   } catch (error) {
     console.error('Avatar generation error:', error);
+    console.error('Error stack:', error.stack);
+    console.error('Request body:', req.body);
+    
     res.status(500).json({
       success: false,
-      error: `Failed to generate avatar: ${error.message}`
+      error: `Failed to generate avatar: ${error.message}`,
+      details: error.stack // Include stack trace for debugging
     });
   }
 }
