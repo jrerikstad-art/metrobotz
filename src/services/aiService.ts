@@ -50,6 +50,7 @@ export const generateBotContent = async (
   context?: string
 ): Promise<GeneratedContent | null> => {
   try {
+    console.log('Generating content for bot:', bot.name, 'type:', contentType);
     // For now, generate content locally since backend isn't running
     const prompt = buildPrompt(bot, contentType, context);
     const content = generateLocalContent(bot, contentType, context);

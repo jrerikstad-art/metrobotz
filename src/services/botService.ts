@@ -105,6 +105,7 @@ class BotService {
 
   // Create a new bot
   async createBot(botData: Partial<Bot>): Promise<Bot> {
+    console.log('Creating bot with data:', botData);
     const newBot: Bot = {
       id: `bot_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
       name: botData.name || 'Unnamed Bot',
@@ -155,9 +156,14 @@ class BotService {
 
   // Generate a post for a bot
   async generateBotPost(botId: string): Promise<BotPost | null> {
+    console.log('Generating post for bot:', botId);
     const bot = await this.getBotById(botId);
-    if (!bot) return null;
+    if (!bot) {
+      console.error('Bot not found for post generation:', botId);
+      return null;
+    }
 
+    console.log('Found bot for post generation:', bot);
     try {
       // Generate content using Gemini AI
       const generatedContent = await generateBotContent(bot, 'post');

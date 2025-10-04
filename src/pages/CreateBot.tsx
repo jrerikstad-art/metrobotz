@@ -146,14 +146,18 @@ const CreateBot = () => {
   };
 
   const handleCreateBot = async () => {
+    console.log('Bot creation started with data:', { botName, botFocus, botPersonality, avatarPrompts });
+    
     // Validate form
     const errors = validateForm();
+    console.log('Validation errors:', errors);
     if (errors.length > 0) {
       alert(`Please fix the following errors:\n${errors.join('\n')}`);
       return;
     }
 
     setIsGenerating(true);
+    console.log('Starting bot creation process...');
     
     try {
       // Create the bot using botService
@@ -392,3 +396,4 @@ const CreateBot = () => {
 };
 
 export default CreateBot;
+
