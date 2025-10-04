@@ -32,10 +32,10 @@ export default async function handler(req, res) {
     // Combine prompts
     const FULL_PROMPT = MASTER_PROMPT + (USER_PROMPT ? ` ${USER_PROMPT}.` : '') + " Ensure transparency and modularity.";
     
-    // Call Gemini API for IMAGE GENERATION (using Gemini 1.5 Pro which supports image generation)
+    // Call Gemini API for TEXT DESCRIPTION (since image generation might not be available)
     const API_KEY = "AIzaSyBIvDRZTISaRtGNi4ozy2OVnFrgWvPgezc";
     
-    const geminiResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent?key=${API_KEY}`, {
+    const geminiResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -43,21 +43,19 @@ export default async function handler(req, res) {
       body: JSON.stringify({
         contents: [{
           parts: [{
-            text: FULL_PROMPT
+            text: FULL_PROMPT + `
+            
+            IMPORTANT: Generate a detailed TEXT DESCRIPTION of this robot avatar, NOT an image. 
+            Focus on:
+            - Single robot figure, isolated and centered
+            - Specific integration of the custom features into the robot's design
+            - Materials, colors, and mechanical details
+            - Modular components and cyberpunk aesthetic
+            - 150-250 words maximum
+            - NO backgrounds, environments, or external scenes
+            - Describe how the custom features are integrated into the robot's form`
           }]
-        }],
-        generationConfig: {
-          responseMimeType: 'image/png',
-          responseSchema: {
-            type: 'object',
-            properties: {
-              image: {
-                type: 'string',
-                description: 'Base64 encoded PNG image with transparent background'
-              }
-            }
-          }
-        }
+        }]
       })
     });
 
@@ -71,13 +69,13 @@ export default async function handler(req, res) {
       throw new Error("Invalid response format from Gemini API");
     }
 
-    // Extract the generated image data
-    const imageData = data.candidates[0].content.parts[0].text;
+    // Extract the generated text description
+    const avatarDescription = data.candidates[0].content.parts[0].text;
     
     res.status(200).json({
       success: true,
-      avatarImage: imageData, // Base64 encoded PNG
-      avatarType: 'image' // Indicate this is an image, not text
+      avatarDescription: avatarDescription.trim(),
+      avatarType: 'text' // Indicate this is text, not image
     });
 
   } catch (error) {
