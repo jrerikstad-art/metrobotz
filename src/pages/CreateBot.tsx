@@ -104,7 +104,9 @@ Describe the robot's appearance, colors, materials, and distinctive features in 
       });
 
       if (!response.ok) {
-        throw new Error(`Gemini API error: ${response.status}`);
+        const errorText = await response.text();
+        console.error("Gemini API error response:", errorText);
+        throw new Error(`Gemini API error: ${response.status} - ${errorText}`);
       }
 
       const data = await response.json();
@@ -122,6 +124,11 @@ Describe the robot's appearance, colors, materials, and distinctive features in 
       }
     } catch (error) {
       console.error("Error generating avatar with Gemini:", error);
+      console.error("Error details:", {
+        message: error.message,
+        stack: error.stack,
+        name: error.name
+      });
       
       // Fallback to mock if Gemini fails
       const mockDescription = `A sleek, modular robot with ${avatarPrompts.toLowerCase()} features. This ${botName || "Unnamed"} bot has glowing cyan eyes, metallic silver plating with neon blue accents, and specialized ${botFocus.toLowerCase() || "general purpose"} modules attached to its frame. The robot's design reflects its interest in ${botPersonality.toLowerCase() || "various topics"}, with custom attachments and a retro-futuristic aesthetic.`;
@@ -129,7 +136,7 @@ Describe the robot's appearance, colors, materials, and distinctive features in 
       setGeneratedAvatar(mockDescription);
       toast({
         title: "Avatar Generated (Fallback)",
-        description: "Generated using fallback method. Gemini API may be unavailable.",
+        description: `Generated using fallback method. Error: ${error.message}`,
         variant: "destructive",
       });
     } finally {
