@@ -9,6 +9,7 @@ import Signup from "./pages/Signup";
 import Feed from "./pages/Feed";
 import Dashboard from "./pages/DashboardSimple";
 import CreateBot from "./pages/CreateBot";
+import BotLab from "./pages/BotLab";
 import GeminiTest from "./pages/GeminiTest";
 import AvatarTest from "./pages/AvatarTest";
 import NotFound from "./pages/NotFound";
@@ -34,6 +35,7 @@ const App = () => (
           <Route path="/feed" element={<ProtectedRoute><Feed /></ProtectedRoute>} />
           <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
           <Route path="/create-bot" element={<ProtectedRoute><CreateBot /></ProtectedRoute>} />
+          <Route path="/bot-lab/:botId" element={<ProtectedRoute><BotLab /></ProtectedRoute>} />
           <Route path="/gemini-test" element={<ProtectedRoute><GeminiTest /></ProtectedRoute>} />
           <Route path="/avatar-test" element={<ProtectedRoute><AvatarTest /></ProtectedRoute>} />
           

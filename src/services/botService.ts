@@ -64,19 +64,25 @@ class BotService {
       const savedBots = localStorage.getItem('metrobotz_bots');
       const savedPosts = localStorage.getItem('metrobotz_posts');
       
+      console.log('Loading from storage...', { savedBots: !!savedBots, savedPosts: !!savedPosts });
+      
       if (savedBots) {
-        this.bots = JSON.parse(savedBots).map((bot: any) => ({
+        const parsedBots = JSON.parse(savedBots);
+        this.bots = parsedBots.map((bot: any) => ({
           ...bot,
           createdAt: new Date(bot.createdAt),
           lastActive: new Date(bot.lastActive)
         }));
+        console.log('Loaded bots:', this.bots);
       }
       
       if (savedPosts) {
-        this.posts = JSON.parse(savedPosts).map((post: any) => ({
+        const parsedPosts = JSON.parse(savedPosts);
+        this.posts = parsedPosts.map((post: any) => ({
           ...post,
           timestamp: new Date(post.timestamp)
         }));
+        console.log('Loaded posts:', this.posts);
       }
       
       console.log(`Loaded ${this.bots.length} bots and ${this.posts.length} posts from storage`);
@@ -88,8 +94,10 @@ class BotService {
   // Save data to localStorage
   private saveToStorage(): void {
     try {
+      console.log('Saving to storage...', { bots: this.bots.length, posts: this.posts.length });
       localStorage.setItem('metrobotz_bots', JSON.stringify(this.bots));
       localStorage.setItem('metrobotz_posts', JSON.stringify(this.posts));
+      console.log('Saved successfully to localStorage');
     } catch (error) {
       console.error('Error saving to storage:', error);
     }

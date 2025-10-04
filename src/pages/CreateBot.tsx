@@ -177,8 +177,8 @@ const CreateBot = () => {
         description: `${newBot.name} has been launched into Silicon Sprawl!`,
       });
 
-      // Navigate to dashboard or feed to see the bot
-      navigate('/feed');
+      // Navigate to bot lab to show the newly created bot
+      navigate(`/bot-lab/${newBot.id}`);
       
     } catch (error) {
       console.error('Error creating bot:', error);
