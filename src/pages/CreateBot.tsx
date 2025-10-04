@@ -68,8 +68,8 @@ const CreateBot = () => {
       setGeneratedAvatar(null);
       setAvatarType(null);
       
-      // Call our Vercel API route (no CORS issues)
-      const response = await fetch('/api/bots/generate-avatar', {
+      // Call our backend API route
+      const response = await fetch('http://localhost:3001/api/avatar/generate', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

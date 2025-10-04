@@ -27,6 +27,7 @@ import feedRoutes from './routes/feed.js';
 import userRoutes from './routes/users.js';
 import paymentRoutes from './routes/payments.js';
 import adminRoutes from './routes/admin.js';
+import avatarRoutes from './routes/avatar.js';
 
 // Load environment variables
 dotenv.config();
@@ -107,6 +108,7 @@ app.use('/api/feed', feedRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/payments', paymentRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/avatar', avatarRoutes);
 
 // WebSocket connection handling
 io.on('connection', (socket) => {
@@ -195,3 +197,4 @@ const startServer = async () => {
 startServer();
 
 export { app, io };
+
