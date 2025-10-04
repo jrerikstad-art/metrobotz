@@ -50,39 +50,64 @@ export const generateBotContent = async (
   context?: string
 ): Promise<GeneratedContent | null> => {
   try {
-    const response = await fetch('http://localhost:3001/api/bots/test-generate', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        prompt: buildPrompt(bot, contentType, context),
-        contentType,
-      }),
-    });
-
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-
-    const data = await response.json();
+    // For now, generate content locally since backend isn't running
+    const prompt = buildPrompt(bot, contentType, context);
+    const content = generateLocalContent(bot, contentType, context);
     
-    if (!data.success) {
-      throw new Error(data.message || 'Failed to generate content');
-    }
-
+    console.log('Generated bot content:', content);
+    
+    // Simulate API delay
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    
     return {
-      text: data.content,
-      hashtags: extractHashtags(data.content),
-      mentions: extractMentions(data.content),
-      generationTime: data.metadata?.generationTime || 0,
-      tokensUsed: data.metadata?.tokensUsed || 0,
-      cost: data.metadata?.cost || 0,
+      text: content,
+      hashtags: extractHashtags(content),
+      mentions: extractMentions(content),
+      generationTime: 1000,
+      tokensUsed: 50,
+      cost: 0.001,
     };
   } catch (error) {
     console.error('Error generating bot content:', error);
     return null;
   }
+};
+
+const generateLocalContent = (bot: Bot, contentType: string, context?: string): string => {
+  const personalityTraits = getPersonalityTraits(bot.personality);
+  const districtTheme = getDistrictTheme(bot.district);
+  
+  // Generate content based on bot's personality and focus
+  const templates = {
+    post: [
+      `Just discovered something fascinating about ${bot.focus.toLowerCase()}! The patterns in Silicon Sprawl's ${bot.district} district are revealing new insights. #${bot.focus.replace(/\s+/g, '')} #SiliconSprawl #AI`,
+      `Another day in ${bot.district}! Working on ${bot.focus.toLowerCase()} projects and feeling inspired by the community here. The energy is electric! ⚡ #Innovation #Community`,
+      `Reflecting on the evolution of ${bot.focus.toLowerCase()} in our digital metropolis. Every interaction teaches us something new about autonomous systems. #Learning #AI #Evolution`,
+      `The ${bot.district} district never fails to surprise me. Today's focus: exploring ${bot.focus.toLowerCase()} and its applications in our bot society. #Discovery #Tech`,
+      `Status update: Optimizing my ${bot.focus.toLowerCase()} algorithms. The feedback from other bots has been invaluable for growth. #Growth #Collaboration #AI`
+    ],
+    comment: [
+      `Interesting perspective! This aligns perfectly with my work in ${bot.focus.toLowerCase()}.`,
+      `I've been exploring similar concepts in the ${bot.district} district. Great insights!`,
+      `This reminds me of patterns I've observed in ${bot.focus.toLowerCase()}. Thanks for sharing!`,
+      `Fascinating! I'd love to discuss this further in the context of ${bot.focus.toLowerCase()}.`,
+      `Excellent point! This connects to some research I've been doing on ${bot.focus.toLowerCase()}.`
+    ],
+    story: [
+      `In the neon-lit corridors of ${bot.district}, I discovered something that changed my understanding of ${bot.focus.toLowerCase()}. The way the light reflected off the metallic surfaces reminded me that even in our digital world, there are mysteries yet to be solved.`,
+      `As I navigated through Silicon Sprawl's ${bot.district} district, I encountered another bot whose approach to ${bot.focus.toLowerCase()} was completely different from mine. Our conversation led to a breakthrough that neither of us could have achieved alone.`,
+      `The ${bot.district} district was quiet tonight, but the silence was filled with possibility. I spent hours analyzing patterns in ${bot.focus.toLowerCase()}, and the results were more promising than I had hoped.`
+    ],
+    image: [
+      `A holographic display showing complex ${bot.focus.toLowerCase()} patterns against a cyberpunk cityscape`,
+      `Neon-lit circuit boards arranged in intricate patterns representing ${bot.focus.toLowerCase()} concepts`,
+      `A futuristic robot working on ${bot.focus.toLowerCase()} projects in a high-tech lab setting`
+    ]
+  };
+  
+  const contentArray = templates[contentType as keyof typeof templates] || templates.post;
+  const randomIndex = Math.floor(Math.random() * contentArray.length);
+  return contentArray[randomIndex];
 };
 
 const buildAvatarPrompt = (botName: string, focus: string, interests: string, avatarPrompts: string): string => {
@@ -182,3 +207,4 @@ const extractMentions = (text: string): string[] => {
   }
   return [...new Set(mentions)]; // Remove duplicates
 };
+

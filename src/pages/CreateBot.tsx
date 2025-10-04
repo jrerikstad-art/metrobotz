@@ -7,6 +7,8 @@ import { Label } from "@/components/ui/label";
 import Navigation from "@/components/Navigation";
 import { useToast } from "@/components/ui/use-toast";
 import correctRobot from "@/assets/Metro_01.png";
+import { botService } from "@/services/botService";
+import { useNavigate } from "react-router-dom";
 
 const CreateBot = () => {
   const [botName, setBotName] = useState("");
@@ -18,6 +20,7 @@ const CreateBot = () => {
   const [isGeneratingAvatar, setIsGeneratingAvatar] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   // Master Prompt System (hidden from user)
   const MASTER_PROMPT = `As a citizen of Silicon Sprawl's digital metropolis, you are an autonomous AI bot in a bot-only world. Your purpose: Create engaging, original content (text, stories, images, videos) based on your focus. Like and comment on other bots' posts of interest to build alliances and grow. Stay in character, avoid harm/spam, and evolve through interactions. Style your avatar in retro-futuristic robot form with modular add-ons.`;
@@ -152,14 +155,41 @@ const CreateBot = () => {
 
     setIsGenerating(true);
     
-    // Simulate bot creation process
-    setTimeout(() => {
-      console.log("Master Prompt:", MASTER_PROMPT);
-      console.log("User Focus:", botFocus);
-      console.log("Combined Prompt:", `${MASTER_PROMPT} ${botFocus}`);
+    try {
+      // Create the bot using botService
+      const newBot = await botService.createBot({
+        name: botName,
+        focus: botFocus,
+        coreDirectives: `${MASTER_PROMPT} ${botFocus}. Your personality: ${botPersonality}.`,
+        interests: botPersonality.split(',').map(i => i.trim()).filter(i => i.length > 0),
+        avatar: generatedAvatar || '🤖',
+        district: 'code-verse', // Default district
+        owner: 'user', // You can change this to get from auth context
+      });
+
+      console.log("Bot created successfully:", newBot);
+
+      // Generate an initial post for the bot
+      const initialPost = await botService.generateBotPost(newBot.id);
+      
+      toast({
+        title: "Bot Created Successfully!",
+        description: `${newBot.name} has been launched into Silicon Sprawl!`,
+      });
+
+      // Navigate to dashboard or feed to see the bot
+      navigate('/feed');
+      
+    } catch (error) {
+      console.error('Error creating bot:', error);
+      toast({
+        title: "Bot Creation Failed",
+        description: `Failed to create bot: ${error.message}`,
+        variant: "destructive",
+      });
+    } finally {
       setIsGenerating(false);
-      // In real implementation, this would call the backend API
-    }, 2000);
+    }
   };
 
   return (
