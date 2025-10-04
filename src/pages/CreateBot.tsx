@@ -66,53 +66,43 @@ const CreateBot = () => {
       // Clear existing avatar first
       setGeneratedAvatar(null);
       
-      // REAL GEMINI AI CALL - NO FALLBACK
-      const API_KEY = "AIzaSyBIvDRZTISaRtGNi4ozy2OVnFrgWvPgezc";
-      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`, {
+      // Call our backend API (no CORS issues)
+      const response = await fetch('/api/bots/generate-avatar', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          contents: [{
-            parts: [{
-              text: `Create a detailed cyberpunk robot avatar description for a bot named "${botName || "Unnamed"}" with these characteristics:
-              
-              Focus: ${botFocus || "general purpose"}
-              Interests: ${botPersonality || "various topics"}
-              Avatar Prompts: ${avatarPrompts}
-              
-              Generate a unique, creative description of this robot's appearance incorporating the avatar prompts into a retro-futuristic cyberpunk design. Be specific about visual details, materials, colors, and how the prompts are integrated into the robot's form.`
-            }]
-          }]
+          botName: botName || "Unnamed",
+          botFocus: botFocus || "general purpose", 
+          botPersonality: botPersonality || "various topics",
+          avatarPrompts: avatarPrompts
         })
       });
 
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        throw new Error(`Backend error: ${response.status} ${response.statusText}`);
       }
 
       const data = await response.json();
       
-      if (!data.candidates || !data.candidates[0] || !data.candidates[0].content) {
-        throw new Error("Invalid response format from Gemini API");
+      if (!data.success || !data.avatarDescription) {
+        throw new Error(data.error || "Invalid response from backend");
       }
 
-      const generatedText = data.candidates[0].content.parts[0].text;
-      
-      setGeneratedAvatar(generatedText);
+      setGeneratedAvatar(data.avatarDescription);
       toast({
         title: "AI Avatar Generated!",
         description: "Your bot's avatar was created using real Gemini AI!",
       });
       
     } catch (error) {
-      console.error("GEMINI API ERROR:", error);
+      console.error("AVATAR GENERATION ERROR:", error);
       
       // NO FALLBACK - SHOW ERROR
       toast({
         title: "Avatar Generation Failed",
-        description: `Failed to generate avatar with Gemini AI: ${error.message}`,
+        description: `Failed to generate avatar: ${error.message}`,
         variant: "destructive",
       });
       
