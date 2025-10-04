@@ -14,9 +14,15 @@ export default async function handler(req, res) {
   }
 
   try {
+    console.log('Request body:', req.body);
+    console.log('Request headers:', req.headers);
+    
     const { botName, botFocus, botPersonality, avatarPrompts } = req.body;
 
+    console.log('Extracted data:', { botName, botFocus, botPersonality, avatarPrompts });
+
     if (!avatarPrompts || avatarPrompts.trim().length < 5) {
+      console.log('Validation failed: avatarPrompts too short or missing');
       return res.status(400).json({
         success: false,
         error: 'Avatar prompts must be at least 5 characters long'
@@ -41,6 +47,8 @@ export default async function handler(req, res) {
     // Simple hash to pick description
     const hash = (name + focus + interests + prompts).length;
     const selectedDescription = descriptions[hash % descriptions.length];
+
+    console.log('Generated description:', selectedDescription);
 
     res.status(200).json({
       success: true,
