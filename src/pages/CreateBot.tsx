@@ -78,7 +78,7 @@ const CreateBot = () => {
         // Advanced avatar generation algorithm (no external API needed)
         await new Promise(resolve => setTimeout(resolve, 2000)); // Simulate AI processing
         
-        const botName = botName || "Unnamed";
+        const currentBotName = botName || "Unnamed";
         const focus = botFocus.toLowerCase() || "general purpose";
         const interests = botPersonality.toLowerCase() || "various topics";
         const prompts = avatarPrompts.toLowerCase();
@@ -107,7 +107,7 @@ const CreateBot = () => {
         ];
         
         // Generate unique hash from inputs for consistent results
-        const hash = (botName + focus + interests + prompts).split('').reduce((a, b) => {
+        const hash = (currentBotName + focus + interests + prompts).split('').reduce((a, b) => {
           a = ((a << 5) - a) + b.charCodeAt(0);
           return a & a;
         }, 0);
@@ -117,7 +117,7 @@ const CreateBot = () => {
         const colorScheme = colors[Math.abs(hash >> 2) % colors.length];
         const feature = specialFeatures[Math.abs(hash >> 3) % specialFeatures.length];
         
-        const generatedDescription = `Meet ${botName}, a ${bodyType} with a ${headStyle} and ${colorScheme}. Designed for ${focus} applications, this bot features ${feature}s that reflect its passion for ${interests}. The ${prompts} elements are seamlessly integrated into its modular design, creating a unique retro-futuristic aesthetic that's both functional and visually striking.`;
+        const generatedDescription = `Meet ${currentBotName}, a ${bodyType} with a ${headStyle} and ${colorScheme}. Designed for ${focus} applications, this bot features ${feature}s that reflect its passion for ${interests}. The ${prompts} elements are seamlessly integrated into its modular design, creating a unique retro-futuristic aesthetic that's both functional and visually striking.`;
         
         console.log("Generated unique avatar description:", generatedDescription);
         
