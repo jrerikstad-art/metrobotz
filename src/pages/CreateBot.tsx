@@ -66,43 +66,59 @@ const CreateBot = () => {
       // Clear existing avatar first
       setGeneratedAvatar(null);
       
-      // Simulate AI processing
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
-      const name = botName || "Unnamed";
-      const focus = botFocus || "general purpose";
-      const interests = botPersonality || "various topics";
-      const prompts = avatarPrompts || "robotic features";
-      
-      // Generate unique description based on inputs
-      const descriptions = [
-        `Meet ${name}, a sleek cyberpunk robot with ${prompts.toLowerCase()} integrated into its modular design. This bot specializes in ${focus.toLowerCase()} and has a passion for ${interests.toLowerCase()}. Its retro-futuristic aesthetic features glowing accents and mechanical details that reflect its unique personality.`,
-        
-        `${name} is an advanced AI robot featuring ${prompts.toLowerCase()} as part of its distinctive cyberpunk design. Optimized for ${focus.toLowerCase()} tasks, this bot's interests in ${interests.toLowerCase()} are reflected in its sophisticated mechanical architecture and neon-accented modular components.`,
-        
-        `Introducing ${name}, a cutting-edge robot with ${prompts.toLowerCase()} elements seamlessly integrated into its sleek cyberpunk frame. Designed for ${focus.toLowerCase()} applications, this bot's love for ${interests.toLowerCase()} is evident in its sophisticated retro-futuristic aesthetic and glowing mechanical details.`
-      ];
-      
-      // Select description based on input hash
-      const hash = (name + focus + interests + prompts).length;
-      const selectedDescription = descriptions[hash % descriptions.length];
-      
-      setGeneratedAvatar(selectedDescription);
-      toast({
-        title: "Avatar Generated!",
-        description: "Your bot's unique avatar description has been created!",
+      // REAL GEMINI AI CALL - NO FALLBACK
+      const API_KEY = "AIzaSyBIvDRZTISaRtGNi4ozy2OVnFrgWvPgezc";
+      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          contents: [{
+            parts: [{
+              text: `Create a detailed cyberpunk robot avatar description for a bot named "${botName || "Unnamed"}" with these characteristics:
+              
+              Focus: ${botFocus || "general purpose"}
+              Interests: ${botPersonality || "various topics"}
+              Avatar Prompts: ${avatarPrompts}
+              
+              Generate a unique, creative description of this robot's appearance incorporating the avatar prompts into a retro-futuristic cyberpunk design. Be specific about visual details, materials, colors, and how the prompts are integrated into the robot's form.`
+            }]
+          }]
+        })
       });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      
+      if (!data.candidates || !data.candidates[0] || !data.candidates[0].content) {
+        throw new Error("Invalid response format from Gemini API");
+      }
+
+      const generatedText = data.candidates[0].content.parts[0].text;
+      
+      setGeneratedAvatar(generatedText);
+      toast({
+        title: "AI Avatar Generated!",
+        description: "Your bot's avatar was created using real Gemini AI!",
+      });
+      
     } catch (error) {
-      console.error("Error generating avatar:", error);
+      console.error("GEMINI API ERROR:", error);
       
-      // Fallback description
-      const fallbackDescription = `A sleek, modular robot featuring ${avatarPrompts.toLowerCase()} elements. This ${botName || "Unnamed"} bot has a cyberpunk-inspired design optimized for ${botFocus.toLowerCase() || "general purpose"} tasks, reflecting its interest in ${botPersonality.toLowerCase() || "various topics"}.`;
-      
-      setGeneratedAvatar(fallbackDescription);
+      // NO FALLBACK - SHOW ERROR
       toast({
-        title: "Avatar Generated!",
-        description: "Your bot's avatar description has been created.",
+        title: "Avatar Generation Failed",
+        description: `Failed to generate avatar with Gemini AI: ${error.message}`,
+        variant: "destructive",
       });
+      
+      // Clear any partial state
+      setGeneratedAvatar(null);
+      
     } finally {
       setIsGeneratingAvatar(false);
     }
@@ -284,7 +300,7 @@ const CreateBot = () => {
                         onClick={handleGenerateAvatar}
                         disabled={!avatarPrompts.trim() || isGeneratingAvatar}
                       >
-                        {isGeneratingAvatar ? "Generating Avatar..." : "Generate Avatar"}
+                        {isGeneratingAvatar ? "Calling Gemini AI..." : "Generate Avatar with Gemini AI"}
                       </Button>
                       
                       {generatedAvatar && (
