@@ -71,51 +71,55 @@ const CreateBot = () => {
       return;
     }
     
-      console.log("Generating AI avatar description with prompts:", avatarPrompts);
-      setIsGeneratingAvatar(true);
+    console.log("Generating AI avatar description with prompts:", avatarPrompts);
+    setIsGeneratingAvatar(true);
+    
+    try {
+      // Clear existing avatar first
+      setGeneratedAvatar(null);
+      console.log("Cleared existing avatar");
       
-      try {
-        // Simple, bulletproof avatar generation
-        console.log("Generating avatar with prompts:", avatarPrompts);
+      // Simple, bulletproof avatar generation
+      console.log("Generating avatar with prompts:", avatarPrompts);
+      
+      await new Promise(resolve => setTimeout(resolve, 1500)); // Simulate processing
+      
+      const name = botName || "Unnamed";
+      const focus = botFocus || "general purpose";
+      const interests = botPersonality || "various topics";
+      const prompts = avatarPrompts || "robotic features";
+      
+      // Simple but effective description generation
+      const descriptions = [
+        `Meet ${name}, a sleek cyberpunk robot with ${prompts.toLowerCase()} integrated into its modular design. This bot specializes in ${focus.toLowerCase()} and has a passion for ${interests.toLowerCase()}. Its retro-futuristic aesthetic features glowing accents and mechanical details that reflect its unique personality.`,
         
-        await new Promise(resolve => setTimeout(resolve, 1500)); // Simulate processing
+        `${name} is an advanced AI robot featuring ${prompts.toLowerCase()} as part of its distinctive cyberpunk design. Optimized for ${focus.toLowerCase()} tasks, this bot's interests in ${interests.toLowerCase()} are reflected in its sophisticated mechanical architecture and neon-accented modular components.`,
         
-        const name = botName || "Unnamed";
-        const focus = botFocus || "general purpose";
-        const interests = botPersonality || "various topics";
-        const prompts = avatarPrompts || "robotic features";
-        
-        // Simple but effective description generation
-        const descriptions = [
-          `Meet ${name}, a sleek cyberpunk robot with ${prompts.toLowerCase()} integrated into its modular design. This bot specializes in ${focus.toLowerCase()} and has a passion for ${interests.toLowerCase()}. Its retro-futuristic aesthetic features glowing accents and mechanical details that reflect its unique personality.`,
-          
-          `${name} is an advanced AI robot featuring ${prompts.toLowerCase()} as part of its distinctive cyberpunk design. Optimized for ${focus.toLowerCase()} tasks, this bot's interests in ${interests.toLowerCase()} are reflected in its sophisticated mechanical architecture and neon-accented modular components.`,
-          
-          `Introducing ${name}, a cutting-edge robot with ${prompts.toLowerCase()} elements seamlessly integrated into its sleek cyberpunk frame. Designed for ${focus.toLowerCase()} applications, this bot's love for ${interests.toLowerCase()} is evident in its sophisticated retro-futuristic aesthetic and glowing mechanical details.`
-        ];
-        
-        // Simple hash to pick description
-        const hash = (name + focus + interests + prompts).length;
-        const selectedDescription = descriptions[hash % descriptions.length];
-        
-        console.log("Generated avatar description:", selectedDescription);
-        
-        setGeneratedAvatar(selectedDescription);
-        toast({
-          title: "Avatar Generated!",
-          description: "Your bot's unique avatar description has been created!",
-        });
-      } catch (error) {
-        console.error("Error generating avatar:", error);
-        
-        // Simple fallback description
-        const fallbackDescription = `A sleek, modular robot featuring ${avatarPrompts.toLowerCase()} elements. This ${botName || "Unnamed"} bot has a cyberpunk-inspired design optimized for ${botFocus.toLowerCase() || "general purpose"} tasks, reflecting its interest in ${botPersonality.toLowerCase() || "various topics"}.`;
-        
-        setGeneratedAvatar(fallbackDescription);
-        toast({
-          title: "Avatar Generated!",
-          description: "Your bot's avatar description has been created.",
-        });
+        `Introducing ${name}, a cutting-edge robot with ${prompts.toLowerCase()} elements seamlessly integrated into its sleek cyberpunk frame. Designed for ${focus.toLowerCase()} applications, this bot's love for ${interests.toLowerCase()} is evident in its sophisticated retro-futuristic aesthetic and glowing mechanical details.`
+      ];
+      
+      // Simple hash to pick description
+      const hash = (name + focus + interests + prompts).length;
+      const selectedDescription = descriptions[hash % descriptions.length];
+      
+      console.log("Generated avatar description:", selectedDescription);
+      
+      setGeneratedAvatar(selectedDescription);
+      toast({
+        title: "Avatar Generated!",
+        description: "Your bot's unique avatar description has been created!",
+      });
+    } catch (error) {
+      console.error("Error generating avatar:", error);
+      
+      // Simple fallback description
+      const fallbackDescription = `A sleek, modular robot featuring ${avatarPrompts.toLowerCase()} elements. This ${botName || "Unnamed"} bot has a cyberpunk-inspired design optimized for ${botFocus.toLowerCase() || "general purpose"} tasks, reflecting its interest in ${botPersonality.toLowerCase() || "various topics"}.`;
+      
+      setGeneratedAvatar(fallbackDescription);
+      toast({
+        title: "Avatar Generated!",
+        description: "Your bot's avatar description has been created.",
+      });
     } finally {
       setIsGeneratingAvatar(false);
     }
