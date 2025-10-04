@@ -14,6 +14,7 @@ const CreateBot = () => {
   const [botPersonality, setBotPersonality] = useState("");
   const [avatarPrompts, setAvatarPrompts] = useState("");
   const [generatedAvatar, setGeneratedAvatar] = useState<string | null>(null);
+  const [avatarType, setAvatarType] = useState<'text' | 'image' | null>(null);
   const [isGeneratingAvatar, setIsGeneratingAvatar] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
   const { toast } = useToast();
@@ -65,8 +66,9 @@ const CreateBot = () => {
     try {
       // Clear existing avatar first
       setGeneratedAvatar(null);
+      setAvatarType(null);
       
-      // Call our backend API (no CORS issues)
+      // Call our Vercel API route (no CORS issues)
       const response = await fetch('/api/bots/generate-avatar', {
         method: 'POST',
         headers: {
@@ -86,15 +88,28 @@ const CreateBot = () => {
 
       const data = await response.json();
       
-      if (!data.success || !data.avatarDescription) {
+      if (!data.success) {
         throw new Error(data.error || "Invalid response from backend");
       }
 
-      setGeneratedAvatar(data.avatarDescription);
-      toast({
-        title: "AI Avatar Generated!",
-        description: "Your bot's avatar was created using real Gemini AI!",
-      });
+      // Handle both text and image responses
+      if (data.avatarType === 'image' && data.avatarImage) {
+        setGeneratedAvatar(data.avatarImage); // Base64 image data
+        setAvatarType('image');
+        toast({
+          title: "AI Avatar Generated!",
+          description: "Your bot's PNG avatar was created using Gemini AI!",
+        });
+      } else if (data.avatarDescription) {
+        setGeneratedAvatar(data.avatarDescription);
+        setAvatarType('text');
+        toast({
+          title: "AI Avatar Generated!",
+          description: "Your bot's avatar description was created using Gemini AI!",
+        });
+      } else {
+        throw new Error("No avatar data received");
+      }
       
     } catch (error) {
       console.error("AVATAR GENERATION ERROR:", error);
@@ -219,17 +234,33 @@ const CreateBot = () => {
               {/* Bot Image - positioned to stand in the background circle */}
               <div className="relative w-96 h-96 flex items-center justify-center">
                 {generatedAvatar ? (
-                  <div className="w-full h-full flex items-center justify-center bg-cyberpunk-surface rounded-lg border border-neon-cyan/30 p-4">
-                    <div className="text-center">
-                      <div className="text-6xl mb-4">🤖</div>
-                      <p className="text-text-primary text-sm font-medium mb-2">Generated Avatar</p>
-                      <p className="text-text-secondary text-xs leading-relaxed">
-                        {generatedAvatar.length > 200 
-                          ? `${generatedAvatar.substring(0, 200)}...` 
-                          : generatedAvatar}
-                      </p>
+                  avatarType === 'image' ? (
+                    // Display generated PNG image
+                    <div className="w-full h-full flex items-center justify-center">
+                      <img
+                        src={`data:image/png;base64,${generatedAvatar}`}
+                        alt="Generated Bot Avatar"
+                        className="w-full h-full object-contain"
+                        style={{
+                          filter: 'drop-shadow(0 0 20px rgba(6, 182, 212, 0.8))',
+                          transform: 'translateY(60px)'
+                        }}
+                      />
                     </div>
-                  </div>
+                  ) : (
+                    // Display text description
+                    <div className="w-full h-full flex items-center justify-center bg-cyberpunk-surface rounded-lg border border-neon-cyan/30 p-4">
+                      <div className="text-center">
+                        <div className="text-6xl mb-4">🤖</div>
+                        <p className="text-text-primary text-sm font-medium mb-2">Generated Avatar</p>
+                        <p className="text-text-secondary text-xs leading-relaxed">
+                          {generatedAvatar.length > 200 
+                            ? `${generatedAvatar.substring(0, 200)}...` 
+                            : generatedAvatar}
+                        </p>
+                      </div>
+                    </div>
+                  )
                 ) : (
                   <img
                     src={correctRobot}
@@ -297,7 +328,10 @@ const CreateBot = () => {
                         <Button 
                           variant="outline"
                           className="w-full border-neon-purple/30 text-neon-purple hover:bg-neon-purple/10"
-                          onClick={() => setGeneratedAvatar(null)}
+                          onClick={() => {
+                            setGeneratedAvatar(null);
+                            setAvatarType(null);
+                          }}
                         >
                           Clear Avatar
                         </Button>

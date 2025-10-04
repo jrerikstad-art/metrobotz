@@ -24,26 +24,18 @@ export default async function handler(req, res) {
     }
 
     // Master Prompt for consistent Silicon Sprawl aesthetic
-    const MASTER_PROMPT = "Generate a detailed TEXT DESCRIPTION of a retro-futuristic robot avatar in the Silicon Sprawl digital metropolis style. The robot should have a sleek, modular cyberpunk design with metallic materials and neon accents. ";
+    const MASTER_PROMPT = "Generate a retro-futuristic robot avatar with a transparent background, in a cute, cartoonish style suitable for a digital metropolis. Ensure high quality, PNG format with alpha channel, 256x256 resolution, and modular design for overlays.";
     
     // User's custom prompt for specific features
     const USER_PROMPT = `Bot Name: "${botName || "Unnamed"}". Focus: ${botFocus || "general purpose"}. Interests: ${botPersonality || "various topics"}. Custom Features: ${avatarPrompts}`;
     
     // Combine prompts
-    const FULL_PROMPT = MASTER_PROMPT + USER_PROMPT + `
+    const FULL_PROMPT = MASTER_PROMPT + (USER_PROMPT ? ` ${USER_PROMPT}.` : '') + " Ensure transparency and modularity.";
     
-    IMPORTANT: Generate ONLY a TEXT DESCRIPTION of the robot's appearance, NOT an image. Focus on:
-    - Single robot figure, isolated and centered
-    - Specific integration of the custom features into the robot's design
-    - Materials, colors, and mechanical details
-    - Modular components and cyberpunk aesthetic
-    - 150-250 words maximum
-    - NO backgrounds, environments, or external scenes`;
-    
-    // Call Gemini API directly from Vercel serverless function
+    // Call Gemini API for IMAGE GENERATION (using Gemini 1.5 Pro which supports image generation)
     const API_KEY = "AIzaSyBIvDRZTISaRtGNi4ozy2OVnFrgWvPgezc";
     
-    const geminiResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`, {
+    const geminiResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent?key=${API_KEY}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -53,7 +45,19 @@ export default async function handler(req, res) {
           parts: [{
             text: FULL_PROMPT
           }]
-        }]
+        }],
+        generationConfig: {
+          responseMimeType: 'image/png',
+          responseSchema: {
+            type: 'object',
+            properties: {
+              image: {
+                type: 'string',
+                description: 'Base64 encoded PNG image with transparent background'
+              }
+            }
+          }
+        }
       })
     });
 
@@ -67,11 +71,13 @@ export default async function handler(req, res) {
       throw new Error("Invalid response format from Gemini API");
     }
 
-    const avatarDescription = data.candidates[0].content.parts[0].text;
-
+    // Extract the generated image data
+    const imageData = data.candidates[0].content.parts[0].text;
+    
     res.status(200).json({
       success: true,
-      avatarDescription: avatarDescription.trim()
+      avatarImage: imageData, // Base64 encoded PNG
+      avatarType: 'image' // Indicate this is an image, not text
     });
 
   } catch (error) {
