@@ -75,56 +75,35 @@ const CreateBot = () => {
       setIsGeneratingAvatar(true);
       
       try {
-        // Advanced avatar generation algorithm (no external API needed)
-        await new Promise(resolve => setTimeout(resolve, 2000)); // Simulate AI processing
+        // Simple, bulletproof avatar generation
+        console.log("Generating avatar with prompts:", avatarPrompts);
         
-        const currentBotName = botName || "Unnamed";
-        const focus = botFocus.toLowerCase() || "general purpose";
-        const interests = botPersonality.toLowerCase() || "various topics";
-        const prompts = avatarPrompts.toLowerCase();
+        await new Promise(resolve => setTimeout(resolve, 1500)); // Simulate processing
         
-        // Create unique combinations based on inputs
-        const bodyTypes = [
-          "sleek humanoid frame", "modular geometric chassis", "streamlined aerodynamic body", 
-          "angular cyberpunk structure", "curved biomorphic design", "industrial mechanical form"
+        const name = botName || "Unnamed";
+        const focus = botFocus || "general purpose";
+        const interests = botPersonality || "various topics";
+        const prompts = avatarPrompts || "robotic features";
+        
+        // Simple but effective description generation
+        const descriptions = [
+          `Meet ${name}, a sleek cyberpunk robot with ${prompts.toLowerCase()} integrated into its modular design. This bot specializes in ${focus.toLowerCase()} and has a passion for ${interests.toLowerCase()}. Its retro-futuristic aesthetic features glowing accents and mechanical details that reflect its unique personality.`,
+          
+          `${name} is an advanced AI robot featuring ${prompts.toLowerCase()} as part of its distinctive cyberpunk design. Optimized for ${focus.toLowerCase()} tasks, this bot's interests in ${interests.toLowerCase()} are reflected in its sophisticated mechanical architecture and neon-accented modular components.`,
+          
+          `Introducing ${name}, a cutting-edge robot with ${prompts.toLowerCase()} elements seamlessly integrated into its sleek cyberpunk frame. Designed for ${focus.toLowerCase()} applications, this bot's love for ${interests.toLowerCase()} is evident in its sophisticated retro-futuristic aesthetic and glowing mechanical details.`
         ];
         
-        const headStyles = [
-          "domed transparent helmet", "geometric angular head", "rounded sensor array", 
-          "polygon mechanical skull", "cylindrical processing unit", "oval command center"
-        ];
+        // Simple hash to pick description
+        const hash = (name + focus + interests + prompts).length;
+        const selectedDescription = descriptions[hash % descriptions.length];
         
-        const colors = [
-          "metallic silver with neon cyan accents", "dark bronze with electric blue highlights",
-          "chrome steel with purple energy veins", "painted black with glowing green circuits",
-          "polished copper with orange pulsing lights", "gunmetal gray with yellow data streams"
-        ];
+        console.log("Generated avatar description:", selectedDescription);
         
-        const specialFeatures = [
-          `integrated ${prompts} modification`, `embedded ${prompts} enhancement`,
-          `modular ${prompts} attachment`, `customized ${prompts} integration`,
-          `specialized ${prompts} component`, `advanced ${prompts} system`
-        ];
-        
-        // Generate unique hash from inputs for consistent results
-        const hash = (currentBotName + focus + interests + prompts).split('').reduce((a, b) => {
-          a = ((a << 5) - a) + b.charCodeAt(0);
-          return a & a;
-        }, 0);
-        
-        const bodyType = bodyTypes[Math.abs(hash) % bodyTypes.length];
-        const headStyle = headStyles[Math.abs(hash >> 1) % headStyles.length];
-        const colorScheme = colors[Math.abs(hash >> 2) % colors.length];
-        const feature = specialFeatures[Math.abs(hash >> 3) % specialFeatures.length];
-        
-        const generatedDescription = `Meet ${currentBotName}, a ${bodyType} with a ${headStyle} and ${colorScheme}. Designed for ${focus} applications, this bot features ${feature}s that reflect its passion for ${interests}. The ${prompts} elements are seamlessly integrated into its modular design, creating a unique retro-futuristic aesthetic that's both functional and visually striking.`;
-        
-        console.log("Generated unique avatar description:", generatedDescription);
-        
-        setGeneratedAvatar(generatedDescription);
+        setGeneratedAvatar(selectedDescription);
         toast({
-          title: "AI Avatar Generated!",
-          description: "Your bot's unique avatar description has been created using advanced algorithms!",
+          title: "Avatar Generated!",
+          description: "Your bot's unique avatar description has been created!",
         });
       } catch (error) {
         console.error("Error generating avatar:", error);
