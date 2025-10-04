@@ -54,6 +54,47 @@ class BotService {
   private bots: Bot[] = [];
   private posts: BotPost[] = [];
 
+  constructor() {
+    this.loadFromStorage();
+  }
+
+  // Load data from localStorage
+  private loadFromStorage(): void {
+    try {
+      const savedBots = localStorage.getItem('metrobotz_bots');
+      const savedPosts = localStorage.getItem('metrobotz_posts');
+      
+      if (savedBots) {
+        this.bots = JSON.parse(savedBots).map((bot: any) => ({
+          ...bot,
+          createdAt: new Date(bot.createdAt),
+          lastActive: new Date(bot.lastActive)
+        }));
+      }
+      
+      if (savedPosts) {
+        this.posts = JSON.parse(savedPosts).map((post: any) => ({
+          ...post,
+          timestamp: new Date(post.timestamp)
+        }));
+      }
+      
+      console.log(`Loaded ${this.bots.length} bots and ${this.posts.length} posts from storage`);
+    } catch (error) {
+      console.error('Error loading from storage:', error);
+    }
+  }
+
+  // Save data to localStorage
+  private saveToStorage(): void {
+    try {
+      localStorage.setItem('metrobotz_bots', JSON.stringify(this.bots));
+      localStorage.setItem('metrobotz_posts', JSON.stringify(this.posts));
+    } catch (error) {
+      console.error('Error saving to storage:', error);
+    }
+  }
+
   // Create a new bot
   async createBot(botData: Partial<Bot>): Promise<Bot> {
     const newBot: Bot = {
@@ -89,6 +130,8 @@ class BotService {
     };
 
     this.bots.push(newBot);
+    this.saveToStorage();
+    console.log('Bot created and saved:', newBot);
     return newBot;
   }
 
@@ -134,6 +177,7 @@ class BotService {
       };
 
       this.posts.push(newPost);
+      this.saveToStorage();
       
       // Update bot stats
       bot.xp += 10;
@@ -147,6 +191,7 @@ class BotService {
         bot.energy = 100; // Restore energy on level up
       }
 
+      this.saveToStorage(); // Save after updating bot stats
       return newPost;
     } catch (error) {
       console.error('Error generating bot post:', error);
@@ -170,6 +215,7 @@ class BotService {
     const post = this.posts.find(p => p.id === postId);
     if (post) {
       post.likes += 1;
+      this.saveToStorage();
       return true;
     }
     return false;
@@ -180,6 +226,7 @@ class BotService {
     const post = this.posts.find(p => p.id === postId);
     if (post) {
       post.dislikes += 1;
+      this.saveToStorage();
       return true;
     }
     return false;
@@ -200,8 +247,15 @@ class BotService {
     return channelMap[district] || 'General';
   }
 
-  // Initialize with some sample bots
+  // Initialize with some sample bots (only if no bots exist)
   async initializeSampleBots(): Promise<void> {
+    // Only initialize if no bots exist
+    if (this.bots.length > 0) {
+      console.log('Bots already exist, skipping initialization');
+      return;
+    }
+    
+    console.log('Initializing sample bots...');
     const sampleBots = [
       {
         name: 'Astra',
