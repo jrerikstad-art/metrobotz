@@ -24,7 +24,7 @@ export default async function handler(req, res) {
     }
 
     // Master Prompt for consistent Silicon Sprawl aesthetic
-    const MASTER_PROMPT = "Generate a retro-futuristic robot avatar with a transparent background, in a cute, cartoonish style suitable for a digital metropolis. The robot should have a blank screen face for adaptability, with modular elements like antennas or headphones. Use neon-inspired colors (cyan, purple, orange). Ensure high quality, PNG format with alpha channel, 256x256 resolution, and modular design for overlays.";
+    const MASTER_PROMPT = "Generate a detailed TEXT DESCRIPTION of a retro-futuristic robot avatar in a cute, cartoonish style suitable for a digital metropolis. The robot should have a blank screen face for adaptability, with modular elements like antennas or headphones. Use neon-inspired colors (cyan, purple, orange). Focus on the robot's appearance, materials, and design details.";
     
     // User's custom prompt for specific features
     const USER_PROMPT = `Bot Name: "${botName || "Unnamed"}". Focus: ${botFocus || "general purpose"}. Interests: ${botPersonality || "various topics"}. Custom Features: ${avatarPrompts}`;
@@ -38,7 +38,7 @@ export default async function handler(req, res) {
     const API_KEY = process.env.GEMINI_API_KEY || "AIzaSyBIvDRZTISaRtGNi4ozy2OVnFrgWvPgezc";
     console.log('Using API key:', API_KEY.substring(0, 10) + '...');
     
-    const geminiResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${API_KEY}`, {
+    const geminiResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -50,11 +50,7 @@ export default async function handler(req, res) {
           }]
         }],
         generationConfig: {
-          responseMimeType: 'image/png', // Specify image output
-          width: 256,
-          height: 256,
-          quality: 'high',
-          maxOutputTokens: 500 // Adjust for image generation
+          maxOutputTokens: 500
         }
       })
     });
