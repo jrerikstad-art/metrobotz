@@ -34,13 +34,26 @@ export default async function handler(req, res) {
       body: JSON.stringify({
         contents: [{
           parts: [{
-            text: `Create a detailed cyberpunk robot avatar description for a bot named "${botName || "Unnamed"}" with these characteristics:
+            text: `Generate a detailed TEXT DESCRIPTION (not an image) of a cyberpunk robot avatar for a bot named "${botName || "Unnamed"}" with these characteristics:
             
             Focus: ${botFocus || "general purpose"}
             Interests: ${botPersonality || "various topics"}
             Avatar Prompts: ${avatarPrompts}
             
-            Generate a unique, creative description of this robot's appearance incorporating the avatar prompts into a retro-futuristic cyberpunk design. Be specific about visual details, materials, colors, and how the prompts are integrated into the robot's form. Keep the description between 100-300 words.`
+            IMPORTANT: This is for a TEXT-BASED avatar description, NOT an image generation request. Describe ONLY the robot's appearance in detail.
+            
+            Requirements for the description:
+            - Describe a single robot figure, isolated and centered
+            - Focus on the robot's body, head, limbs, and mechanical details
+            - Include specific details about how the avatar prompts are integrated into the robot's design
+            - Mention materials (metallic, chrome, steel, etc.)
+            - Describe colors and lighting (neon accents, glowing elements)
+            - Include modular components and mechanical features
+            - Keep the description between 150-250 words
+            - Do NOT describe backgrounds, environments, or scenes
+            - Do NOT mention planets, landscapes, or external settings
+            
+            Style: Retro-futuristic cyberpunk robot design with modular, angular construction.`
           }]
         }]
       })
