@@ -76,8 +76,13 @@ const CreateBot = () => {
     
     try {
       // Direct Gemini API call (no backend needed)
-      // Replace YOUR_API_KEY_HERE with your actual Gemini API key
-      const API_KEY = 'YOUR_API_KEY_HERE'; // Replace this with your actual API key
+      // Try to get API key from localStorage first, then fallback to hardcoded
+      const API_KEY = localStorage.getItem('gemini_api_key') || 'YOUR_API_KEY_HERE';
+      
+      if (API_KEY === 'YOUR_API_KEY_HERE') {
+        throw new Error("Please set your Gemini API key in localStorage: localStorage.setItem('gemini_api_key', 'YOUR_ACTUAL_KEY')");
+      }
+      
       const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${API_KEY}`, {
         method: 'POST',
         headers: {
