@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -14,18 +14,7 @@ const CreateBot = () => {
   const [botPersonality, setBotPersonality] = useState("");
   const [avatarPrompts, setAvatarPrompts] = useState("");
   const [generatedAvatar, setGeneratedAvatar] = useState<string | null>(null);
-  
-  // Debug: Log when generatedAvatar changes
-  console.log("Current generatedAvatar state:", generatedAvatar);
   const [isGeneratingAvatar, setIsGeneratingAvatar] = useState(false);
-  
-  // Debug: Track state changes
-  useEffect(() => {
-    console.log("generatedAvatar state changed to:", generatedAvatar);
-  }, [generatedAvatar]);
-  
-  // Force deployment update - API key field removed
-  console.log("CreateBot component loaded - API key field removed");
   const [isGenerating, setIsGenerating] = useState(false);
   const { toast } = useToast();
 
@@ -71,25 +60,21 @@ const CreateBot = () => {
       return;
     }
     
-    console.log("Generating AI avatar description with prompts:", avatarPrompts);
     setIsGeneratingAvatar(true);
     
     try {
       // Clear existing avatar first
       setGeneratedAvatar(null);
-      console.log("Cleared existing avatar");
       
-      // Simple, bulletproof avatar generation
-      console.log("Generating avatar with prompts:", avatarPrompts);
-      
-      await new Promise(resolve => setTimeout(resolve, 1500)); // Simulate processing
+      // Simulate AI processing
+      await new Promise(resolve => setTimeout(resolve, 1500));
       
       const name = botName || "Unnamed";
       const focus = botFocus || "general purpose";
       const interests = botPersonality || "various topics";
       const prompts = avatarPrompts || "robotic features";
       
-      // Simple but effective description generation
+      // Generate unique description based on inputs
       const descriptions = [
         `Meet ${name}, a sleek cyberpunk robot with ${prompts.toLowerCase()} integrated into its modular design. This bot specializes in ${focus.toLowerCase()} and has a passion for ${interests.toLowerCase()}. Its retro-futuristic aesthetic features glowing accents and mechanical details that reflect its unique personality.`,
         
@@ -98,11 +83,9 @@ const CreateBot = () => {
         `Introducing ${name}, a cutting-edge robot with ${prompts.toLowerCase()} elements seamlessly integrated into its sleek cyberpunk frame. Designed for ${focus.toLowerCase()} applications, this bot's love for ${interests.toLowerCase()} is evident in its sophisticated retro-futuristic aesthetic and glowing mechanical details.`
       ];
       
-      // Simple hash to pick description
+      // Select description based on input hash
       const hash = (name + focus + interests + prompts).length;
       const selectedDescription = descriptions[hash % descriptions.length];
-      
-      console.log("Generated avatar description:", selectedDescription);
       
       setGeneratedAvatar(selectedDescription);
       toast({
@@ -112,7 +95,7 @@ const CreateBot = () => {
     } catch (error) {
       console.error("Error generating avatar:", error);
       
-      // Simple fallback description
+      // Fallback description
       const fallbackDescription = `A sleek, modular robot featuring ${avatarPrompts.toLowerCase()} elements. This ${botName || "Unnamed"} bot has a cyberpunk-inspired design optimized for ${botFocus.toLowerCase() || "general purpose"} tasks, reflecting its interest in ${botPersonality.toLowerCase() || "various topics"}.`;
       
       setGeneratedAvatar(fallbackDescription);
@@ -133,7 +116,6 @@ const CreateBot = () => {
       return;
     }
 
-    console.log("Button clicked! Starting bot creation...");
     setIsGenerating(true);
     
     // Simulate bot creation process
@@ -142,18 +124,9 @@ const CreateBot = () => {
       console.log("User Focus:", botFocus);
       console.log("Combined Prompt:", `${MASTER_PROMPT} ${botFocus}`);
       setIsGenerating(false);
-      console.log("Bot creation completed!");
       // In real implementation, this would call the backend API
     }, 2000);
   };
-
-  const avatarStyles = [
-    { id: "default", name: "Standard Metropolis", description: "Clean, modular design" },
-    { id: "vintage", name: "Retro Classic", description: "Vintage sci-fi aesthetics" },
-    { id: "industrial", name: "Industrial Core", description: "Heavy-duty, rugged look" },
-    { id: "elegant", name: "Neon Elegant", description: "Sleek with glowing accents" },
-    { id: "chaotic", name: "Mad Professor", description: "Wild, experimental design" }
-  ];
 
   return (
     <div 
@@ -311,29 +284,18 @@ const CreateBot = () => {
                         onClick={handleGenerateAvatar}
                         disabled={!avatarPrompts.trim() || isGeneratingAvatar}
                       >
-                        {isGeneratingAvatar ? "Generating Avatar..." : "Generate Avatar with Gemini AI"}
+                        {isGeneratingAvatar ? "Generating Avatar..." : "Generate Avatar"}
                       </Button>
                       
-                      <div className="space-y-2">
-                        {generatedAvatar && (
-                          <Button 
-                            variant="outline"
-                            className="w-full border-neon-purple/30 text-neon-purple hover:bg-neon-purple/10"
-                            onClick={() => setGeneratedAvatar(null)}
-                          >
-                            Clear Avatar
-                          </Button>
-                        )}
-                        
-                        {/* Debug: Test button */}
+                      {generatedAvatar && (
                         <Button 
                           variant="outline"
-                          className="w-full border-yellow-400/30 text-yellow-400 hover:bg-yellow-400/10"
-                          onClick={() => setGeneratedAvatar("TEST AVATAR DESCRIPTION - This is a test to see if the display updates correctly!")}
+                          className="w-full border-neon-purple/30 text-neon-purple hover:bg-neon-purple/10"
+                          onClick={() => setGeneratedAvatar(null)}
                         >
-                          Test Avatar Display
+                          Clear Avatar
                         </Button>
-                      </div>
+                      )}
                     </div>
                   </div>
                 </CardContent>
