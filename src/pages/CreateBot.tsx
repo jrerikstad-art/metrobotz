@@ -71,14 +71,16 @@ const CreateBot = () => {
       return;
     }
     
-    console.log("Starting REAL Gemini avatar generation with prompts:", avatarPrompts);
-    setIsGeneratingAvatar(true);
-    
-    try {
-      // Direct Gemini API call (no backend needed)
-      const API_KEY = 'AIzaSyBIvDRZTISaRtGNi4ozy2OVnFrgWvPgezc';
+      console.log("Starting REAL Gemini avatar generation with prompts:", avatarPrompts);
+      setIsGeneratingAvatar(true);
       
-      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${API_KEY}`, {
+      try {
+        // Direct Gemini API call (no backend needed)
+        const API_KEY = 'AIzaSyBIvDRZTISaRtGNi4ozy2OVnFrgWvPgezc';
+        
+        console.log("Making API request to Gemini with key:", API_KEY.substring(0, 10) + "...");
+        
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
