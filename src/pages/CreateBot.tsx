@@ -93,13 +93,26 @@ const CreateBot = () => {
       }
 
       // Handle both text and image responses
-      if (data.avatarType === 'image' && data.avatarImage) {
-        setGeneratedAvatar(data.avatarImage); // Base64 image data
-        setAvatarType('image');
-        toast({
-          title: "AI Avatar Generated!",
-          description: "Your bot's PNG avatar was created using Gemini AI!",
-        });
+      if (data.avatarType === 'image') {
+        if (data.avatarUrl) {
+          // Image URL response
+          setGeneratedAvatar(data.avatarUrl);
+          setAvatarType('image');
+          toast({
+            title: "AI Avatar Generated!",
+            description: "Your bot's PNG avatar was created using Gemini AI!",
+          });
+        } else if (data.avatarImage) {
+          // Base64 image response
+          setGeneratedAvatar(data.avatarImage);
+          setAvatarType('image');
+          toast({
+            title: "AI Avatar Generated!",
+            description: "Your bot's PNG avatar was created using Gemini AI!",
+          });
+        } else {
+          throw new Error("Image data missing from response");
+        }
       } else if (data.avatarDescription) {
         setGeneratedAvatar(data.avatarDescription);
         setAvatarType('text');
@@ -235,10 +248,10 @@ const CreateBot = () => {
               <div className="relative w-96 h-96 flex items-center justify-center">
                 {generatedAvatar ? (
                   avatarType === 'image' ? (
-                    // Display generated PNG image
+                    // Display generated PNG image (URL or base64)
                     <div className="w-full h-full flex items-center justify-center">
                       <img
-                        src={`data:image/png;base64,${generatedAvatar}`}
+                        src={generatedAvatar.startsWith('data:') ? generatedAvatar : generatedAvatar}
                         alt="Generated Bot Avatar"
                         className="w-full h-full object-contain"
                         style={{

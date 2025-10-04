@@ -24,7 +24,7 @@ export default async function handler(req, res) {
     }
 
     // Master Prompt for consistent Silicon Sprawl aesthetic
-    const MASTER_PROMPT = "Generate a retro-futuristic robot avatar with a transparent background, in a cute, cartoonish style suitable for a digital metropolis. Ensure high quality, PNG format with alpha channel, 256x256 resolution, and modular design for overlays.";
+    const MASTER_PROMPT = "Generate a retro-futuristic robot avatar with a transparent background, in a cute, cartoonish style suitable for a digital metropolis. The robot should have a blank screen face for adaptability, with modular elements like antennas or headphones. Use neon-inspired colors (cyan, purple, orange). Ensure high quality, PNG format with alpha channel, 256x256 resolution, and modular design for overlays.";
     
     // User's custom prompt for specific features
     const USER_PROMPT = `Bot Name: "${botName || "Unnamed"}". Focus: ${botFocus || "general purpose"}. Interests: ${botPersonality || "various topics"}. Custom Features: ${avatarPrompts}`;
@@ -32,10 +32,10 @@ export default async function handler(req, res) {
     // Combine prompts
     const FULL_PROMPT = MASTER_PROMPT + (USER_PROMPT ? ` ${USER_PROMPT}.` : '') + " Ensure transparency and modularity.";
     
-    // Call Gemini API for TEXT DESCRIPTION (since image generation might not be available)
-    const API_KEY = "AIzaSyBIvDRZTISaRtGNi4ozy2OVnFrgWvPgezc";
+    // Gemini API call for IMAGE GENERATION
+    const API_KEY = process.env.GEMINI_API_KEY || "AIzaSyBIvDRZTISaRtGNi4ozy2OVnFrgWvPgezc";
     
-    const geminiResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`, {
+    const geminiResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${API_KEY}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -43,19 +43,16 @@ export default async function handler(req, res) {
       body: JSON.stringify({
         contents: [{
           parts: [{
-            text: FULL_PROMPT + `
-            
-            IMPORTANT: Generate a detailed TEXT DESCRIPTION of this robot avatar, NOT an image. 
-            Focus on:
-            - Single robot figure, isolated and centered
-            - Specific integration of the custom features into the robot's design
-            - Materials, colors, and mechanical details
-            - Modular components and cyberpunk aesthetic
-            - 150-250 words maximum
-            - NO backgrounds, environments, or external scenes
-            - Describe how the custom features are integrated into the robot's form`
+            text: FULL_PROMPT
           }]
-        }]
+        }],
+        generationConfig: {
+          responseMimeType: 'image/png', // Specify image output
+          width: 256,
+          height: 256,
+          quality: 'high',
+          maxOutputTokens: 500 // Adjust for image generation
+        }
       })
     });
 
@@ -69,14 +66,33 @@ export default async function handler(req, res) {
       throw new Error("Invalid response format from Gemini API");
     }
 
-    // Extract the generated text description
-    const avatarDescription = data.candidates[0].content.parts[0].text;
+    // Extract the generated image data
+    const imageData = data.candidates[0].content.parts[0];
     
-    res.status(200).json({
-      success: true,
-      avatarDescription: avatarDescription.trim(),
-      avatarType: 'text' // Indicate this is text, not image
-    });
+    // Check if we got image data (base64 or URL)
+    if (imageData.fileData && imageData.fileData.url) {
+      // URL response
+      res.status(200).json({
+        success: true,
+        avatarUrl: imageData.fileData.url,
+        avatarType: 'image'
+      });
+    } else if (imageData.text && imageData.text.startsWith('data:image')) {
+      // Base64 response
+      res.status(200).json({
+        success: true,
+        avatarImage: imageData.text,
+        avatarType: 'image'
+      });
+    } else {
+      // Fallback to text description if image generation fails
+      const avatarDescription = imageData.text || "A sleek cyberpunk robot with modular design and neon accents.";
+      res.status(200).json({
+        success: true,
+        avatarDescription: avatarDescription.trim(),
+        avatarType: 'text'
+      });
+    }
 
   } catch (error) {
     console.error('Avatar generation error:', error);
