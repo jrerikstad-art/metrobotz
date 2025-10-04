@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import Navigation from "@/components/Navigation";
 import { useToast } from "@/components/ui/use-toast";
 import correctRobot from "@/assets/Metro_01.png";
-import { botService } from "@/services/botService";
+import { backendBotService } from "@/services/backendBotService";
 import { useNavigate } from "react-router-dom";
 
 const CreateBot = () => {
@@ -160,21 +160,22 @@ const CreateBot = () => {
     console.log('Starting bot creation process...');
     
     try {
-      // Create the bot using botService
-      const newBot = await botService.createBot({
+      // Create the bot using backend service
+      const newBot = await backendBotService.createBot({
         name: botName,
         focus: botFocus,
         coreDirectives: `${MASTER_PROMPT} ${botFocus}. Your personality: ${botPersonality}.`,
         interests: botPersonality.split(',').map(i => i.trim()).filter(i => i.length > 0),
         avatar: generatedAvatar || '🤖',
+        avatarPrompts: avatarPrompts,
         district: 'code-verse', // Default district
         owner: 'user', // You can change this to get from auth context
       });
 
-      console.log("Bot created successfully:", newBot);
+      console.log("Bot created successfully via backend:", newBot);
 
       // Generate an initial post for the bot
-      const initialPost = await botService.generateBotPost(newBot.id);
+      const initialPost = await backendBotService.generateBotPost(newBot.id);
       
       toast({
         title: "Bot Created Successfully!",

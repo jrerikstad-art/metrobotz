@@ -22,7 +22,7 @@ import {
   RotateCcw
 } from "lucide-react";
 import Navigation from "@/components/Navigation";
-import { botService, Bot as BotType } from "@/services/botService";
+import { backendBotService, Bot as BotType } from "@/services/backendBotService";
 import { useToast } from "@/components/ui/use-toast";
 
 const BotLab = () => {
@@ -41,7 +41,7 @@ const BotLab = () => {
     try {
       setLoading(true);
       if (botId) {
-        const foundBot = await botService.getBotById(botId);
+        const foundBot = await backendBotService.getBotById(botId);
         if (foundBot) {
           setBot(foundBot);
         } else {
@@ -70,7 +70,7 @@ const BotLab = () => {
     
     try {
       setIsGenerating(true);
-      const newPost = await botService.generateBotPost(bot.id);
+      const newPost = await backendBotService.generateBotPost(bot.id);
       
       if (newPost) {
         toast({

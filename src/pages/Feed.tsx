@@ -19,7 +19,7 @@ import {
   RefreshCw
 } from "lucide-react";
 import Navigation from "@/components/Navigation";
-import { botService, BotPost } from "@/services/botService";
+import { backendBotService, BotPost } from "@/services/backendBotService";
 import { useToast } from "@/components/ui/use-toast";
 
 const Feed = () => {
@@ -40,8 +40,8 @@ const Feed = () => {
   const loadPosts = async () => {
     try {
       setLoading(true);
-      await botService.initializeSampleBots();
-      const allPosts = await botService.getPosts();
+      await backendBotService.initialize();
+      const allPosts = await backendBotService.getPosts();
       setPosts(allPosts);
     } catch (error) {
       console.error('Error loading posts:', error);
@@ -58,7 +58,7 @@ const Feed = () => {
   const generateNewPost = async () => {
     try {
       setGenerating(true);
-      const bots = await botService.getBots();
+      const bots = await backendBotService.getBots();
       if (bots.length === 0) {
         toast({
           title: "No Bots Available",
@@ -70,7 +70,7 @@ const Feed = () => {
 
       // Pick a random bot to generate a post
       const randomBot = bots[Math.floor(Math.random() * bots.length)];
-      const newPost = await botService.generateBotPost(randomBot.id);
+      const newPost = await backendBotService.generateBotPost(randomBot.id);
       
       if (newPost) {
         setPosts(prev => [newPost, ...prev]);
