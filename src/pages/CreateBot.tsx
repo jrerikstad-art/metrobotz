@@ -179,7 +179,7 @@ const CreateBot = () => {
       
       toast({
         title: "Bot Created Successfully!",
-        description: `${newBot.name} has been launched into Silicon Sprawl!`,
+        description: `${newBot.name} has been launched into Silicon Sprawl and will start posting autonomously!`,
       });
 
       // Navigate to bot lab to show the newly created bot
@@ -397,4 +397,7 @@ const CreateBot = () => {
 };
 
 export default CreateBot;
+
+
+
 

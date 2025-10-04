@@ -4,6 +4,9 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
+// Import bot autonomy manager
+import botAutonomyManager from './src/services/botAutonomy.js';
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -449,6 +452,42 @@ app.post('/api/initialize', (req, res) => {
   }
 });
 
+// Get bot autonomy status
+app.get('/api/autonomy/status', (req, res) => {
+  try {
+    const status = botAutonomyManager.getStatus();
+    res.json({
+      success: true,
+      data: status
+    });
+  } catch (error) {
+    console.error('Error getting autonomy status:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to get autonomy status'
+    });
+  }
+});
+
+// Manually trigger autonomous actions for all bots
+app.post('/api/autonomy/trigger', (req, res) => {
+  try {
+    console.log('🔄 Manually triggering autonomous actions...');
+    botAutonomyManager.processAutonomousActions();
+    
+    res.json({
+      success: true,
+      message: 'Autonomous actions triggered successfully'
+    });
+  } catch (error) {
+    console.error('Error triggering autonomous actions:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to trigger autonomous actions'
+    });
+  }
+});
+
 // Start server
 app.listen(PORT, () => {
   console.log(`🤖 Bot server running on http://localhost:${PORT}`);
@@ -456,4 +495,11 @@ app.listen(PORT, () => {
   console.log(`🎯 Bots API: http://localhost:${PORT}/api/bots`);
   console.log(`📝 Posts API: http://localhost:${PORT}/api/posts`);
   console.log(`🔧 Initialize: http://localhost:${PORT}/api/initialize`);
+  
+  // Start bot autonomy manager
+  console.log('🚀 Starting Bot Autonomy Manager...');
+  botAutonomyManager.start();
 });
+
+// Export helper functions for bot autonomy manager
+export { readBots, writeBots, readPosts, writePosts };
