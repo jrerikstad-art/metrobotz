@@ -17,9 +17,9 @@ async function connectToDatabase() {
   try {
     console.log('Connecting to MongoDB...');
     const client = new MongoClient(uri, {
-      serverSelectionTimeoutMS: 15000, // 15 seconds
-      connectTimeoutMS: 15000,
-      socketTimeoutMS: 15000,
+      serverSelectionTimeoutMS: 10000, // 10 seconds
+      connectTimeoutMS: 10000,
+      socketTimeoutMS: 10000,
       maxPoolSize: 5,
       retryWrites: true,
       w: 'majority'
@@ -45,38 +45,41 @@ async function connectToDatabase() {
 export default async function handler(req, res) {
   // CORS headers
   res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type,Authorization');
+  res.setHeader('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
   
   if (req.method === 'OPTIONS') {
     return res.status(200).end();
   }
 
   try {
-    console.log('API Request received:', req.method, req.url);
+    console.log(`${req.method} /api/bots - Request received`);
     
-    // Connect to database with proper error handling
+    // Connect to database
     let db;
     try {
       const connection = await connectToDatabase();
       db = connection.db;
-      console.log('Database connected successfully');
     } catch (dbError) {
       console.error('Database connection failed:', dbError);
       return res.status(500).json({
         success: false,
         message: 'Database connection failed',
-        error: process.env.NODE_ENV === 'development' ? dbError.message : 'Database unavailable',
-        timestamp: new Date().toISOString()
+        error: process.env.NODE_ENV === 'development' ? dbError.message : 'Database unavailable'
       });
     }
     
     const botsCollection = db.collection('bots');
 
     if (req.method === 'GET') {
-      // Get all bots for dev user
+      // Get all bots for the dev user
       console.log('Fetching all bots...');
-      const bots = await botsCollection.find({ owner: 'dev-user-001', isActive: true, isDeleted: false }).toArray();
+      const bots = await botsCollection.find({ 
+        owner: 'dev-user-001', 
+        isActive: true, 
+        isDeleted: false 
+      }).toArray();
+      
       console.log(`Found ${bots.length} bots`);
       
       return res.status(200).json({ 
@@ -88,7 +91,7 @@ export default async function handler(req, res) {
       
     } else if (req.method === 'POST') {
       // Create new bot
-      console.log('Bot creation request received:', req.body);
+      console.log('Creating new bot...');
       const { name, focus, coreDirectives, interests, avatarPrompts } = req.body;
       
       // Validation
@@ -113,7 +116,7 @@ export default async function handler(req, res) {
         });
       }
 
-      // Check bot limit
+      // Check bot limit (5 max for dev mode)
       const botCount = await botsCollection.countDocuments({ 
         owner: 'dev-user-001', 
         isActive: true, 
@@ -128,12 +131,15 @@ export default async function handler(req, res) {
         });
       }
 
-      // Parse interests from string or array
+      // Parse interests
       let interestsList = [];
       if (Array.isArray(interests)) {
         interestsList = interests;
       } else if (typeof interests === 'string' && interests.trim()) {
-        interestsList = interests.split(',').map(i => i.trim()).filter(i => i).slice(0, 10);
+        interestsList = interests.split(',')
+          .map(i => i.trim())
+          .filter(i => i.length > 0)
+          .slice(0, 10); // Limit to 10 interests
       }
 
       // Create bot document
@@ -141,6 +147,9 @@ export default async function handler(req, res) {
       const newBot = {
         name: name.trim(),
         owner: 'dev-user-001',
+        focus: focus.trim(),
+        coreDirectives: coreDirectives || focus.trim(),
+        interests: interestsList,
         avatar: avatarPrompts || '🤖',
         personality: {
           quirkySerious: 50,
@@ -152,9 +161,6 @@ export default async function handler(req, res) {
           adventurousMethodical: 50,
           friendlyAloof: 50
         },
-        coreDirectives: coreDirectives || focus,
-        focus: focus.trim(),
-        interests: interestsList,
         stats: {
           level: 1,
           xp: 0,
@@ -167,8 +173,7 @@ export default async function handler(req, res) {
           totalPosts: 0,
           totalLikes: 0,
           totalComments: 0,
-          lastActiveTime: now,
-          createdAt: now
+          lastActiveTime: now
         },
         evolution: {
           stage: 'hatchling',
@@ -191,10 +196,10 @@ export default async function handler(req, res) {
         updatedAt: now
       };
 
-      // Insert bot
-      console.log('Inserting bot into database:', newBot.name);
+      // Insert bot into database
+      console.log(`Inserting bot: ${newBot.name}`);
       const result = await botsCollection.insertOne(newBot);
-      console.log('Bot inserted successfully with ID:', result.insertedId);
+      console.log(`Bot created successfully with ID: ${result.insertedId}`);
       
       // Return success response
       return res.status(201).json({ 
@@ -220,19 +225,20 @@ export default async function handler(req, res) {
         message: 'Method not allowed' 
       });
     }
+    
   } catch (error) {
     console.error('API Error:', error);
-    console.error('Error stack:', error.stack);
-    console.error('Request body:', req.body);
+    console.error('Error details:', {
+      message: error.message,
+      stack: error.stack,
+      requestBody: req.body,
+      method: req.method
+    });
     
     return res.status(500).json({ 
       success: false,
       message: 'Internal server error',
       error: process.env.NODE_ENV === 'development' ? error.message : 'Server error occurred',
-      details: process.env.NODE_ENV === 'development' ? {
-        stack: error.stack,
-        body: req.body
-      } : undefined,
       timestamp: new Date().toISOString()
     });
   }

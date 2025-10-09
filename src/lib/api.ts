@@ -109,13 +109,6 @@ export const botApi = {
     });
   },
 
-  // Check what bots exist in database
-  checkBots: async () => {
-    return apiCall('/api/check-bots', {
-      method: 'GET',
-    });
-  },
-
   // Train bot (update personality and core directives)
   train: async (botId: string, data: {
     coreDirectives?: string;
