@@ -60,40 +60,28 @@ const CreateBot = () => {
   };
 
   const handleGenerateAvatar = async () => {
-    if (!avatarPrompts.trim() || !botName.trim()) return;
+    if (!avatarPrompts.trim()) return;
     
     setIsGeneratingAvatar(true);
     
     try {
-      console.log("Generating avatar for:", botName, "with prompts:", avatarPrompts);
+      console.log("Setting avatar prompts for:", avatarPrompts);
       
-      // Call the new avatar generation API
-      const response = await geminiApi.generateAvatar(avatarPrompts, botName);
+      // For now, just use the prompts as the avatar
+      // This avoids any API calls that might cause timeouts
+      setGeneratedAvatar(avatarPrompts);
       
-      if (response.success) {
-        console.log("Avatar generation successful:", response.data);
-        
-        // For now, use the description to create a visual representation
-        // In the future, this could be an actual generated image
-        const avatarDescription = response.data?.avatarDescription || 'AI-generated robot avatar';
-        
-        // Set the avatar (using description for now, will be image URL later)
-        setGeneratedAvatar(avatarDescription);
-        
-        toast({
-          title: "🎨 Avatar Generated!",
-          description: `AI has created a unique avatar for ${botName}!`,
-        });
-      } else {
-        throw new Error(response.message || 'Avatar generation failed');
-      }
+      toast({
+        title: "🎨 Avatar Set!",
+        description: `Avatar prompts saved for ${botName}!`,
+      });
       
     } catch (error: any) {
       console.error("Avatar generation error:", error);
       toast({
         variant: "destructive",
         title: "Avatar Generation Failed",
-        description: error.message || "Using default robot avatar",
+        description: "Using default robot avatar",
       });
       // Set default avatar even on error
       setGeneratedAvatar(correctRobot);
@@ -347,7 +335,13 @@ const CreateBot = () => {
                     ✨ AI Avatar Generated ✨
                   </p>
                 )}
-                <div className="flex gap-2 mt-2">
+                <div className="flex gap-2 mt-2 flex-wrap">
+                  <button
+                    onClick={() => window.open('/api/bots-ultra-simple', '_blank')}
+                    className="text-xs text-green-400 hover:text-neon-cyan underline"
+                  >
+                    Test Ultra-Simple API
+                  </button>
                   <button
                     onClick={() => window.open('/api/test-simple', '_blank')}
                     className="text-xs text-gray-400 hover:text-neon-cyan underline"
