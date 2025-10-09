@@ -93,21 +93,46 @@ export default async function handler(req, res) {
 
   } catch (error) {
     console.error('Generation error:', error);
-    res.status(500).json({
-      success: false,
-      error: `Failed to generate avatar: ${error.message}`
-    });
+    
+    // Try fallback avatar generation without Gemini
+    try {
+      console.log('Attempting fallback avatar generation...');
+      const fallbackUrl = await createVisualAvatar('fallback robot', avatarPrompts || 'robot');
+      
+      return res.status(200).json({
+        success: true,
+        avatarUrl: fallbackUrl,
+        avatarType: 'fallback',
+        description: 'Fallback robot avatar',
+        metadata: {
+          generatedAt: new Date().toISOString(),
+          fallback: true,
+          error: error.message
+        }
+      });
+    } catch (fallbackError) {
+      console.error('Fallback also failed:', fallbackError);
+      return res.status(500).json({
+        success: false,
+        error: `Failed to generate avatar: ${error.message}`,
+        fallbackError: fallbackError.message
+      });
+    }
   }
 }
 
 // Helper function to create visual avatar from description
 async function createVisualAvatar(description, avatarPrompts) {
-  // For now, we'll use Robohash with a hash based on the description
-  const descriptionHash = description.split('').reduce((a, b) => a + b.charCodeAt(0), 0);
-  const avatarSeed = avatarPrompts.replace(/\s+/g, '').toLowerCase() + descriptionHash;
+  console.log('Creating visual avatar with description:', description?.substring(0, 100));
+  console.log('Avatar prompts:', avatarPrompts);
+  
+  // Create a simple seed from the prompts
+  const avatarSeed = (avatarPrompts || 'robot').replace(/\s+/g, '').toLowerCase().substring(0, 20);
+  console.log('Avatar seed:', avatarSeed);
   
   // Try Robohash first (robot-specific)
   const robohashUrl = `https://robohash.org/${avatarSeed}.png?size=256x256&bgset=bg1`;
+  console.log('Trying Robohash URL:', robohashUrl);
   
   try {
     // Test if the image loads
@@ -115,24 +140,31 @@ async function createVisualAvatar(description, avatarPrompts) {
     if (testResponse.ok) {
       console.log('Using Robohash for avatar');
       return robohashUrl;
+    } else {
+      console.log('Robohash response not ok:', testResponse.status);
     }
   } catch (e) {
-    console.log('Robohash failed, trying DiceBear');
+    console.log('Robohash failed:', e.message);
   }
   
   // Fallback to DiceBear
   const dicebearUrl = `https://api.dicebear.com/7.x/avataaars/png?seed=${avatarSeed}&backgroundColor=1a1a2e&size=256`;
+  console.log('Trying DiceBear URL:', dicebearUrl);
   
   try {
     const testResponse = await fetch(dicebearUrl, { method: 'HEAD' });
     if (testResponse.ok) {
       console.log('Using DiceBear for avatar');
       return dicebearUrl;
+    } else {
+      console.log('DiceBear response not ok:', testResponse.status);
     }
   } catch (e) {
-    console.log('DiceBear failed, using placeholder');
+    console.log('DiceBear failed:', e.message);
   }
   
   // Final fallback
-  return 'https://via.placeholder.com/256x256/1a1a2e/06b6d4?text=🤖';
+  const placeholderUrl = 'https://via.placeholder.com/256x256/1a1a2e/06b6d4?text=🤖';
+  console.log('Using placeholder URL:', placeholderUrl);
+  return placeholderUrl;
 }

@@ -65,7 +65,7 @@ const CreateBot = () => {
       const response = await geminiApi.generateAvatar(botName, botFocus, botPersonality, avatarPrompts);
       
       if (response.success) {
-        console.log("Gemini Avatar generation response:", response);
+        console.log("Avatar generation response:", response);
         
         const { avatarUrl, description } = response;
         
