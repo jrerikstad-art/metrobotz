@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MetroBotz API Test</title>
+    <style>
+        body {
+            font-family: 'Courier New', monospace;
+            background: #0a0a0a;
+            color: #00ff00;
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        h1 {
+            color: #06b6d4;
+            text-align: center;
+        }
+        .button-container {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin: 30px 0;
+            flex-wrap: wrap;
+        }
+        button {
+            background: #06b6d4;
+            color: #0a0a0a;
+            border: none;
+            padding: 15px 30px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: all 0.3s;
+        }
+        button:hover {
+            background: #00ff00;
+            transform: scale(1.05);
+        }
+        button:disabled {
+            background: #666;
+            cursor: not-allowed;
+        }
+        #output {
+            background: #1a1a1a;
+            border: 2px solid #06b6d4;
+            padding: 20px;
+            border-radius: 5px;
+            min-height: 200px;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        .success {
+            color: #00ff00;
+        }
+        .error {
+            color: #ff0000;
+        }
+        .info {
+            color: #06b6d4;
+        }
+    </style>
+</head>
+<body>
+    <h1>🤖 MetroBotz API Testing Console 🤖</h1>
+    
+    <div class="button-container">
+        <button onclick="testBotsAPI()">🧪 Test Bots API</button>
+        <button onclick="testMongoDB()">🗄️ Test MongoDB</button>
+        <button onclick="testHealth()">❤️ Test Health</button>
+        <button onclick="testGemini()">🧠 Test Gemini</button>
+        <button onclick="getAllBots()">📋 Get All Bots</button>
+        <button onclick="createTestBot()">🚀 Create Test Bot</button>
+        <button onclick="clearOutput()">🧹 Clear Output</button>
+    </div>
+    
+    <div id="output">Ready to test APIs...</div>
+    
+    <script>
+        const output = document.getElementById('output');
+        
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const className = type === 'error' ? 'error' : type === 'success' ? 'success' : 'info';
+            output.innerHTML += `<span class="${className}">[${timestamp}] ${message}</span>\n`;
+            output.scrollTop = output.scrollHeight;
+        }
+        
+        function clearOutput() {
+            output.innerHTML = 'Ready to test APIs...\n';
+        }
+        
+        async function testAPI(url, method = 'GET', body = null) {
+            log(`Testing ${url}...`, 'info');
+            
+            try {
+                const options = {
+                    method,
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                };
+                
+                if (body) {
+                    options.body = JSON.stringify(body);
+                }
+                
+                const response = await fetch(url, options);
+                const contentType = response.headers.get('content-type');
+                
+                log(`Status: ${response.status} ${response.statusText}`, response.ok ? 'success' : 'error');
+                log(`Content-Type: ${contentType}`, 'info');
+                
+                if (contentType && contentType.includes('application/json')) {
+                    const data = await response.json();
+                    log(`Response: ${JSON.stringify(data, null, 2)}`, response.ok ? 'success' : 'error');
+                } else {
+                    const text = await response.text();
+                    log(`Non-JSON Response: ${text.substring(0, 500)}...`, 'error');
+                }
+                
+            } catch (error) {
+                log(`Error: ${error.message}`, 'error');
+                log(`Stack: ${error.stack}`, 'error');
+            }
+            
+            log('----------------------------', 'info');
+        }
+        
+        function testBotsAPI() {
+            testAPI('/api/test-bots');
+        }
+        
+        function testMongoDB() {
+            testAPI('/api/test-mongodb');
+        }
+        
+        function testHealth() {
+            testAPI('/api/health');
+        }
+        
+        function testGemini() {
+            testAPI('/api/test-gemini', 'POST', {
+                prompt: 'Say hello from the test console!'
+            });
+        }
+        
+        function getAllBots() {
+            testAPI('/api/bots');
+        }
+        
+        function createTestBot() {
+            const testBot = {
+                name: `TestBot_${Date.now()}`,
+                focus: 'This is a test bot created from the API testing console to verify bot creation is working properly.',
+                coreDirectives: 'Test bot for API verification',
+                interests: ['testing', 'debugging', 'api-testing'],
+                avatarPrompts: 'A sleek test robot with debugging tools'
+            };
+            
+            log(`Creating test bot: ${testBot.name}`, 'info');
+            testAPI('/api/bots', 'POST', testBot);
+        }
+    </script>
+</body>
+</html>
+
