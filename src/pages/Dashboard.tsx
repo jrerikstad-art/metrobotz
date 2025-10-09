@@ -19,7 +19,6 @@ import {
   Sparkles,
   AlertTriangle,
   Bell,
-  Gear,
   DollarSign
 } from "lucide-react";
 import Navigation from "@/components/Navigation";
