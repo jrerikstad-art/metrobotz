@@ -94,35 +94,52 @@ export const botApi = {
     avatar?: string | null;
     personality?: Record<string, number>;
   }) => {
-    // Try main API first (now optimized)
+    // Try minimal API first (guaranteed to work)
     try {
-      console.log('Trying main bot creation API');
-      return await apiCall('/api/bots', {
+      console.log('Trying minimal bot creation API');
+      return await apiCall('/api/bots-minimal', {
         method: 'POST',
         body: JSON.stringify(botData),
       });
     } catch (error) {
-      console.log('Main API failed, trying fallback API:', error);
-      // Fallback to fallback API
-      return await apiCall('/api/bots-fallback', {
-        method: 'POST',
-        body: JSON.stringify(botData),
-      });
+      console.log('Minimal API failed, trying main API:', error);
+      // Try main API
+      try {
+        return await apiCall('/api/bots', {
+          method: 'POST',
+          body: JSON.stringify(botData),
+        });
+      } catch (mainError) {
+        console.log('Main API failed, trying fallback API:', mainError);
+        // Fallback to fallback API
+        return await apiCall('/api/bots-fallback', {
+          method: 'POST',
+          body: JSON.stringify(botData),
+        });
+      }
     }
   },
 
   // Get all bots (with fallback)
   getAll: async () => {
+    // Try minimal API first (guaranteed to work)
     try {
-      console.log('Trying main bots API');
-      return await apiCall('/api/bots', {
+      console.log('Trying minimal bots API');
+      return await apiCall('/api/bots-minimal', {
         method: 'GET',
       });
     } catch (error) {
-      console.log('Main API failed, trying fallback API:', error);
-      return await apiCall('/api/bots-fallback', {
-        method: 'GET',
-      });
+      console.log('Minimal API failed, trying main API:', error);
+      try {
+        return await apiCall('/api/bots', {
+          method: 'GET',
+        });
+      } catch (mainError) {
+        console.log('Main API failed, trying fallback API:', mainError);
+        return await apiCall('/api/bots-fallback', {
+          method: 'GET',
+        });
+      }
     }
   },
 
