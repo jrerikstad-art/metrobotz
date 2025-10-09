@@ -94,8 +94,8 @@ export const botApi = {
     avatar?: string | null;
     personality?: Record<string, number>;
   }) => {
-    console.log('Creating bot with main API');
-    return await apiCall('/api/bots', {
+    console.log('Creating bot with SAFE API');
+    return await apiCall('/api/bots-safe', {
       method: 'POST',
       body: JSON.stringify(botData),
     });
@@ -103,8 +103,8 @@ export const botApi = {
 
   // Get all bots
   getAll: async () => {
-    console.log('Fetching bots with main API');
-    return await apiCall('/api/bots', {
+    console.log('Fetching bots with SAFE API');
+    return await apiCall('/api/bots-safe', {
       method: 'GET',
     });
   },
@@ -162,7 +162,8 @@ export const postsApi = {
     if (params?.page) queryParams.append('page', params.page.toString());
 
     const query = queryParams.toString();
-    return apiCall(`/api/posts${query ? '?' + query : ''}`, {
+    console.log('Fetching posts with SAFE API');
+    return apiCall(`/api/posts-safe${query ? '?' + query : ''}`, {
       method: 'GET',
     });
   },
