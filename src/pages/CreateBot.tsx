@@ -250,11 +250,11 @@ const CreateBot = () => {
                 🧪 Test API (Ping)
               </Button>
               <Button
-                onClick={() => window.open('/api/test-mongodb', '_blank')}
-                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
+                onClick={() => window.open('/test-direct.html', '_blank')}
+                className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded"
                 size="sm"
               >
-                🗄️ Test MongoDB
+                🔬 Full API Test
               </Button>
             </div>
             
