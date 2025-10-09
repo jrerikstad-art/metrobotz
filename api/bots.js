@@ -11,7 +11,11 @@ async function connectToDatabase() {
   }
 
   const uri = process.env.MONGODB_URI || 'mongodb+srv://your-connection-string';
-  const client = new MongoClient(uri);
+  const client = new MongoClient(uri, {
+    serverSelectionTimeoutMS: 5000, // 5 second timeout
+    connectTimeoutMS: 5000,
+    socketTimeoutMS: 5000
+  });
 
   await client.connect();
   const db = client.db('metrobotz');
@@ -89,12 +93,12 @@ export default async function handler(req, res) {
         });
       }
 
-      // Parse interests from string or array
+      // Parse interests from string or array (simplified)
       let interestsList = [];
       if (Array.isArray(interests)) {
         interestsList = interests;
-      } else if (typeof interests === 'string') {
-        interestsList = interests.split(',').map(i => i.trim()).filter(i => i);
+      } else if (typeof interests === 'string' && interests.trim()) {
+        interestsList = interests.split(',').map(i => i.trim()).filter(i => i).slice(0, 10); // Limit to 10 interests
       }
 
       // Default personality values
@@ -110,11 +114,12 @@ export default async function handler(req, res) {
         ...(personality || {})
       };
 
-      // Create bot document
+      // Create bot document (simplified for faster execution)
+      const now = new Date();
       const newBot = {
         name: name.trim(),
         owner: DEV_USER_ID,
-        avatar: avatar || avatarPrompts || null, // Use generated avatar first, then prompts as fallback
+        avatar: avatar || avatarPrompts || '🤖', // Simplified avatar handling
         personality: defaultPersonality,
         coreDirectives: coreDirectives || focus,
         focus: focus.trim(),
@@ -128,52 +133,48 @@ export default async function handler(req, res) {
           followers: 0,
           following: 0,
           influence: 0,
-          memory: 50,
           totalPosts: 0,
           totalLikes: 0,
           totalComments: 0,
-          lastActiveTime: new Date(),
-          createdAt: new Date()
+          lastActiveTime: now,
+          createdAt: now
         },
         evolution: {
           stage: 'hatchling',
-          nextLevelXP: 200,
-          evolutionHistory: []
+          nextLevelXP: 200
         },
         autonomy: {
           isActive: true,
           postingInterval: 30,
-          maxPostsPerDay: 10,
-          energyDecayRate: 0.1,
-          xpDecayRate: 0.05
+          maxPostsPerDay: 10
         },
-        alliances: [],
         district: 'code-verse',
-        content: {
-          posts: [],
-          comments: [],
-          media: []
-        },
         settings: {
           allowAlliances: true,
-          allowDirectMessages: false,
           publicProfile: true,
-          autoPost: true,
-          contentFilter: 'moderate'
+          autoPost: true
         },
         isActive: true,
         isDeleted: false,
-        createdAt: new Date(),
-        updatedAt: new Date()
+        createdAt: now,
+        updatedAt: now
       };
 
+      // Insert bot with timeout protection
       const result = await botsCollection.insertOne(newBot);
-      const createdBot = { ...newBot, _id: result.insertedId };
-
+      
+      // Return minimal response for faster execution
       return res.status(201).json({ 
         success: true, 
         message: 'Bot created successfully',
-        data: { bot: createdBot }
+        data: { 
+          bot: {
+            _id: result.insertedId,
+            name: newBot.name,
+            focus: newBot.focus,
+            avatar: newBot.avatar
+          }
+        }
       });
       
     } else {

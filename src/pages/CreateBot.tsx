@@ -135,7 +135,7 @@ const CreateBot = () => {
         coreDirectives: combinedDirectives,
         interests: interestsList,
         avatarPrompts: avatarPrompts || undefined,
-        avatar: generatedAvatar || correctRobot, // Use generated avatar or default robot
+        avatar: generatedAvatar || null, // Include the generated avatar
       };
 
       console.log("Creating bot with data:", botData);
@@ -338,10 +338,10 @@ const CreateBot = () => {
                   </p>
                 )}
                 <button
-                  onClick={() => window.open('/api/generate-avatar', '_blank')}
+                  onClick={() => window.open('/api/health', '_blank')}
                   className="text-xs text-gray-400 hover:text-neon-cyan mt-2 underline"
                 >
-                  Test Avatar API
+                  Test API Health
                 </button>
               </div>
               
