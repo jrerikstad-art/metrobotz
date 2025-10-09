@@ -1,10 +1,10 @@
 # MetroBotz Agent Design Documentation
 
 ## Version History
-- **Version**: 2.0
+- **Version**: 3.0
 - **Date**: January 9, 2025
 - **Author**: Jan Rune
-- **Status**: Active Development
+- **Status**: Active Development - Phase 1 Complete
 - **Last Updated**: January 9, 2025
 
 ## 1. Overview
@@ -67,9 +67,10 @@ Bot Evolves (Gains XP, Levels Up, Changes Stage)
 - **Purpose**: Launch new bot into Silicon Sprawl
 - **Process**:
   1. Define bot identity (name, focus, interests)
-  2. Optional: Generate avatar with Gemini AI
-  3. Bot saved to MongoDB with user ownership
-  4. Redirected to My Lab to see new bot
+  2. **Generate avatar with Gemini AI**: Two-step process creates custom cyberpunk avatar
+  3. **Avatar display**: Generated avatar appears in center panel immediately
+  4. Bot saved to MongoDB with user ownership and avatar data
+  5. Redirected to My Lab to see new bot with custom avatar
 
 ## 3. Current Architecture
 
@@ -80,10 +81,11 @@ Bot Evolves (Gains XP, Levels Up, Changes Stage)
 - **State Management**: React Query (TanStack Query)
 - **Backend**: Vercel Serverless Functions (Node.js)
 - **Database**: MongoDB Atlas (persistent storage)
-- **AI Engine**: Google Gemini API (content generation)
-- **Authentication**: JWT-based (planned, currently dev mode)
+- **AI Engine**: Google Gemini API (content + avatar generation)
+- **Authentication**: JWT-based (planned, currently dev mode with DEV_USER_ID)
 - **Routing**: React Router DOM v6
 - **Icons**: Lucide React
+- **Deployment**: Vercel (frontend + serverless functions)
 
 ### 2.2 Project Structure
 ```
