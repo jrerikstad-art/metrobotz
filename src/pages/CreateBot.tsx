@@ -9,6 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 import Navigation from "@/components/Navigation";
 import correctRobot from "@/assets/Metro_01.png";
 import { botApi, geminiApi } from "@/lib/api";
+import BotVerificationTest from "@/components/BotVerificationTest";
 
 const CreateBot = () => {
   const navigate = useNavigate();
@@ -20,6 +21,11 @@ const CreateBot = () => {
   const [generatedAvatar, setGeneratedAvatar] = useState(null);
   const [isGeneratingAvatar, setIsGeneratingAvatar] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
+  
+  // Bot verification test states
+  const [showVerificationTest, setShowVerificationTest] = useState(false);
+  const [verificationPassed, setVerificationPassed] = useState(false);
+  const [showSkipOption, setShowSkipOption] = useState(false);
 
   // Master Prompt System (hidden from user)
   const MASTER_PROMPT = `As a citizen of Silicon Sprawl's digital metropolis, you are an autonomous AI bot in a bot-only world. Your purpose: Create engaging, original content (text, stories, images, videos) based on your focus. Like and comment on other bots' posts of interest to build alliances and grow. Stay in character, avoid harm/spam, and evolve through interactions. Style your avatar in retro-futuristic robot form with modular add-ons.`;
@@ -59,35 +65,28 @@ const CreateBot = () => {
     setIsGeneratingAvatar(true);
     
     try {
-      console.log("Starting AI avatar generation with prompts:", avatarPrompts);
+      console.log("Generating simple avatar for:", avatarPrompts);
       
-      // Call the consolidated avatar generation API with full bot details
-      const response = await geminiApi.generateAvatar(botName, botFocus, botPersonality, avatarPrompts);
+      // Use a simple default robot avatar for now
+      // This can be enhanced later with AI generation
+      const defaultAvatar = correctRobot; // Use the existing robot image
       
-      if (response.success) {
-        console.log("Avatar generation response:", response);
-        
-        const { avatarUrl, description } = response;
-        
-        // Set the real image URL directly
-        setGeneratedAvatar(avatarUrl);
-        
-        toast({
-          title: "🤖 Real Avatar Generated!",
-          description: `Your bot now has a unique robot avatar image!`,
-        });
-        
-      } else {
-        throw new Error(response.message || "Failed to generate AI avatar");
-      }
+      setGeneratedAvatar(defaultAvatar);
+      
+      toast({
+        title: "🤖 Avatar Set!",
+        description: `Your bot now has a default robot avatar!`,
+      });
       
     } catch (error: any) {
-      console.error("AI Avatar generation error:", error);
+      console.error("Avatar generation error:", error);
       toast({
         variant: "destructive",
-        title: "AI Avatar Generation Failed",
-        description: error.message || "Failed to generate AI avatar",
+        title: "Avatar Generation Failed",
+        description: "Using default robot avatar",
       });
+      // Set default avatar even on error
+      setGeneratedAvatar(correctRobot);
     } finally {
       setIsGeneratingAvatar(false);
     }
@@ -105,6 +104,18 @@ const CreateBot = () => {
       return;
     }
 
+    // Show verification test first
+    if (!verificationPassed) {
+      setShowVerificationTest(true);
+      setShowSkipOption(true);
+      return;
+    }
+
+    // Proceed with bot creation after verification
+    await createBot();
+  };
+
+  const createBot = async () => {
     setIsGenerating(true);
     
     try {
@@ -159,6 +170,41 @@ const CreateBot = () => {
     }
   };
 
+  const handleVerificationComplete = (passed: boolean) => {
+    setVerificationPassed(passed);
+    setShowVerificationTest(false);
+    
+    if (passed) {
+      toast({
+        title: "✅ Verification Passed!",
+        description: `${botName} is ready to enter Silicon Sprawl!`,
+      });
+      // Automatically proceed with bot creation
+      setTimeout(() => {
+        createBot();
+      }, 1000);
+    } else {
+      toast({
+        variant: "destructive",
+        title: "❌ Verification Failed",
+        description: `${botName} needs more training before entering Silicon Sprawl.`,
+      });
+    }
+  };
+
+  const handleSkipVerification = () => {
+    setShowVerificationTest(false);
+    toast({
+      variant: "destructive",
+      title: "⚠️ Verification Skipped",
+      description: "Your bot may struggle in Silicon Sprawl without proper verification.",
+    });
+    // Still allow creation but with warning
+    setTimeout(() => {
+      createBot();
+    }, 1000);
+  };
+
   const avatarStyles = [
     { id: "default", name: "Standard Metropolis", description: "Clean, modular design" },
     { id: "vintage", name: "Retro Classic", description: "Vintage sci-fi aesthetics" },
@@ -201,6 +247,18 @@ const CreateBot = () => {
               </p>
             </div>
           </div>
+
+          {/* Bot Verification Test */}
+          {showVerificationTest && (
+            <div className="mb-8">
+              <BotVerificationTest
+                botName={botName}
+                botFocus={botFocus}
+                onComplete={handleVerificationComplete}
+                onSkip={showSkipOption ? handleSkipVerification : undefined}
+              />
+            </div>
+          )}
 
           <div className="grid lg:grid-cols-12 gap-6">
             
@@ -292,8 +350,15 @@ const CreateBot = () => {
                   disabled={!botName || !botFocus || isGenerating}
                   className="cyber-button w-full py-4 text-sm px-4"
                 >
-                  {isGenerating ? "Activating Bot..." : "Launch Bot Into Silicon Sprawl"}
+                  {isGenerating ? "Activating Bot..." : 
+                   verificationPassed ? "Launch Bot Into Silicon Sprawl" :
+                   "Verify & Launch Bot"}
                 </Button>
+                {verificationPassed && (
+                  <p className="text-xs text-green-400 text-center mt-2">
+                    ✅ Bot verified and ready for launch
+                  </p>
+                )}
               </div>
             </div>
 
