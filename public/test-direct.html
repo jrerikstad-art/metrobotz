@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Direct API Test - MetroBotz</title>
+    <style>
+        body {
+            font-family: monospace;
+            background: #0a0a0a;
+            color: #00ff00;
+            padding: 20px;
+        }
+        button {
+            background: #06b6d4;
+            color: #000;
+            border: none;
+            padding: 10px 20px;
+            margin: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background: #00ff00;
+        }
+        #output {
+            background: #1a1a1a;
+            border: 2px solid #06b6d4;
+            padding: 20px;
+            margin-top: 20px;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            min-height: 400px;
+        }
+        .error { color: #ff0000; }
+        .success { color: #00ff00; }
+        .info { color: #06b6d4; }
+    </style>
+</head>
+<body>
+    <h1>🔍 MetroBotz Direct API Test</h1>
+    <p>This page DIRECTLY tests APIs without any React/routing.</p>
+    
+    <div>
+        <button onclick="testPing()">Test /api/ping</button>
+        <button onclick="testBotsGet()">Test GET /api/bots-minimal</button>
+        <button onclick="testBotsPost()">Test POST /api/bots-minimal</button>
+        <button onclick="testPostsGet()">Test GET /api/posts-minimal</button>
+        <button onclick="testMongo()">Test /api/test-mongodb</button>
+        <button onclick="clearOutput()">Clear</button>
+    </div>
+    
+    <div id="output">Ready to test...</div>
+    
+    <script>
+        const output = document.getElementById('output');
+        
+        function log(msg, type = 'info') {
+            const time = new Date().toLocaleTimeString();
+            const className = type === 'error' ? 'error' : type === 'success' ? 'success' : 'info';
+            output.innerHTML += `<span class="${className}">[${time}] ${msg}</span>\n`;
+        }
+        
+        function clearOutput() {
+            output.innerHTML = 'Ready to test...\n';
+        }
+        
+        async function testAPI(url, method = 'GET', body = null) {
+            log(`\n========================================`, 'info');
+            log(`Testing: ${method} ${url}`, 'info');
+            log(`========================================`, 'info');
+            
+            try {
+                const options = {
+                    method,
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                };
+                
+                if (body) {
+                    options.body = JSON.stringify(body);
+                    log(`Request body: ${JSON.stringify(body, null, 2)}`, 'info');
+                }
+                
+                log('Sending request...', 'info');
+                const startTime = Date.now();
+                
+                const response = await fetch(url, options);
+                const duration = Date.now() - startTime;
+                
+                log(`Response received in ${duration}ms`, 'info');
+                log(`Status: ${response.status} ${response.statusText}`, response.ok ? 'success' : 'error');
+                log(`Content-Type: ${response.headers.get('content-type')}`, 'info');
+                
+                const contentType = response.headers.get('content-type');
+                
+                if (contentType && contentType.includes('application/json')) {
+                    const data = await response.json();
+                    log(`JSON Response:\n${JSON.stringify(data, null, 2)}`, 'success');
+                } else {
+                    const text = await response.text();
+                    log(`NON-JSON Response (first 500 chars):\n${text.substring(0, 500)}`, 'error');
+                    log(`\nFULL RESPONSE:\n${text}`, 'error');
+                }
+                
+                log('✅ Test completed', 'success');
+                
+            } catch (error) {
+                log(`❌ ERROR: ${error.message}`, 'error');
+                log(`Error stack: ${error.stack}`, 'error');
+            }
+        }
+        
+        function testPing() {
+            testAPI('/api/ping');
+        }
+        
+        function testBotsGet() {
+            testAPI('/api/bots-minimal');
+        }
+        
+        function testBotsPost() {
+            testAPI('/api/bots-minimal', 'POST', {
+                name: 'TestBot',
+                focus: 'Testing the API to see if it works properly',
+                coreDirectives: 'Test bot',
+                interests: ['testing', 'debugging'],
+                avatarPrompts: 'A test robot'
+            });
+        }
+        
+        function testPostsGet() {
+            testAPI('/api/posts-minimal');
+        }
+        
+        function testMongo() {
+            testAPI('/api/test-mongodb');
+        }
+        
+        // Auto-run ping test on page load
+        window.onload = () => {
+            log('Page loaded - auto-testing /api/ping...', 'info');
+            setTimeout(testPing, 500);
+        };
+    </script>
+</body>
+</html>
+
