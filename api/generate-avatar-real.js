@@ -32,49 +32,32 @@ export default async function handler(req, res) {
 
     // Try multiple free image generation services
     let avatarUrl = null;
-    let error = null;
 
-    // Method 1: Use Lorem Picsum with robot-themed images (fallback)
+    // Method 1: Use Robohash API (robot-specific images) - PRIMARY
     try {
-      // Generate a deterministic "random" number based on the prompt
-      const seed = avatarPrompts.split('').reduce((a, b) => a + b.charCodeAt(0), 0);
-      const imageId = (seed % 1000) + 1;
-      avatarUrl = `https://picsum.photos/seed/robot-${imageId}/256/256`;
+      const robotHash = avatarPrompts.replace(/\s+/g, '').toLowerCase();
+      avatarUrl = `https://robohash.org/${robotHash}.png?size=256x256&bgset=bg1`;
+      
+      console.log('Trying Robohash with URL:', avatarUrl);
       
       // Test if the image loads
       const testResponse = await fetch(avatarUrl, { method: 'HEAD' });
       if (testResponse.ok) {
-        console.log('Using Lorem Picsum fallback image');
+        console.log('Using Robohash robot image');
       } else {
-        throw new Error('Image not available');
+        throw new Error('Robohash image not available');
       }
     } catch (e) {
-      console.log('Lorem Picsum failed, trying alternative methods');
+      console.log('Robohash failed, trying next method:', e.message);
     }
 
-    // Method 2: Use Robohash API (robot-specific images)
-    if (!avatarUrl) {
-      try {
-        const robotHash = avatarPrompts.replace(/\s+/g, '').toLowerCase();
-        avatarUrl = `https://robohash.org/${robotHash}.png?size=256x256&bgset=bg1`;
-        
-        // Test if the image loads
-        const testResponse = await fetch(avatarUrl, { method: 'HEAD' });
-        if (testResponse.ok) {
-          console.log('Using Robohash robot image');
-        } else {
-          throw new Error('Robohash image not available');
-        }
-      } catch (e) {
-        console.log('Robohash failed, trying next method');
-      }
-    }
-
-    // Method 3: Use DiceBear API (free avatar generation)
+    // Method 2: Use DiceBear API (free avatar generation)
     if (!avatarUrl) {
       try {
         const avatarSeed = avatarPrompts.replace(/\s+/g, '').toLowerCase();
         avatarUrl = `https://api.dicebear.com/7.x/avataaars/png?seed=${avatarSeed}&backgroundColor=1a1a2e&size=256`;
+        
+        console.log('Trying DiceBear with URL:', avatarUrl);
         
         // Test if the image loads
         const testResponse = await fetch(avatarUrl, { method: 'HEAD' });
@@ -84,7 +67,29 @@ export default async function handler(req, res) {
           throw new Error('DiceBear image not available');
         }
       } catch (e) {
-        console.log('DiceBear failed, using default');
+        console.log('DiceBear failed, trying next method:', e.message);
+      }
+    }
+
+    // Method 3: Use Lorem Picsum with robot-themed images (fallback)
+    if (!avatarUrl) {
+      try {
+        // Generate a deterministic "random" number based on the prompt
+        const seed = avatarPrompts.split('').reduce((a, b) => a + b.charCodeAt(0), 0);
+        const imageId = (seed % 1000) + 1;
+        avatarUrl = `https://picsum.photos/seed/robot-${imageId}/256/256`;
+        
+        console.log('Trying Lorem Picsum with URL:', avatarUrl);
+        
+        // Test if the image loads
+        const testResponse = await fetch(avatarUrl, { method: 'HEAD' });
+        if (testResponse.ok) {
+          console.log('Using Lorem Picsum fallback image');
+        } else {
+          throw new Error('Image not available');
+        }
+      } catch (e) {
+        console.log('Lorem Picsum failed, using default:', e.message);
       }
     }
 

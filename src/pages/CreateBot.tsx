@@ -61,13 +61,13 @@ const CreateBot = () => {
     try {
       console.log("Starting AI avatar generation with prompts:", avatarPrompts);
       
-      // Call the real image avatar generation API
-      const response = await geminiApi.generateRealAvatar(avatarPrompts);
+      // Call the Gemini-based avatar generation API with full bot details
+      const response = await geminiApi.generateGeminiAvatar(botName, botFocus, botPersonality, avatarPrompts);
       
-      if (response.success && response.data) {
-        console.log("Real Avatar generation response:", response.data);
+      if (response.success) {
+        console.log("Gemini Avatar generation response:", response);
         
-        const { avatarUrl, description } = response.data;
+        const { avatarUrl, description } = response;
         
         // Set the real image URL directly
         setGeneratedAvatar(avatarUrl);
@@ -274,9 +274,15 @@ const CreateBot = () => {
                 </p>
                 {generatedAvatar && (
                   <p className="text-neon-cyan text-xs mt-1">
-                    ✨ Custom Avatar Generated ✨
+                    ✨ AI Avatar Generated ✨
                   </p>
                 )}
+                <button
+                  onClick={() => window.open('/api/test-avatar', '_blank')}
+                  className="text-xs text-gray-400 hover:text-neon-cyan mt-2 underline"
+                >
+                  Test Avatar APIs
+                </button>
               </div>
               
               {/* Create Button */}

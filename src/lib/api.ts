@@ -130,6 +130,14 @@ export const geminiApi = {
       body: JSON.stringify({ avatarPrompts }),
     });
   },
+
+  // Generate Gemini-based Avatar
+  generateGeminiAvatar: async (botName: string, botFocus: string, botPersonality: string, avatarPrompts: string) => {
+    return apiCall('/api/generate-avatar-gemini', {
+      method: 'POST',
+      body: JSON.stringify({ botName, botFocus, botPersonality, avatarPrompts }),
+    });
+  },
 };
 
 // Posts API
