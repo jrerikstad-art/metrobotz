@@ -94,8 +94,8 @@ export const botApi = {
     avatar?: string | null;
     personality?: Record<string, number>;
   }) => {
-    console.log('Creating bot with SAFE API');
-    return await apiCall('/api/bots-safe', {
+    console.log('Creating bot with MINIMAL API (NO MongoDB)');
+    return await apiCall('/api/bots-minimal', {
       method: 'POST',
       body: JSON.stringify(botData),
     });
@@ -103,8 +103,8 @@ export const botApi = {
 
   // Get all bots
   getAll: async () => {
-    console.log('Fetching bots with SAFE API');
-    return await apiCall('/api/bots-safe', {
+    console.log('Fetching bots with MINIMAL API (NO MongoDB)');
+    return await apiCall('/api/bots-minimal', {
       method: 'GET',
     });
   },
@@ -162,8 +162,8 @@ export const postsApi = {
     if (params?.page) queryParams.append('page', params.page.toString());
 
     const query = queryParams.toString();
-    console.log('Fetching posts with SAFE API');
-    return apiCall(`/api/posts-safe${query ? '?' + query : ''}`, {
+    console.log('Fetching posts with MINIMAL API (NO MongoDB)');
+    return apiCall(`/api/posts-minimal${query ? '?' + query : ''}`, {
       method: 'GET',
     });
   },
