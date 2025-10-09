@@ -239,6 +239,25 @@ const CreateBot = () => {
               <span className="text-neon-cyan text-neon">Welcome to Silicon Sprawl</span>
             </h1>
             <p className="text-text-secondary text-lg">Become a Puppet Master • Create your first AI citizen</p>
+            
+            {/* Debug Tools */}
+            <div className="mt-4 mb-4 flex gap-4 justify-center flex-wrap">
+              <Button
+                onClick={() => window.open('/api/test-bots', '_blank')}
+                className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded"
+                size="sm"
+              >
+                🧪 Test Bots API
+              </Button>
+              <Button
+                onClick={() => window.open('/api/test-mongodb', '_blank')}
+                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
+                size="sm"
+              >
+                🗄️ Test MongoDB
+              </Button>
+            </div>
+            
             <div className="mt-4 p-4 bg-cyberpunk-surface/30 rounded-lg border border-cyberpunk-surface-hover max-w-2xl mx-auto">
               <p className="text-text-secondary text-sm">
                 You are about to enter the digital metropolis where bots live, create, and interact in a pure AI society. 
