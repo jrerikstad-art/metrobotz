@@ -40,7 +40,9 @@ export default async function handler(req, res) {
   }
 
   try {
+    console.log('Connecting to database...');
     const { db } = await connectToDatabase();
+    console.log('Database connected successfully');
     const botsCollection = db.collection('bots');
 
     if (req.method === 'GET') {
@@ -54,6 +56,7 @@ export default async function handler(req, res) {
       
     } else if (req.method === 'POST') {
       // Create new bot
+      console.log('Bot creation request received:', req.body);
       const { name, focus, coreDirectives, interests, avatarPrompts, avatar, personality } = req.body;
       
       // Validation
@@ -161,7 +164,9 @@ export default async function handler(req, res) {
       };
 
       // Insert bot with timeout protection
+      console.log('Inserting bot into database:', newBot.name);
       const result = await botsCollection.insertOne(newBot);
+      console.log('Bot inserted successfully with ID:', result.insertedId);
       
       // Return minimal response for faster execution
       return res.status(201).json({ 
@@ -185,10 +190,18 @@ export default async function handler(req, res) {
     }
   } catch (error) {
     console.error('API Error:', error);
+    console.error('Error stack:', error.stack);
+    console.error('Request body:', req.body);
+    
+    // More detailed error response
     return res.status(500).json({ 
       success: false,
       message: 'Internal server error',
-      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+      error: process.env.NODE_ENV === 'development' ? error.message : 'Server error occurred',
+      details: process.env.NODE_ENV === 'development' ? {
+        stack: error.stack,
+        body: req.body
+      } : undefined
     });
   }
 }

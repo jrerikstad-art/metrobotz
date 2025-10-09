@@ -63,7 +63,7 @@ async function apiCall<T>(
 
 // Bot API
 export const botApi = {
-  // Create a new bot
+  // Create a new bot (using simple API for testing)
   create: async (botData: {
     name: string;
     focus: string;
@@ -73,10 +73,21 @@ export const botApi = {
     avatar?: string | null;
     personality?: Record<string, number>;
   }) => {
-    return apiCall('/api/bots', {
-      method: 'POST',
-      body: JSON.stringify(botData),
-    });
+    // Try simple bot creation first to avoid MongoDB issues
+    try {
+      console.log('Trying simple bot creation API');
+      return await apiCall('/api/create-bot-simple', {
+        method: 'POST',
+        body: JSON.stringify(botData),
+      });
+    } catch (error) {
+      console.log('Simple bot creation failed, trying full API:', error);
+      // Fallback to full API
+      return apiCall('/api/bots', {
+        method: 'POST',
+        body: JSON.stringify(botData),
+      });
+    }
   },
 
   // Get all bots
