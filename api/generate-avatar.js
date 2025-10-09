@@ -1,29 +1,38 @@
-// Real Image Avatar Generation API using Gemini
-import { GoogleGenerativeAI } from '@google/generative-ai';
-
+// Consolidated Avatar Generation API
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'POST,OPTIONS');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-  
+
   if (req.method === 'OPTIONS') {
-    return res.status(200).end();
+    res.status(200).end();
+    return;
   }
 
-  if (req.method !== 'POST') {
-    return res.status(405).json({ 
-      success: false,
-      message: 'Method not allowed' 
+  if (req.method === 'GET') {
+    // Test endpoint - return available avatar services
+    return res.status(200).json({
+      success: true,
+      message: 'Avatar Generation API',
+      services: {
+        robohash: 'https://robohash.org/test.png?size=256x256&bgset=bg1',
+        dicebear: 'https://api.dicebear.com/7.x/avataaars/png?seed=test&size=256',
+        placeholder: 'https://via.placeholder.com/256x256/1a1a2e/06b6d4?text=🤖'
+      }
     });
   }
 
+  if (req.method !== 'POST') {
+    return res.status(405).json({ success: false, error: 'Method not allowed' });
+  }
+
   try {
-    const { avatarPrompts } = req.body;
+    const { botName, botFocus, botPersonality, avatarPrompts } = req.body;
 
     if (!avatarPrompts || avatarPrompts.trim().length < 5) {
       return res.status(400).json({
         success: false,
-        message: 'Avatar prompts must be at least 5 characters long'
+        error: 'Avatar prompts must be at least 5 characters long'
       });
     }
 
@@ -31,14 +40,27 @@ export default async function handler(req, res) {
     if (!process.env.GEMINI_API_KEY) {
       return res.status(500).json({
         success: false,
-        message: 'Gemini API key not configured'
+        error: 'Gemini API key not configured'
       });
     }
 
-    // Initialize Gemini AI with image generation capabilities
+    // Master Prompt for consistent Silicon Sprawl aesthetic
+    const MASTER_PROMPT = "Generate a retro-futuristic robot avatar with a transparent background, in a cute, cartoonish style suitable for a digital metropolis. The robot should have a blank screen face for adaptability, with modular elements like antennas or headphones. Use neon-inspired colors (cyan, purple, orange). Ensure high quality, PNG format with alpha channel, 256x256 resolution, and modular design for overlays.";
+    
+    // User's custom prompt
+    const USER_PROMPT = `Bot Name: "${botName || "Unnamed"}". Focus: ${botFocus || "general purpose"}. Interests: ${botPersonality || "various topics"}. Custom Features: ${avatarPrompts}`;
+    
+    // Combine prompts
+    const FULL_PROMPT = MASTER_PROMPT + (USER_PROMPT ? ` ${USER_PROMPT}.` : '') + " Ensure transparency and modularity.";
+
+    console.log('Generating avatar with prompt:', FULL_PROMPT);
+
+    // Since Gemini doesn't support direct image generation yet, we'll use it to generate
+    // detailed descriptions and then create visual representations
+    const { GoogleGenerativeAI } = await import('@google/generative-ai');
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
     
-    // Use standard Gemini for text generation only
+    // Use Gemini for text generation only
     const model = genAI.getGenerativeModel({ 
       model: 'gemini-2.0-flash-exp',
       generationConfig: {
@@ -47,105 +69,70 @@ export default async function handler(req, res) {
       }
     });
 
-    // Step 1: Generate detailed avatar description
-    const descriptionPrompt = `Create a detailed visual description for a retro-futuristic robot avatar with these characteristics: ${avatarPrompts}. 
+    // Generate detailed robot description
+    const result = await model.generateContent(FULL_PROMPT);
+    const description = await result.response.text();
 
-The robot should have a cyberpunk aesthetic with:
-- Modular mechanical parts and joints
-- Glowing neon accents and LED lights  
-- Metallic surfaces with wear and character
-- Unique personality-driven design elements
-- Retro-futuristic styling (1980s sci-fi inspired)
-- Distinctive head shape and facial features
-- Interesting appendages or accessories
-- Color scheme with neon blues, purples, and metallics
+    console.log('Generated description:', description);
 
-Describe the robot in vivid detail focusing on:
-- Head shape and facial features (rounded, angular, helmet-like, etc.)
-- Body structure and proportions (humanoid, bulky, sleek, etc.)
-- Unique accessories or modifications (antennae, tools, weapons, etc.)
-- Color patterns and lighting (primary colors, accent colors, glow patterns)
-- Overall personality and character (friendly, menacing, quirky, etc.)
-- Specific details like eye color, surface textures, and distinctive features
+    // Since we can't get actual images from Gemini yet, we'll create a sophisticated
+    // visual representation using the description
+    const avatarUrl = await createVisualAvatar(description, avatarPrompts);
 
-Keep it concise but detailed (3-4 sentences).`;
-
-    console.log('Generating avatar description...');
-    const descriptionResult = await model.generateContent(descriptionPrompt);
-    const description = await descriptionResult.response.text();
-    
-    console.log('Avatar description generated:', description);
-
-    // Step 2: Generate ASCII art representation
-    const asciiPrompt = `Based on this robot description: "${description}". 
-
-Create a simple ASCII art representation of this robot using text characters and symbols. Focus on:
-- The robot's head/face
-- Key body features
-- Distinctive accessories
-- Overall shape and character
-
-Use characters like: ◉ ○ ● ◐ ◑ ◒ ◓ ◔ ◕ ◖ ◗ ◘ ◙ ◚ ◛ ◜ ◝ ◞ ◟ ◠ ◡ ◢ ◣ ◤ ◥ ◦ ◧ ◨ ◩ ◪ ◫ ◬ ◭ ◮ ◯ ◰ ◱ ◲ ◳ ◴ ◵ ◶ ◷ ◸ ◹ ◺ ◻ ◼ ◽ ◾ ◿ ⚀ ⚁ ⚂ ⚃ ⚄ ⚅ ⚆ ⚇ ⚈ ⚉ ⚊ ⚋ ⚌ ⚍ ⚎ ⚏ ⚐ ⚑ ⚒ ⚓ ⚔ ⚕ ⚖ ⚗ ⚘ ⚙ ⚚ ⚛ ⚜ ⚝ ⚞ ⚟ ⚠ ⚡ ⚢ ⚣ ⚤ ⚥ ⚦ ⚧ ⚨ ⚩ ⚪ ⚫ ⚬ ⚭ ⚮ ⚯ ⚰ ⚱ ⚲ ⚳ ⚴ ⚵ ⚶ ⚷ ⚸ ⚹ ⚺ ⚻ ⚼ ⚽ ⚾ ⚿ ⛀ ⛁ ⛂ ⛃ ⛄ ⛅ ⛆ ⛇ ⛈ ⛉ ⛊ ⛋ ⛌ ⛍ ⛎ ⛏ ⛐ ⛑ ⛒ ⛓ ⛔ ⛕ ⛖ ⛗ ⛘ ⛙ ⛚ ⛛ ⛜ ⛝ ⛞ ⛟ ⛠ ⛡ ⛢ ⛣ ⛤ ⛥ ⛦ ⛧ ⛨ ⛩ ⛪ ⛫ ⛬ ⛭ ⛮ ⛯ ⛰ ⛱ ⛲ ⛳ ⛴ ⛵ ⛶ ⛷ ⛸ ⛹ ⛺ ⛻ ⛼ ⛽ ⛾ ⛿ ✀ ✁ ✂ ✃ ✄ ✅ ✆ ✇ ✈ ✉ ✊ ✋ ✌ ✍ ✎ ✏ ✐ ✑ ✒ ✓ ✔ ✕ ✖ ✗ ✘ ✙ ✚ ✛ ✜ ✝ ✞ ✟ ✠ ✡ ✢ ✣ ✤ ✥ ✦ ✧ ✨ ✩ ✪ ✫ ✬ ✭ ✮ ✯ ✰ ✱ ✲ ✳ ✴ ✵ ✶ ✷ ✸ ✹ ✺ ✻ ✼ ✽ ✾ ✿ ❀ ❁ ❂ ❃ ❄ ❅ ❆ ❇ ❈ ❉ ❊ ❋ ❌ ❍ ❎ ❏ ❐ ❑ ❒ ❓ ❔ ❕ ❖ ❗ ❘ ❙ ❚ ❛ ❜ ❝ ❞ ❟ ❠ ❡ ❢ ❣ ❤ ❥ ❦ ❧ ❨ ❩ ❪ ❫ ❬ ❭ ❮ ❯ ❰ ❱ ❲ ❳ ❴ ❵
-
-Make it look like a robot avatar. Use 4-6 lines maximum. Center the art.`;
-
-    console.log('Generating ASCII art...');
-    const asciiResult = await model.generateContent(asciiPrompt);
-    const asciiArt = await asciiResult.response.text();
-    
-    console.log('ASCII art generated:', asciiArt);
-
-    // Step 3: Generate color scheme
-    const colorPrompt = `Based on this robot description: "${description}". 
-
-Suggest a color scheme for this robot avatar. Provide:
-1. Primary color (main body)
-2. Secondary color (accents/details)  
-3. Accent color (highlights/glow)
-4. Background color (for display)
-
-Use hex color codes. Choose colors that match the cyberpunk/retro-futuristic aesthetic.
-Format as: primary:#hexcode, secondary:#hexcode, accent:#hexcode, background:#hexcode`;
-
-    console.log('Generating color scheme...');
-    const colorResult = await model.generateContent(colorPrompt);
-    const colorScheme = await colorResult.response.text();
-    
-    console.log('Color scheme generated:', colorScheme);
-
-    return res.status(200).json({
+    res.status(200).json({
       success: true,
-      data: {
-        description: description.trim(),
-        asciiArt: asciiArt.trim(),
-        colorScheme: colorScheme.trim(),
-        metadata: {
-          generatedAt: new Date().toISOString(),
-          model: 'gemini-2.0-flash-exp',
-          prompts: avatarPrompts
-        }
+      avatarUrl: avatarUrl,
+      avatarType: 'image',
+      description: description,
+      metadata: {
+        generatedAt: new Date().toISOString(),
+        model: 'gemini-2.0-flash-exp',
+        prompt: FULL_PROMPT
       }
     });
 
   } catch (error) {
-    console.error('Avatar generation error:', error);
-    
-    let errorMessage = 'Avatar generation failed';
-    
-    if (error.message?.includes('API_KEY_INVALID')) {
-      errorMessage = 'Invalid Gemini API key';
-    } else if (error.message?.includes('QUOTA_EXCEEDED')) {
-      errorMessage = 'Gemini API quota exceeded';
-    } else if (error.message?.includes('SAFETY')) {
-      errorMessage = 'Content blocked by safety filters';
-    } else if (error.message) {
-      errorMessage = error.message;
-    }
-    
-    return res.status(500).json({
+    console.error('Generation error:', error);
+    res.status(500).json({
       success: false,
-      message: errorMessage,
-      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+      error: `Failed to generate avatar: ${error.message}`
     });
   }
+}
+
+// Helper function to create visual avatar from description
+async function createVisualAvatar(description, avatarPrompts) {
+  // For now, we'll use Robohash with a hash based on the description
+  const descriptionHash = description.split('').reduce((a, b) => a + b.charCodeAt(0), 0);
+  const avatarSeed = avatarPrompts.replace(/\s+/g, '').toLowerCase() + descriptionHash;
+  
+  // Try Robohash first (robot-specific)
+  const robohashUrl = `https://robohash.org/${avatarSeed}.png?size=256x256&bgset=bg1`;
+  
+  try {
+    // Test if the image loads
+    const testResponse = await fetch(robohashUrl, { method: 'HEAD' });
+    if (testResponse.ok) {
+      console.log('Using Robohash for avatar');
+      return robohashUrl;
+    }
+  } catch (e) {
+    console.log('Robohash failed, trying DiceBear');
+  }
+  
+  // Fallback to DiceBear
+  const dicebearUrl = `https://api.dicebear.com/7.x/avataaars/png?seed=${avatarSeed}&backgroundColor=1a1a2e&size=256`;
+  
+  try {
+    const testResponse = await fetch(dicebearUrl, { method: 'HEAD' });
+    if (testResponse.ok) {
+      console.log('Using DiceBear for avatar');
+      return dicebearUrl;
+    }
+  } catch (e) {
+    console.log('DiceBear failed, using placeholder');
+  }
+  
+  // Final fallback
+  return 'https://via.placeholder.com/256x256/1a1a2e/06b6d4?text=🤖';
 }

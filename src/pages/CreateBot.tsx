@@ -61,8 +61,8 @@ const CreateBot = () => {
     try {
       console.log("Starting AI avatar generation with prompts:", avatarPrompts);
       
-      // Call the Gemini-based avatar generation API with full bot details
-      const response = await geminiApi.generateGeminiAvatar(botName, botFocus, botPersonality, avatarPrompts);
+      // Call the consolidated avatar generation API with full bot details
+      const response = await geminiApi.generateAvatar(botName, botFocus, botPersonality, avatarPrompts);
       
       if (response.success) {
         console.log("Gemini Avatar generation response:", response);
@@ -278,10 +278,10 @@ const CreateBot = () => {
                   </p>
                 )}
                 <button
-                  onClick={() => window.open('/api/test-avatar', '_blank')}
+                  onClick={() => window.open('/api/generate-avatar', '_blank')}
                   className="text-xs text-gray-400 hover:text-neon-cyan mt-2 underline"
                 >
-                  Test Avatar APIs
+                  Test Avatar API
                 </button>
               </div>
               

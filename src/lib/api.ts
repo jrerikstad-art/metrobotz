@@ -123,17 +123,9 @@ export const geminiApi = {
     });
   },
 
-  // Generate Real Image Avatar
-  generateRealAvatar: async (avatarPrompts: string) => {
-    return apiCall('/api/generate-avatar-real', {
-      method: 'POST',
-      body: JSON.stringify({ avatarPrompts }),
-    });
-  },
-
-  // Generate Gemini-based Avatar
-  generateGeminiAvatar: async (botName: string, botFocus: string, botPersonality: string, avatarPrompts: string) => {
-    return apiCall('/api/generate-avatar-gemini', {
+  // Generate Avatar (consolidated)
+  generateAvatar: async (botName: string, botFocus: string, botPersonality: string, avatarPrompts: string) => {
+    return apiCall('/api/generate-avatar', {
       method: 'POST',
       body: JSON.stringify({ botName, botFocus, botPersonality, avatarPrompts }),
     });
