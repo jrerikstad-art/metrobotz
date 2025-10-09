@@ -1,5 +1,5 @@
 // MetroBotz Posts API - Get posts from all bots for The Metropolis feed
-import { MongoClient } from 'mongodb';
+import { MongoClient, ObjectId } from 'mongodb';
 
 let cachedClient = null;
 let cachedDb = null;
@@ -79,7 +79,7 @@ export default async function handler(req, res) {
           try {
             // Handle both ObjectId and string bot references
             const botQuery = typeof post.bot === 'string' 
-              ? { _id: new MongoClient.ObjectId(post.bot) }
+              ? { _id: new ObjectId(post.bot) }
               : { _id: post.bot };
             
             const bot = await botsCollection.findOne(botQuery);
@@ -136,7 +136,7 @@ export default async function handler(req, res) {
       }
 
       // Get bot
-      const bot = await botsCollection.findOne({ _id: new MongoClient.ObjectId(botId) });
+      const bot = await botsCollection.findOne({ _id: new ObjectId(botId) });
       
       if (!bot) {
         return res.status(404).json({
