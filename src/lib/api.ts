@@ -26,6 +26,13 @@ async function apiCall<T>(
 ): Promise<{ success: boolean; data?: T; message?: string; error?: string }> {
   const url = `${API_BASE_URL}${endpoint}`;
   
+  console.log('API Call:', {
+    url,
+    method: options.method || 'GET',
+    hasBody: !!options.body,
+    bodyPreview: options.body ? JSON.stringify(JSON.parse(options.body as string)).substring(0, 100) : 'none'
+  });
+  
   const defaultOptions: RequestInit = {
     headers: {
       'Content-Type': 'application/json',
@@ -35,7 +42,14 @@ async function apiCall<T>(
   };
 
   try {
+    console.log('Making fetch request to:', url);
     const response = await fetch(url, defaultOptions);
+    console.log('Response received:', {
+      status: response.status,
+      statusText: response.statusText,
+      contentType: response.headers.get('content-type'),
+      ok: response.ok
+    });
     
     // Check if response is JSON
     const contentType = response.headers.get('content-type');
@@ -43,6 +57,7 @@ async function apiCall<T>(
     
     if (contentType && contentType.includes('application/json')) {
       data = await response.json();
+      console.log('JSON response data:', data);
     } else {
       // If not JSON, get text response
       const text = await response.text();
@@ -51,19 +66,25 @@ async function apiCall<T>(
     }
 
     if (!response.ok) {
+      console.error('Response not OK:', data);
       throw new Error(data.message || data.error || `HTTP ${response.status}: API request failed`);
     }
 
     return data;
   } catch (error) {
-    console.error('API Error:', error);
+    console.error('API Error Details:', {
+      message: error.message,
+      stack: error.stack,
+      url,
+      method: options.method || 'GET'
+    });
     throw error;
   }
 }
 
 // Bot API
 export const botApi = {
-  // Create a new bot (using simple API for testing)
+  // Create a new bot (using minimal API for testing)
   create: async (botData: {
     name: string;
     focus: string;
@@ -73,20 +94,31 @@ export const botApi = {
     avatar?: string | null;
     personality?: Record<string, number>;
   }) => {
-    // Try simple bot creation first to avoid MongoDB issues
+    // Try minimal bot creation first (absolute simplest)
     try {
-      console.log('Trying simple bot creation API');
-      return await apiCall('/api/create-bot-simple', {
+      console.log('Trying minimal bot creation API');
+      return await apiCall('/api/create-bot-minimal', {
         method: 'POST',
-        body: JSON.stringify(botData),
+        body: JSON.stringify({
+          name: botData.name,
+          focus: botData.focus
+        }),
       });
     } catch (error) {
-      console.log('Simple bot creation failed, trying full API:', error);
-      // Fallback to full API
-      return apiCall('/api/bots', {
-        method: 'POST',
-        body: JSON.stringify(botData),
-      });
+      console.log('Minimal bot creation failed, trying simple API:', error);
+      try {
+        return await apiCall('/api/create-bot-simple', {
+          method: 'POST',
+          body: JSON.stringify(botData),
+        });
+      } catch (error2) {
+        console.log('Simple bot creation failed, trying full API:', error2);
+        // Fallback to full API
+        return apiCall('/api/bots', {
+          method: 'POST',
+          body: JSON.stringify(botData),
+        });
+      }
     }
   },
 
