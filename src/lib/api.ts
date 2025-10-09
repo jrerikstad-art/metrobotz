@@ -115,9 +115,17 @@ export const geminiApi = {
     });
   },
 
-  // Generate AI Avatar
+  // Generate AI Avatar (ASCII art version)
   generateAvatar: async (avatarPrompts: string) => {
     return apiCall('/api/generate-avatar', {
+      method: 'POST',
+      body: JSON.stringify({ avatarPrompts }),
+    });
+  },
+
+  // Generate Real Image Avatar
+  generateRealAvatar: async (avatarPrompts: string) => {
+    return apiCall('/api/generate-avatar-real', {
       method: 'POST',
       body: JSON.stringify({ avatarPrompts }),
     });

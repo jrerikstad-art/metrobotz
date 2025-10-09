@@ -61,111 +61,21 @@ const CreateBot = () => {
     try {
       console.log("Starting AI avatar generation with prompts:", avatarPrompts);
       
-      // Call the new advanced avatar generation API
-      const response = await geminiApi.generateAvatar(avatarPrompts);
+      // Call the real image avatar generation API
+      const response = await geminiApi.generateRealAvatar(avatarPrompts);
       
       if (response.success && response.data) {
-        console.log("AI Avatar generation response:", response.data);
+        console.log("Real Avatar generation response:", response.data);
         
-        const { description, asciiArt, colorScheme } = response.data;
+        const { avatarUrl, description } = response.data;
         
-        // Parse color scheme
-        let colors = {
-          primary: '#1a1a2e',
-          secondary: '#06b6d4', 
-          accent: '#00ffff',
-          background: '#0f3460'
-        };
+        // Set the real image URL directly
+        setGeneratedAvatar(avatarUrl);
         
-        try {
-          const colorMatches = colorScheme.match(/(\w+):(#[\da-fA-F]{6})/g);
-          if (colorMatches) {
-            colorMatches.forEach(match => {
-              const [key, value] = match.split(':');
-              colors[key] = value;
-            });
-          }
-        } catch (e) {
-          console.log("Using default colors");
-        }
-        
-        // Create a sophisticated avatar using the AI-generated content
-        const canvas = document.createElement('canvas');
-        const ctx = canvas.getContext('2d');
-        canvas.width = 400;
-        canvas.height = 400;
-        
-        if (ctx) {
-          // Draw cyberpunk background with AI-suggested colors
-          const gradient = ctx.createRadialGradient(200, 200, 0, 200, 200, 200);
-          gradient.addColorStop(0, colors.background);
-          gradient.addColorStop(0.7, '#1a1a2e');
-          gradient.addColorStop(1, '#0a0a0a');
-          ctx.fillStyle = gradient;
-          ctx.fillRect(0, 0, 400, 400);
-          
-          // Draw neon border with AI-suggested accent color
-          ctx.strokeStyle = colors.accent;
-          ctx.lineWidth = 4;
-          ctx.setLineDash([8, 8]);
-          ctx.strokeRect(10, 10, 380, 380);
-          ctx.setLineDash([]);
-          
-          // Draw inner glow border
-          ctx.strokeStyle = colors.secondary;
-          ctx.lineWidth = 2;
-          ctx.strokeRect(15, 15, 370, 370);
-          
-          // Draw the ASCII art in neon style with AI-suggested colors
-          ctx.fillStyle = colors.primary;
-          ctx.font = 'bold 18px monospace';
-          ctx.textAlign = 'center';
-          ctx.textBaseline = 'middle';
-          
-          const lines = asciiArt.split('\n').filter(line => line.trim());
-          const startY = 200 - (lines.length * 25) / 2;
-          
-          // Add glow effect
-          ctx.shadowColor = colors.accent;
-          ctx.shadowBlur = 15;
-          
-          lines.forEach((line, index) => {
-            ctx.fillText(line.trim(), 200, startY + (index * 25));
-          });
-          
-          // Add description text below
-          ctx.font = '12px Arial';
-          ctx.fillStyle = colors.secondary;
-          ctx.shadowBlur = 8;
-          ctx.shadowColor = colors.secondary;
-          
-          const descriptionLines = description.split('.').filter(line => line.trim());
-          descriptionLines.forEach((line, index) => {
-            if (index < 2) { // Show first 2 sentences
-              ctx.fillText(line.trim() + '.', 200, 320 + (index * 15));
-            }
-          });
-          
-          // Convert to data URL
-          const avatarDataUrl = canvas.toDataURL();
-          console.log("AI-generated avatar created:", avatarDataUrl.substring(0, 50) + "...");
-          
-          setGeneratedAvatar(avatarDataUrl);
-          
-          toast({
-            title: "🤖 AI Avatar Generated!",
-            description: `Your bot now has a unique AI-designed avatar with custom colors!`,
-          });
-          
-        } else {
-          console.error("Canvas context not available");
-          // Fallback: store the description for later use
-          setGeneratedAvatar(description);
-          toast({
-            title: "🎨 AI Avatar Description Generated",
-            description: "AI avatar concept created (visual generation pending)",
-          });
-        }
+        toast({
+          title: "🤖 Real Avatar Generated!",
+          description: `Your bot now has a unique robot avatar image!`,
+        });
         
       } else {
         throw new Error(response.message || "Failed to generate AI avatar");

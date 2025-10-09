@@ -1,4 +1,4 @@
-// Advanced Avatar Generation API using Gemini
+// Real Image Avatar Generation API using Gemini
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
 export default async function handler(req, res) {
@@ -35,15 +35,38 @@ export default async function handler(req, res) {
       });
     }
 
-    // Initialize Gemini AI
+    // Initialize Gemini AI with image generation capabilities
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-    const model = genAI.getGenerativeModel({ 
-      model: 'gemini-2.0-flash-exp',
-      generationConfig: {
-        maxOutputTokens: 1024,
-        temperature: 0.8,
-      }
-    });
+    
+    // Try to use Gemini 2.5 Flash with image generation
+    let model;
+    try {
+      model = genAI.getGenerativeModel({ 
+        model: 'gemini-2.5-flash',
+        generationConfig: {
+          responseMimeType: 'image/png',
+          responseSchema: {
+            type: 'object',
+            properties: {
+              image: {
+                type: 'string',
+                description: 'Base64 encoded PNG image'
+              }
+            }
+          }
+        }
+      });
+    } catch (error) {
+      console.log('Falling back to text-based generation:', error.message);
+      // Fallback to text generation if image generation not available
+      model = genAI.getGenerativeModel({ 
+        model: 'gemini-2.0-flash-exp',
+        generationConfig: {
+          maxOutputTokens: 1024,
+          temperature: 0.8,
+        }
+      });
+    }
 
     // Step 1: Generate detailed avatar description
     const descriptionPrompt = `Create a detailed visual description for a retro-futuristic robot avatar with these characteristics: ${avatarPrompts}. 
