@@ -62,19 +62,72 @@ const CreateBot = () => {
       // Generate avatar description using Gemini
       const avatarDescriptionPrompt = `Create a detailed description for a retro-futuristic robot avatar with these characteristics: ${avatarPrompts}. The robot should have a cyberpunk aesthetic with modular parts and glowing neon accents. Keep it concise (2-3 sentences).`;
       
-      const response = await geminiApi.testGenerate(avatarDescriptionPrompt, 'image');
+      const response = await geminiApi.testGenerate(avatarDescriptionPrompt, 'avatar');
       
-      if (response.success) {
-        toast({
-          title: "Avatar Description Generated",
-          description: "Your bot's avatar concept has been created!",
-        });
+      if (response.success && response.content) {
+        // Generate a visual avatar emoji/symbol based on the description
+        const emojiPrompt = `Based on this robot description: "${response.content}". Choose the most appropriate emoji or symbol from these options: 🤖, 🦾, 👾, 🤯, 🎭, 🎪, 🔧, ⚙️, 🚀, 🎸, 🎨, 🎮, 💎, 🌟, 🔮, 🎯, 🎪, 🎨, 🎭, 🔥. Respond with just the emoji and a brief 3-word description.`;
         
-        // For now, we're just generating a description
-        // In the future, this could call an image generation API (DALL-E, Stable Diffusion, etc.)
-        console.log("Generated avatar description:", response.content);
+        const emojiResponse = await geminiApi.testGenerate(emojiPrompt, 'emoji');
+        
+        if (emojiResponse.success && emojiResponse.content) {
+          // Extract emoji and description from response
+          const emojiMatch = emojiResponse.content.match(/[🤖🦾👾🤯🎭🎪🔧⚙️🚀🎸🎨🎮💎🌟🔮🎯🔥]/);
+          const emoji = emojiMatch ? emojiMatch[0] : '🤖';
+          
+          // Create a data URL for the emoji avatar
+          const canvas = document.createElement('canvas');
+          const ctx = canvas.getContext('2d');
+          canvas.width = 200;
+          canvas.height = 200;
+          
+          if (ctx) {
+            // Draw background circle
+            ctx.fillStyle = '#1a1a2e';
+            ctx.beginPath();
+            ctx.arc(100, 100, 90, 0, 2 * Math.PI);
+            ctx.fill();
+            
+            // Draw neon border
+            ctx.strokeStyle = '#06b6d4';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.arc(100, 100, 90, 0, 2 * Math.PI);
+            ctx.stroke();
+            
+            // Draw emoji
+            ctx.font = '80px Arial';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(emoji, 100, 100);
+            
+            // Convert to data URL
+            const avatarDataUrl = canvas.toDataURL();
+            setGeneratedAvatar(avatarDataUrl);
+            
+            toast({
+              title: "🎉 Avatar Generated!",
+              description: `Your bot now has a unique ${emoji} avatar!`,
+            });
+          } else {
+            // Fallback to emoji only
+            setGeneratedAvatar(emoji);
+            toast({
+              title: "🎉 Avatar Generated!",
+              description: `Your bot now has a unique ${emoji} avatar!`,
+            });
+          }
+        } else {
+          // Fallback to default emoji
+          setGeneratedAvatar('🤖');
+          toast({
+            title: "Avatar Generated",
+            description: "Your bot has a default robot avatar!",
+          });
+        }
       }
     } catch (error: any) {
+      console.error("Avatar generation error:", error);
       toast({
         variant: "destructive",
         title: "Avatar Generation Failed",
@@ -116,6 +169,7 @@ const CreateBot = () => {
         coreDirectives: combinedDirectives,
         interests: interestsList,
         avatarPrompts: avatarPrompts || undefined,
+        avatar: generatedAvatar || null, // Include the generated avatar
       };
 
       console.log("Creating bot with data:", botData);

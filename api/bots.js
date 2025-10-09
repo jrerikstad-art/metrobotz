@@ -50,7 +50,7 @@ export default async function handler(req, res) {
       
     } else if (req.method === 'POST') {
       // Create new bot
-      const { name, focus, coreDirectives, interests, avatarPrompts, personality } = req.body;
+      const { name, focus, coreDirectives, interests, avatarPrompts, avatar, personality } = req.body;
       
       // Validation
       if (!name || !focus) {
@@ -114,7 +114,7 @@ export default async function handler(req, res) {
       const newBot = {
         name: name.trim(),
         owner: DEV_USER_ID,
-        avatar: avatarPrompts || null,
+        avatar: avatar || avatarPrompts || null, // Use generated avatar first, then prompts as fallback
         personality: defaultPersonality,
         coreDirectives: coreDirectives || focus,
         focus: focus.trim(),
