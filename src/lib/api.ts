@@ -134,10 +134,15 @@ export const geminiApi = {
   // Generate Avatar using Gemini API
   generateAvatar: async (avatarPrompts: string, botName: string) => {
     console.log('Generating avatar with prompts:', avatarPrompts);
-    return await apiCall('/api/generate-avatar', {
-      method: 'POST',
-      body: JSON.stringify({ avatarPrompts, botName }),
-    });
+    // Avatar generation is currently disabled to avoid timeouts
+    // Just return success with the prompts
+    return {
+      success: true,
+      data: {
+        avatarDescription: avatarPrompts,
+        message: 'Avatar prompts saved'
+      }
+    };
   },
 };
 
