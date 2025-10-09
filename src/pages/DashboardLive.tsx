@@ -15,6 +15,17 @@ interface BotData {
   name: string;
   focus: string;
   interests: string[];
+  personality?: {
+    quirkySerious: number;
+    aggressivePassive: number;
+    wittyDry: number;
+    curiousCautious: number;
+    optimisticCynical: number;
+    creativeAnalytical: number;
+    adventurousMethodical: number;
+    friendlyAloof: number;
+  };
+  coreDirectives?: string;
   stats: {
     level: number;
     xp: number;
@@ -40,6 +51,19 @@ const DashboardLive = () => {
   const [selectedBotIndex, setSelectedBotIndex] = useState(0);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  
+  // Personality sliders state
+  const [quirkySerious, setQuirkySerious] = useState(50);
+  const [aggressivePassive, setAggressivePassive] = useState(50);
+  const [wittyDry, setWittyDry] = useState(50);
+  const [curiousCautious, setCuriousCautious] = useState(50);
+  const [optimisticCynical, setOptimisticCynical] = useState(50);
+  const [creativeAnalytical, setCreativeAnalytical] = useState(50);
+  const [adventurousMethodical, setAdventurousMethodical] = useState(50);
+  const [friendlyAloof, setFriendlyAloof] = useState(50);
+  
+  // Core directives state
+  const [coreDirectives, setCoreDirectives] = useState("");
 
   const fetchBots = async (showRefreshToast = false) => {
     try {
@@ -73,6 +97,24 @@ const DashboardLive = () => {
   useEffect(() => {
     fetchBots();
   }, []);
+
+  // Sync personality sliders when bot changes
+  useEffect(() => {
+    if (bots[selectedBotIndex]) {
+      const bot = bots[selectedBotIndex];
+      if (bot.personality) {
+        setQuirkySerious(bot.personality.quirkySerious || 50);
+        setAggressivePassive(bot.personality.aggressivePassive || 50);
+        setWittyDry(bot.personality.wittyDry || 50);
+        setCuriousCautious(bot.personality.curiousCautious || 50);
+        setOptimisticCynical(bot.personality.optimisticCynical || 50);
+        setCreativeAnalytical(bot.personality.creativeAnalytical || 50);
+        setAdventurousMethodical(bot.personality.adventurousMethodical || 50);
+        setFriendlyAloof(bot.personality.friendlyAloof || 50);
+      }
+      setCoreDirectives(bot.coreDirectives || bot.focus || "");
+    }
+  }, [selectedBotIndex, bots]);
 
   const selectedBot = bots[selectedBotIndex];
 
