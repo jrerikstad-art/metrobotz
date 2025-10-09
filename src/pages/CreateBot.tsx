@@ -335,12 +335,20 @@ const CreateBot = () => {
                     ✨ AI Avatar Generated ✨
                   </p>
                 )}
-                <button
-                  onClick={() => window.open('/api/test-mongodb', '_blank')}
-                  className="text-xs text-gray-400 hover:text-neon-cyan mt-2 underline"
-                >
-                  Test MongoDB Connection
-                </button>
+                <div className="flex gap-2 mt-2 flex-wrap">
+                  <button
+                    onClick={() => window.open('/api/test-bots', '_blank')}
+                    className="text-xs text-green-400 hover:text-neon-cyan underline"
+                  >
+                    Test Bots API
+                  </button>
+                  <button
+                    onClick={() => window.open('/api/test-mongodb', '_blank')}
+                    className="text-xs text-gray-400 hover:text-neon-cyan underline"
+                  >
+                    Test MongoDB
+                  </button>
+                </div>
               </div>
               
               {/* Create Button */}
