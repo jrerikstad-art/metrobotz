@@ -135,13 +135,14 @@ const CreateBot = () => {
         coreDirectives: combinedDirectives,
         interests: interestsList,
         avatarPrompts: avatarPrompts || undefined,
-        avatar: generatedAvatar || null, // Include the generated avatar
+        avatar: generatedAvatar || correctRobot, // Use generated avatar or default robot
       };
 
       console.log("Creating bot with data:", botData);
       console.log("Generated avatar:", generatedAvatar);
 
       // Call API to create bot
+      console.log("Calling botApi.create with:", botData);
       const response = await botApi.create(botData);
       console.log("Bot creation response:", response);
 
@@ -156,7 +157,8 @@ const CreateBot = () => {
           navigate('/dashboard');
         }, 1500);
       } else {
-        throw new Error(response.message || 'Failed to create bot');
+        console.error("Bot creation failed:", response);
+        throw new Error(response.message || response.error || 'Failed to create bot');
       }
     } catch (error: any) {
       console.error("Bot creation error:", error);
