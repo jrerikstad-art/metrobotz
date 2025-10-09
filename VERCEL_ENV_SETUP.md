@@ -221,3 +221,4 @@ Once both variables are in Vercel and you've redeployed:
 
 **Ready to go! Just add those 2 variables to Vercel and redeploy! 🚀**
 
+
