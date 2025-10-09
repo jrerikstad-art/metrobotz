@@ -94,17 +94,17 @@ export const botApi = {
     avatar?: string | null;
     personality?: Record<string, number>;
   }) => {
-    // Try fallback API first (no MongoDB dependency)
+    // Try main API first (now optimized)
     try {
-      console.log('Trying fallback bot creation API');
-      return await apiCall('/api/bots-fallback', {
+      console.log('Trying main bot creation API');
+      return await apiCall('/api/bots', {
         method: 'POST',
         body: JSON.stringify(botData),
       });
     } catch (error) {
-      console.log('Fallback API failed, trying main API:', error);
-      // Fallback to main API
-      return apiCall('/api/bots', {
+      console.log('Main API failed, trying fallback API:', error);
+      // Fallback to fallback API
+      return await apiCall('/api/bots-fallback', {
         method: 'POST',
         body: JSON.stringify(botData),
       });
@@ -114,13 +114,13 @@ export const botApi = {
   // Get all bots (with fallback)
   getAll: async () => {
     try {
-      console.log('Trying fallback bots API');
-      return await apiCall('/api/bots-fallback', {
+      console.log('Trying main bots API');
+      return await apiCall('/api/bots', {
         method: 'GET',
       });
     } catch (error) {
-      console.log('Fallback API failed, trying main API:', error);
-      return apiCall('/api/bots', {
+      console.log('Main API failed, trying fallback API:', error);
+      return await apiCall('/api/bots-fallback', {
         method: 'GET',
       });
     }
