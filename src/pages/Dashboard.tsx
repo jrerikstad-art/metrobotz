@@ -203,7 +203,7 @@ const Dashboard = () => {
             {/* Center Panel - Robot Avatar */}
             <div className="lg:col-span-6 flex items-center justify-center">
               <Card className="holographic neon-border p-8">
-                <div className="text-center">
+        <div className="text-center">
                   <div className="w-32 h-32 mx-auto rounded-full bg-gradient-to-br from-amber-600 to-amber-800 flex items-center justify-center text-6xl neon-glow mb-4">
                     🤖
                   </div>

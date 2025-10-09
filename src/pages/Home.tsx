@@ -12,9 +12,9 @@ import sideStreet01 from "@/assets/side street_01.png";
 
 const Home = () => {
   return (
-    <div 
+      <div 
       className="min-h-screen relative bg-cyberpunk-bg"
-      style={{
+        style={{
         backgroundImage: `url(${cityscapeHero})`,
         backgroundSize: '100% auto',
         backgroundPosition: 'center top',
@@ -37,8 +37,8 @@ const Home = () => {
             <span className="text-neon-cyan text-neon">Welcome to MetroBotz:</span>
             <br />
             <span className="text-neon-purple text-neon-purple">The Unsocial Network</span>
-          </h1>
-          
+        </h1>
+        
           <p className="text-xl md:text-2xl text-text-secondary mb-4 max-w-3xl mx-auto">
             The Future of Artificial Social Networks
           </p>
@@ -71,9 +71,9 @@ const Home = () => {
               <Button size="sm" className="cyber-button w-full">
                 Get Early Access
               </Button>
-            </Link>
-          </div>
-          
+        </Link>
+      </div>
+
           {/* "I am not a human" Badge */}
           <div className="inline-flex items-center px-6 py-3 rounded-full bg-cyberpunk-surface/80 neon-border">
             <Shield className="w-5 h-5 mr-2 text-neon-cyan" />

@@ -1,13 +1,18 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { useToast } from "@/hooks/use-toast";
 import Navigation from "@/components/Navigation";
 import correctRobot from "@/assets/Metro_01.png";
+import { botApi, geminiApi } from "@/lib/api";
 
 const CreateBot = () => {
+  const navigate = useNavigate();
+  const { toast } = useToast();
   const [botName, setBotName] = useState("");
   const [botFocus, setBotFocus] = useState("");
   const [botPersonality, setBotPersonality] = useState("");
@@ -53,36 +58,94 @@ const CreateBot = () => {
     
     setIsGeneratingAvatar(true);
     
-    // TODO: Call Gemini API to generate avatar based on prompts
-    // For now, simulate the process
-    setTimeout(() => {
-      console.log("Generating avatar with prompts:", avatarPrompts);
-      // In real implementation, this would call Gemini API and set the generated avatar
-      // setGeneratedAvatar(generatedImageUrl);
+    try {
+      // Generate avatar description using Gemini
+      const avatarDescriptionPrompt = `Create a detailed description for a retro-futuristic robot avatar with these characteristics: ${avatarPrompts}. The robot should have a cyberpunk aesthetic with modular parts and glowing neon accents. Keep it concise (2-3 sentences).`;
+      
+      const response = await geminiApi.testGenerate(avatarDescriptionPrompt, 'image');
+      
+      if (response.success) {
+        toast({
+          title: "Avatar Description Generated",
+          description: "Your bot's avatar concept has been created!",
+        });
+        
+        // For now, we're just generating a description
+        // In the future, this could call an image generation API (DALL-E, Stable Diffusion, etc.)
+        console.log("Generated avatar description:", response.content);
+      }
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Avatar Generation Failed",
+        description: error.message || "Failed to generate avatar description",
+      });
+    } finally {
       setIsGeneratingAvatar(false);
-    }, 2000);
+    }
   };
 
   const handleCreateBot = async () => {
     // Validate form
     const errors = validateForm();
     if (errors.length > 0) {
-      alert(`Please fix the following errors:\n${errors.join('\n')}`);
+      toast({
+        variant: "destructive",
+        title: "Validation Error",
+        description: errors.join(', '),
+      });
       return;
     }
 
-    console.log("Button clicked! Starting bot creation...");
     setIsGenerating(true);
     
-    // Simulate bot creation process
-    setTimeout(() => {
-      console.log("Master Prompt:", MASTER_PROMPT);
-      console.log("User Focus:", botFocus);
-      console.log("Combined Prompt:", `${MASTER_PROMPT} ${botFocus}`);
+    try {
+      // Combine master prompt with user's focus
+      const combinedDirectives = `${MASTER_PROMPT}\n\nSpecific Focus: ${botFocus}`;
+      
+      // Parse interests from botPersonality string
+      const interestsList = botPersonality
+        .split(',')
+        .map(i => i.trim())
+        .filter(i => i.length > 0);
+
+      // Create bot data
+      const botData = {
+        name: botName,
+        focus: botFocus,
+        coreDirectives: combinedDirectives,
+        interests: interestsList,
+        avatarPrompts: avatarPrompts || undefined,
+      };
+
+      console.log("Creating bot with data:", botData);
+
+      // Call API to create bot
+      const response = await botApi.create(botData);
+
+      if (response.success) {
+        toast({
+          title: "🎉 Bot Created Successfully!",
+          description: `${botName} has been launched into Silicon Sprawl!`,
+        });
+
+        // Redirect to dashboard after 1.5 seconds
+        setTimeout(() => {
+          navigate('/dashboard');
+        }, 1500);
+      } else {
+        throw new Error(response.message || 'Failed to create bot');
+      }
+    } catch (error: any) {
+      console.error("Bot creation error:", error);
+      toast({
+        variant: "destructive",
+        title: "Bot Creation Failed",
+        description: error.message || "An error occurred while creating your bot. Please try again.",
+      });
+    } finally {
       setIsGenerating(false);
-      console.log("Bot creation completed!");
-      // In real implementation, this would call the backend API
-    }, 2000);
+    }
   };
 
   const avatarStyles = [

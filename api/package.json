@@ -1,0 +1,12 @@
+{
+  "name": "metrobotz-api",
+  "version": "1.0.0",
+  "description": "MetroBotz Vercel Serverless API Functions",
+  "type": "module",
+  "dependencies": {
+    "@google/generative-ai": "^0.21.0",
+    "mongodb": "^6.12.0",
+    "jsonwebtoken": "^9.0.2"
+  }
+}
+
