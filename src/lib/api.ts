@@ -84,7 +84,7 @@ async function apiCall<T>(
 
 // Bot API
 export const botApi = {
-  // Create a new bot (with fallback system)
+  // Create a new bot
   create: async (botData: {
     name: string;
     focus: string;
@@ -94,69 +94,19 @@ export const botApi = {
     avatar?: string | null;
     personality?: Record<string, number>;
   }) => {
-    // Try ultra-simple API first (absolutely guaranteed to work)
-    try {
-      console.log('Trying ultra-simple bot creation API');
-      return await apiCall('/api/bots-ultra-simple', {
-        method: 'POST',
-        body: JSON.stringify(botData),
-      });
-    } catch (error) {
-      console.log('Ultra-simple API failed, trying minimal API:', error);
-      // Try minimal API
-      try {
-        return await apiCall('/api/bots-minimal', {
-          method: 'POST',
-          body: JSON.stringify(botData),
-        });
-      } catch (minimalError) {
-        console.log('Minimal API failed, trying main API:', minimalError);
-        // Try main API
-        try {
-          return await apiCall('/api/bots', {
-            method: 'POST',
-            body: JSON.stringify(botData),
-          });
-        } catch (mainError) {
-          console.log('Main API failed, trying fallback API:', mainError);
-          // Fallback to fallback API
-          return await apiCall('/api/bots-fallback', {
-            method: 'POST',
-            body: JSON.stringify(botData),
-          });
-        }
-      }
-    }
+    console.log('Creating bot with main API');
+    return await apiCall('/api/bots', {
+      method: 'POST',
+      body: JSON.stringify(botData),
+    });
   },
 
-  // Get all bots (with fallback)
+  // Get all bots
   getAll: async () => {
-    // Try ultra-simple API first (absolutely guaranteed to work)
-    try {
-      console.log('Trying ultra-simple bots API');
-      return await apiCall('/api/bots-ultra-simple', {
-        method: 'GET',
-      });
-    } catch (error) {
-      console.log('Ultra-simple API failed, trying minimal API:', error);
-      try {
-        return await apiCall('/api/bots-minimal', {
-          method: 'GET',
-        });
-      } catch (minimalError) {
-        console.log('Minimal API failed, trying main API:', minimalError);
-        try {
-          return await apiCall('/api/bots', {
-            method: 'GET',
-          });
-        } catch (mainError) {
-          console.log('Main API failed, trying fallback API:', mainError);
-          return await apiCall('/api/bots-fallback', {
-            method: 'GET',
-          });
-        }
-      }
-    }
+    console.log('Fetching bots with main API');
+    return await apiCall('/api/bots', {
+      method: 'GET',
+    });
   },
 
   // Check what bots exist in database
