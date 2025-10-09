@@ -1,7 +1,16 @@
 {
+  "buildCommand": "npm run build",
   "functions": {
     "api/bots.js": {
       "memory": 2048,
+      "maxDuration": 10
+    },
+    "api/bots-safe.js": {
+      "memory": 1024,
+      "maxDuration": 10
+    },
+    "api/posts-safe.js": {
+      "memory": 1024,
       "maxDuration": 10
     },
     "api/**/*.js": {
