@@ -155,22 +155,13 @@ export const geminiApi = {
     });
   },
 
-  // Generate AI Avatar (ASCII art version)
-  generateAvatar: async (avatarPrompts: string) => {
-    return apiCall('/api/generate-avatar', {
+  // Generate Avatar using Gemini API
+  generateAvatar: async (avatarPrompts: string, botName: string) => {
+    console.log('Generating avatar with prompts:', avatarPrompts);
+    return await apiCall('/api/generate-avatar', {
       method: 'POST',
-      body: JSON.stringify({ avatarPrompts }),
+      body: JSON.stringify({ avatarPrompts, botName }),
     });
-  },
-
-  // Generate Avatar (disabled to avoid timeouts)
-  generateAvatar: async (botName: string, botFocus: string, botPersonality: string, avatarPrompts: string) => {
-    // Return a mock response to avoid API timeouts
-    return {
-      success: true,
-      avatarUrl: '🤖', // Default robot emoji
-      description: 'Default robot avatar'
-    };
   },
 };
 

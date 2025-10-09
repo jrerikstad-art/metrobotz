@@ -73,7 +73,7 @@ export default async function handler(req, res) {
         outputTokens,
         cost,
         generationTime,
-        model: 'gemini-2.0-flash-exp'
+        model: 'gemini-2.5-flash'
       }
     });
 

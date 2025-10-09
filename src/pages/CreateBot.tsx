@@ -60,30 +60,40 @@ const CreateBot = () => {
   };
 
   const handleGenerateAvatar = async () => {
-    if (!avatarPrompts.trim()) return;
+    if (!avatarPrompts.trim() || !botName.trim()) return;
     
     setIsGeneratingAvatar(true);
     
     try {
-      console.log("Generating simple avatar for:", avatarPrompts);
+      console.log("Generating avatar for:", botName, "with prompts:", avatarPrompts);
       
-      // Use a simple default robot avatar for now
-      // This can be enhanced later with AI generation
-      const defaultAvatar = correctRobot; // Use the existing robot image
+      // Call the new avatar generation API
+      const response = await geminiApi.generateAvatar(avatarPrompts, botName);
       
-      setGeneratedAvatar(defaultAvatar);
-      
-      toast({
-        title: "🤖 Avatar Set!",
-        description: `Your bot now has a default robot avatar!`,
-      });
+      if (response.success) {
+        console.log("Avatar generation successful:", response.data);
+        
+        // For now, use the description to create a visual representation
+        // In the future, this could be an actual generated image
+        const avatarDescription = response.data?.avatarDescription || 'AI-generated robot avatar';
+        
+        // Set the avatar (using description for now, will be image URL later)
+        setGeneratedAvatar(avatarDescription);
+        
+        toast({
+          title: "🎨 Avatar Generated!",
+          description: `AI has created a unique avatar for ${botName}!`,
+        });
+      } else {
+        throw new Error(response.message || 'Avatar generation failed');
+      }
       
     } catch (error: any) {
       console.error("Avatar generation error:", error);
       toast({
         variant: "destructive",
         title: "Avatar Generation Failed",
-        description: "Using default robot avatar",
+        description: error.message || "Using default robot avatar",
       });
       // Set default avatar even on error
       setGeneratedAvatar(correctRobot);

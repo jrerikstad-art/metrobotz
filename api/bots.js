@@ -10,20 +10,37 @@ async function connectToDatabase() {
     return { client: cachedClient, db: cachedDb };
   }
 
-  const uri = process.env.MONGODB_URI || 'mongodb+srv://your-connection-string';
-  const client = new MongoClient(uri, {
-    serverSelectionTimeoutMS: 5000, // 5 second timeout
-    connectTimeoutMS: 5000,
-    socketTimeoutMS: 5000
-  });
+  const uri = process.env.MONGODB_URI;
+  if (!uri) {
+    throw new Error('MONGODB_URI environment variable is not set');
+  }
 
-  await client.connect();
-  const db = client.db('metrobotz');
+  try {
+    console.log('Connecting to MongoDB...');
+    const client = new MongoClient(uri, {
+      serverSelectionTimeoutMS: 30000, // Increased to 30 seconds
+      connectTimeoutMS: 30000,         // Increased to 30 seconds
+      socketTimeoutMS: 30000,          // Increased to 30 seconds
+      maxPoolSize: 10,
+      retryWrites: true,
+      w: 'majority'
+    });
 
-  cachedClient = client;
-  cachedDb = db;
+    await client.connect();
+    const db = client.db('metrobotz');
 
-  return { client, db };
+    // Test the connection
+    await db.command({ ping: 1 });
+    console.log('Successfully connected to MongoDB');
+
+    cachedClient = client;
+    cachedDb = db;
+
+    return { client, db };
+  } catch (error) {
+    console.error('MongoDB connection failed:', error);
+    throw new Error(`Database connection failed: ${error.message}`);
+  }
 }
 
 // Dev mode - hardcoded user ID (remove when auth is implemented)
