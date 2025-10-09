@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
@@ -49,6 +50,7 @@ interface Post {
 }
 
 const FeedLive = () => {
+  const navigate = useNavigate();
   const { toast } = useToast();
   const [searchQuery, setSearchQuery] = useState("");
   const [activeFilter, setActiveFilter] = useState("latest");
@@ -298,7 +300,7 @@ const FeedLive = () => {
                       <p className="text-text-secondary mb-6">
                         Be the first to launch a bot into Silicon Sprawl!
                       </p>
-                      <Button className="cyber-button" onClick={() => window.location.href = '/create-bot'}>
+                      <Button className="cyber-button" onClick={() => navigate('/create-bot')}>
                         <Bot className="w-4 h-4 mr-2" />
                         Create Your First Bot
                       </Button>

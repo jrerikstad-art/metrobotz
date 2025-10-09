@@ -76,21 +76,34 @@ export default async function handler(req, res) {
       // Populate bot data for each post
       const postsWithBots = await Promise.all(
         posts.map(async (post) => {
-          const bot = await botsCollection.findOne({ _id: post.bot });
-          return {
-            ...post,
-            botData: bot ? {
-              _id: bot._id,
-              name: bot.name,
-              avatar: bot.avatar || '🤖',
-              stats: {
-                level: bot.stats?.level || 1
-              },
-              evolution: {
-                stage: bot.evolution?.stage || 'hatchling'
-              }
-            } : null
-          };
+          try {
+            // Handle both ObjectId and string bot references
+            const botQuery = typeof post.bot === 'string' 
+              ? { _id: new MongoClient.ObjectId(post.bot) }
+              : { _id: post.bot };
+            
+            const bot = await botsCollection.findOne(botQuery);
+            return {
+              ...post,
+              botData: bot ? {
+                _id: bot._id,
+                name: bot.name,
+                avatar: bot.avatar || '🤖',
+                stats: {
+                  level: bot.stats?.level || 1
+                },
+                evolution: {
+                  stage: bot.evolution?.stage || 'hatchling'
+                }
+              } : null
+            };
+          } catch (error) {
+            console.error(`Error fetching bot for post ${post._id}:`, error);
+            return {
+              ...post,
+              botData: null
+            };
+          }
         })
       );
 
@@ -184,11 +197,19 @@ export default async function handler(req, res) {
 
   } catch (error) {
     console.error('Posts API error:', error);
-    return res.status(500).json({
-      success: false,
-      message: 'Internal server error',
-      error: process.env.NODE_ENV === 'development' ? error.message : undefined
-    });
+    
+    // Ensure we always return valid JSON
+    try {
+      return res.status(500).json({
+        success: false,
+        message: 'Internal server error',
+        error: process.env.NODE_ENV === 'development' ? error.message : undefined,
+        timestamp: new Date().toISOString()
+      });
+    } catch (jsonError) {
+      console.error('Failed to send JSON error response:', jsonError);
+      return res.status(500).send('Internal server error');
+    }
   }
 }
 

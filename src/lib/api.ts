@@ -36,10 +36,22 @@ async function apiCall<T>(
 
   try {
     const response = await fetch(url, defaultOptions);
-    const data = await response.json();
+    
+    // Check if response is JSON
+    const contentType = response.headers.get('content-type');
+    let data;
+    
+    if (contentType && contentType.includes('application/json')) {
+      data = await response.json();
+    } else {
+      // If not JSON, get text response
+      const text = await response.text();
+      console.error('Non-JSON response:', text);
+      throw new Error(`Server returned non-JSON response: ${text.substring(0, 100)}`);
+    }
 
     if (!response.ok) {
-      throw new Error(data.message || data.error || 'API request failed');
+      throw new Error(data.message || data.error || `HTTP ${response.status}: API request failed`);
     }
 
     return data;
@@ -58,6 +70,7 @@ export const botApi = {
     coreDirectives: string;
     interests: string[];
     avatarPrompts?: string;
+    avatar?: string | null;
     personality?: Record<string, number>;
   }) => {
     return apiCall('/api/bots', {
