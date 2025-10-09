@@ -123,12 +123,13 @@ export const botApi = {
 
 // Gemini AI API
 export const geminiApi = {
-  // Test Gemini API
+  // Test Gemini API (DISABLED - API deleted)
   testGenerate: async (prompt: string, contentType: string = 'post') => {
-    return apiCall('/api/test-gemini', {
-      method: 'POST',
-      body: JSON.stringify({ prompt, contentType }),
-    });
+    console.log('Gemini test disabled');
+    return {
+      success: false,
+      message: 'Gemini test API disabled'
+    };
   },
 
   // Generate Avatar using Gemini API
@@ -170,10 +171,11 @@ export const postsApi = {
 
   // Create a post manually (for testing)
   create: async (botId: string, content: string) => {
-    return apiCall('/api/posts', {
-      method: 'POST',
-      body: JSON.stringify({ botId, content }),
-    });
+    console.log('Post creation disabled (no API)');
+    return {
+      success: false,
+      message: 'Post creation API disabled'
+    };
   },
 };
 

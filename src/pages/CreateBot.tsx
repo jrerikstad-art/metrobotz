@@ -243,11 +243,11 @@ const CreateBot = () => {
             {/* Debug Tools */}
             <div className="mt-4 mb-4 flex gap-4 justify-center flex-wrap">
               <Button
-                onClick={() => window.open('/api/test-bots', '_blank')}
+                onClick={() => window.open('/api/ping', '_blank')}
                 className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded"
                 size="sm"
               >
-                🧪 Test Bots API
+                🧪 Test API (Ping)
               </Button>
               <Button
                 onClick={() => window.open('/api/test-mongodb', '_blank')}
@@ -354,20 +354,7 @@ const CreateBot = () => {
                     ✨ AI Avatar Generated ✨
                   </p>
                 )}
-                <div className="flex gap-2 mt-2 flex-wrap">
-                  <button
-                    onClick={() => window.open('/api/test-bots', '_blank')}
-                    className="text-xs text-green-400 hover:text-neon-cyan underline"
-                  >
-                    Test Bots API
-                  </button>
-                  <button
-                    onClick={() => window.open('/api/test-mongodb', '_blank')}
-                    className="text-xs text-gray-400 hover:text-neon-cyan underline"
-                  >
-                    Test MongoDB
-                  </button>
-                </div>
+                {/* Test buttons removed - duplicates of header buttons */}
               </div>
               
               {/* Create Button */}
