@@ -338,10 +338,10 @@ const CreateBot = () => {
                   </p>
                 )}
                 <button
-                  onClick={() => window.open('/api/health', '_blank')}
+                  onClick={() => window.open('/api/test-mongodb', '_blank')}
                   className="text-xs text-gray-400 hover:text-neon-cyan mt-2 underline"
                 >
-                  Test API Health
+                  Test MongoDB Connection
                 </button>
               </div>
               
