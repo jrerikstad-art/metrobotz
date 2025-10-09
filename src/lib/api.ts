@@ -84,7 +84,7 @@ async function apiCall<T>(
 
 // Bot API
 export const botApi = {
-  // Create a new bot (using minimal API for testing)
+  // Create a new bot (using existing deployed API)
   create: async (botData: {
     name: string;
     focus: string;
@@ -94,32 +94,12 @@ export const botApi = {
     avatar?: string | null;
     personality?: Record<string, number>;
   }) => {
-    // Try minimal bot creation first (absolute simplest)
-    try {
-      console.log('Trying minimal bot creation API');
-      return await apiCall('/api/create-bot-minimal', {
-        method: 'POST',
-        body: JSON.stringify({
-          name: botData.name,
-          focus: botData.focus
-        }),
-      });
-    } catch (error) {
-      console.log('Minimal bot creation failed, trying simple API:', error);
-      try {
-        return await apiCall('/api/create-bot-simple', {
-          method: 'POST',
-          body: JSON.stringify(botData),
-        });
-      } catch (error2) {
-        console.log('Simple bot creation failed, trying full API:', error2);
-        // Fallback to full API
-        return apiCall('/api/bots', {
-          method: 'POST',
-          body: JSON.stringify(botData),
-        });
-      }
-    }
+    // Use the existing deployed API for now
+    console.log('Using existing deployed bot creation API');
+    return apiCall('/api/bots', {
+      method: 'POST',
+      body: JSON.stringify(botData),
+    });
   },
 
   // Get all bots
