@@ -41,8 +41,20 @@ export default async function handler(req, res) {
 
   try {
     console.log('Connecting to database...');
-    const { db } = await connectToDatabase();
-    console.log('Database connected successfully');
+    let db;
+    try {
+      const connection = await connectToDatabase();
+      db = connection.db;
+      console.log('Database connected successfully');
+    } catch (dbError) {
+      console.error('Database connection failed:', dbError);
+      return res.status(500).json({
+        success: false,
+        message: 'Database connection failed',
+        error: process.env.NODE_ENV === 'development' ? dbError.message : 'Database unavailable'
+      });
+    }
+    
     const botsCollection = db.collection('bots');
 
     if (req.method === 'GET') {

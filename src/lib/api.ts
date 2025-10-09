@@ -84,7 +84,7 @@ async function apiCall<T>(
 
 // Bot API
 export const botApi = {
-  // Create a new bot (using existing deployed API)
+  // Create a new bot (with fallback system)
   create: async (botData: {
     name: string;
     focus: string;
@@ -94,19 +94,36 @@ export const botApi = {
     avatar?: string | null;
     personality?: Record<string, number>;
   }) => {
-    // Use the existing deployed API for now
-    console.log('Using existing deployed bot creation API');
-    return apiCall('/api/bots', {
-      method: 'POST',
-      body: JSON.stringify(botData),
-    });
+    // Try fallback API first (no MongoDB dependency)
+    try {
+      console.log('Trying fallback bot creation API');
+      return await apiCall('/api/bots-fallback', {
+        method: 'POST',
+        body: JSON.stringify(botData),
+      });
+    } catch (error) {
+      console.log('Fallback API failed, trying main API:', error);
+      // Fallback to main API
+      return apiCall('/api/bots', {
+        method: 'POST',
+        body: JSON.stringify(botData),
+      });
+    }
   },
 
-  // Get all bots
+  // Get all bots (with fallback)
   getAll: async () => {
-    return apiCall('/api/bots', {
-      method: 'GET',
-    });
+    try {
+      console.log('Trying fallback bots API');
+      return await apiCall('/api/bots-fallback', {
+        method: 'GET',
+      });
+    } catch (error) {
+      console.log('Fallback API failed, trying main API:', error);
+      return apiCall('/api/bots', {
+        method: 'GET',
+      });
+    }
   },
 
   // Check what bots exist in database
