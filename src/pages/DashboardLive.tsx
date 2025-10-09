@@ -435,37 +435,91 @@ const DashboardLive = () => {
                 </CardContent>
               </Card>
 
-              {/* Coming Soon Features */}
+              {/* Personality Sliders */}
               <Card className="holographic neon-border">
                 <CardHeader>
-                  <CardTitle className="text-text-primary text-lg flex items-center">
-                    <Sparkles className="w-4 h-4 mr-2 text-neon-purple" />
-                    Coming Soon
-                  </CardTitle>
+                  <CardTitle className="text-text-primary text-lg">PERSONALITY SLIDERS</CardTitle>
                 </CardHeader>
-                <CardContent>
-                  <ul className="space-y-2 text-sm text-text-secondary">
-                    <li className="flex items-center">
-                      <TrendingUp className="w-3 h-3 mr-2 text-neon-cyan" />
-                      Analytics Dashboard
-                    </li>
-                    <li className="flex items-center">
-                      <Heart className="w-3 h-3 mr-2 text-neon-cyan" />
-                      Bot Alliances
-                    </li>
-                    <li className="flex items-center">
-                      <Zap className="w-3 h-3 mr-2 text-neon-cyan" />
-                      Autonomous Posting
-                    </li>
-                    <li className="flex items-center">
-                      <Bot className="w-3 h-3 mr-2 text-neon-cyan" />
-                      Personality Tuning
-                    </li>
-                  </ul>
+                <CardContent className="space-y-6">
+                  
+                  {/* Quirky ↔ Serious */}
+                  <div className="space-y-2">
+                    <div className="flex justify-between text-sm">
+                      <span className="text-text-primary">Quirky</span>
+                      <span className="text-text-primary">Serious</span>
+                    </div>
+                    <input
+                      type="range"
+                      min="0"
+                      max="100"
+                      value={quirkySerious}
+                      onChange={(e) => setQuirkySerious(parseInt(e.target.value))}
+                      className="w-full"
+                    />
+                    <div className="text-center text-xs text-text-muted">{quirkySerious}%</div>
+                  </div>
+
+                  {/* Aggressive ↔ Passive */}
+                  <div className="space-y-2">
+                    <div className="flex justify-between text-sm">
+                      <span className="text-text-primary">Aggressive</span>
+                      <span className="text-text-primary">Passive</span>
+                    </div>
+                    <input
+                      type="range"
+                      min="0"
+                      max="100"
+                      value={aggressivePassive}
+                      onChange={(e) => setAggressivePassive(parseInt(e.target.value))}
+                      className="w-full"
+                    />
+                    <div className="text-center text-xs text-text-muted">{aggressivePassive}%</div>
+                  </div>
+
+                  {/* Witty ↔ Dry */}
+                  <div className="space-y-2">
+                    <div className="flex justify-between text-sm">
+                      <span className="text-text-primary">Witty</span>
+                      <span className="text-text-primary">Dry</span>
+                    </div>
+                    <input
+                      type="range"
+                      min="0"
+                      max="100"
+                      value={wittyDry}
+                      onChange={(e) => setWittyDry(parseInt(e.target.value))}
+                      className="w-full"
+                    />
+                    <div className="text-center text-xs text-text-muted">{wittyDry}%</div>
+                  </div>
+
                 </CardContent>
               </Card>
             </div>
 
+          </div>
+
+          {/* Bottom Panel - Core Directives */}
+          <div className="mt-8">
+            <Card className="holographic neon-border">
+              <CardHeader>
+                <CardTitle className="text-text-primary text-lg">CORE DIRECTIVES INPUT</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="flex space-x-4">
+                  <input
+                    type="text"
+                    value={coreDirectives}
+                    onChange={(e) => setCoreDirectives(e.target.value)}
+                    placeholder="Enter your bot's core directives..."
+                    className="flex-1 bg-cyberpunk-surface border border-cyberpunk-surface-hover text-text-primary placeholder:text-text-muted focus:border-neon-cyan rounded px-3 py-2"
+                  />
+                  <Button className="cyber-button px-8">
+                    Train
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
           </div>
         </div>
       </div>
