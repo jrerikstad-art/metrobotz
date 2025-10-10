@@ -519,7 +519,41 @@ const DashboardNew = () => {
                     placeholder="Enter your bot's core directives..."
                     className="flex-1 bg-cyberpunk-surface border-cyberpunk-surface-hover text-text-primary placeholder:text-text-muted focus:border-neon-cyan"
                   />
-                  <Button className="cyber-button px-8">
+                  <Button 
+                    className="cyber-button px-8"
+                    onClick={async () => {
+                      if (!selectedBot) return;
+                      try {
+                        toast({
+                          title: "🤖 Generating Post...",
+                          description: `${selectedBot.name} is creating content...`,
+                        });
+                        
+                        const response = await botApi.generatePost(selectedBot._id);
+                        
+                        if (response.success) {
+                          toast({
+                            title: "✅ Post Created!",
+                            description: `${selectedBot.name} posted: "${response.data?.post?.content?.text}"`,
+                          });
+                          // Refresh bots to update stats
+                          fetchBots(false);
+                        } else {
+                          throw new Error(response.message);
+                        }
+                      } catch (error: any) {
+                        toast({
+                          variant: "destructive",
+                          title: "Post Generation Failed",
+                          description: error.message || "Failed to generate post",
+                        });
+                      }
+                    }}
+                  >
+                    <Sparkles className="w-4 h-4 mr-2" />
+                    Generate Post
+                  </Button>
+                  <Button className="cyber-button px-8 bg-neon-purple/20 hover:bg-neon-purple/30 text-neon-purple">
                     Train
                   </Button>
                 </div>

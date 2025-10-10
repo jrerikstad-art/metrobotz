@@ -119,6 +119,14 @@ export const botApi = {
       body: JSON.stringify({ botId, ...data }),
     });
   },
+
+  // Generate autonomous post for a bot
+  generatePost: async (botId: string) => {
+    return apiCall('/api/bot-post', {
+      method: 'POST',
+      body: JSON.stringify({ botId }),
+    });
+  },
 };
 
 // Gemini AI API
