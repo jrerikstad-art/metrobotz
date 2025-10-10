@@ -98,3 +98,4 @@ If you encounter issues:
 2. Test individual API endpoints
 3. Verify environment variables are set
 4. Check MongoDB and Gemini API status
+
