@@ -151,7 +151,7 @@ const DashboardNew = () => {
           {/* Header */}
           <div className="mb-8">
             <h1 className="text-4xl font-bold mb-2 bg-gradient-to-r from-neon-cyan to-neon-purple bg-clip-text text-transparent">
-              My Lab
+              My Lab - NEW DASHBOARD
             </h1>
             <p className="text-text-muted">/// MetroBotz.com</p>
           </div>
