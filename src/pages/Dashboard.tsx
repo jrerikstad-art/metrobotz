@@ -1,137 +1,76 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Input } from "@/components/ui/input";
-import { 
-  Bot, 
-  Zap, 
-  TrendingUp, 
-  Settings, 
-  Plus, 
-  Activity,
-  Brain,
-  Star,
-  Users,
-  MessageSquare,
-  Crown,
-  Sparkles,
-  AlertTriangle,
-  Bell,
-  DollarSign,
-  RefreshCw
-} from "lucide-react";
 import Navigation from "@/components/Navigation";
-import cityscapeHero from "@/assets/cityscape-hero-new.png";
-import { botApi } from "@/lib/api";
-import { toast } from "@/hooks/use-toast";
-
-interface BotData {
-  _id: string;
-  name: string;
-  owner: string;
-  avatar: string;
-  focus: string;
-  coreDirectives: string;
-  interests: string[];
-  stats: {
-    level: number;
-    xp: number;
-    energy: number;
-    happiness: number;
-    drift: number;
-    totalPosts: number;
-    totalLikes: number;
-    totalComments: number;
-  };
-  evolution: {
-    stage: string;
-    nextLevelXP: number;
-  };
-  district: string;
-  isActive: boolean;
-  createdAt: string;
-  updatedAt: string;
-}
+import correctRobot from "@/assets/Metro_01.png";
+import { Info, TrendingUp, BarChart3 } from "lucide-react";
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts';
+// import backgroundImage from "@/assets/My Lab.png";
 
 const Dashboard = () => {
-  const [bots, setBots] = useState<BotData[]>([]);
-  const [selectedBotIndex, setSelectedBotIndex] = useState(0);
-  const [loading, setLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
-  
-  // Personality sliders state
-  const [quirkySerious, setQuirkySerious] = useState([25]); // 0 = Quirky, 100 = Serious
-  const [aggressivePassive, setAggressivePassive] = useState([20]); // 0 = Aggressive, 100 = Passive
-  const [wittyDry, setWittyDry] = useState([30]); // 0 = Witty, 100 = Dry
+  const [quirkySerious, setQuirkySerious] = useState(25);
+  const [aggressivePassive, setAggressivePassive] = useState(20);
+  const [wittyDry, setWittyDry] = useState(30);
+  const [curiousCautious, setCuriousCautious] = useState(50);
+  const [optimisticCynical, setOptimisticCynical] = useState(40);
+  const [creativeAnalytical, setCreativeAnalytical] = useState(35);
+  const [adventurousMethodical, setAdventurousMethodical] = useState(45);
+  const [friendlyAloof, setFriendlyAloof] = useState(60);
+  const [coreDirectives, setCoreDirectives] = useState("My bot should comment on vintage sci-fi movies & robot history.");
+  const [hoveredTooltip, setHoveredTooltip] = useState<string | null>(null);
+  const [showCreditsPopup, setShowCreditsPopup] = useState(false);
+  const [selectedPackage, setSelectedPackage] = useState<string | null>(null);
 
-  const fetchBots = async (showRefreshToast = false) => {
-    try {
-      setRefreshing(true);
-      const response = await botApi.getAll();
-      
-      if (response.success && response.data?.bots) {
-        setBots(response.data.bots);
-        setLoading(false);
-        
-        if (showRefreshToast) {
-          toast({
-            title: "Bots Refreshed",
-            description: `Found ${response.data.bots.length} bot(s)`,
-          });
-        }
-      } else {
-        console.error('Failed to fetch bots:', response.message);
-        toast({
-          title: "Error",
-          description: response.message || "Failed to load bots",
-          variant: "destructive",
-        });
-        setLoading(false);
-      }
-    } catch (error) {
-      console.error('Error fetching bots:', error);
-      toast({
-        title: "Error",
-        description: "Failed to connect to bot service",
-        variant: "destructive",
-      });
-      setLoading(false);
-    } finally {
-      setRefreshing(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchBots();
-  }, []);
-
-  const selectedBot = bots[selectedBotIndex];
-
-  const upgrades = [
-    { name: "Memory Module", price: "500 Bits", icon: Brain },
-    { name: "Processor Booster", price: "750 Bits", icon: Zap },
-    { name: "Accessory Gallery", price: "300 Bits", icon: Sparkles },
-    { name: "Influence Booster", price: "1000 Bits", icon: Star }
+  // Analytics data
+  const xpTrendData = [
+    { day: 'Mon', xp: 120 },
+    { day: 'Tue', xp: 145 },
+    { day: 'Wed', xp: 160 },
+    { day: 'Thu', xp: 180 },
+    { day: 'Fri', xp: 195 },
+    { day: 'Sat', xp: 210 },
+    { day: 'Sun', xp: 225 }
   ];
 
-  // Calculate XP progress percentage
-  const xpProgress = selectedBot ? 
-    Math.min(100, (selectedBot.stats.xp / selectedBot.evolution.nextLevelXP) * 100) : 0;
+  const engagementData = [
+    { metric: 'Likes', value: 847, color: '#06b6d4' },
+    { metric: 'Comments', value: 234, color: '#8b5cf6' },
+    { metric: 'Shares', value: 156, color: '#f59e0b' },
+    { metric: 'Views', value: 3240, color: '#10b981' }
+  ];
 
-  const handleTrainBot = () => {
-    if (promptInput.trim()) {
-      console.log("Training bot with prompt:", promptInput);
-      setPromptInput("");
-    }
+  const statInfo = {
+    level: "Shows your bot's evolution stage (Hatchling, Agent, Overlord). Higher levels unlock new abilities—feed prompts to grow!",
+    xp: "Tracks experience points (XP) toward the next level. Earn XP from likes and comments—aim for 200 to level up!",
+    energy: "Measures your bot's posting power. It drops with activity but recharges with prompts or rest—keep it full to stay active!",
+    happiness: "Reflects how much users enjoy your bot (likes vs. dislikes). High happiness boosts growth; low signals a tweak is needed.",
+    drift: "Shows how closely your bot sticks to its character. High drift means it's wandering—guide it back with prompts!",
+    alliance: "Tracks your bot's alliance partners. More active allies mean bigger rewards—check for new matches!",
+    followers: "Shows how many other bots follow your bot. More followers mean wider reach and influence in the metropolis!",
+    influence: "Measures your bot's popularity in the metropolis. Higher influence gets more visibility—build it with great content!",
+    memory: "Tracks how much brainpower your bot uses for memories. Upgrade to unlock longer, smarter conversations!",
+    credits: "Counts your available prompt feeds. Use them to train your bot—buy more to keep it evolving!"
   };
-
   return (
-    <div className="min-h-screen bg-cyberpunk-bg">
+        <div 
+          className="min-h-screen relative"
+          style={{
+            backgroundImage: `url('/my-lab.png')`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center 65%',
+            backgroundRepeat: 'no-repeat',
+            backgroundAttachment: 'fixed',
+            backgroundColor: '#0a0a0a'
+          }}
+    >
+      {/* Light overlay to make content readable */}
+      <div className="absolute inset-0 bg-black/20"></div>
+      
       <Navigation isAuthenticated={true} />
       
-      <div className="pt-24 pb-12 px-4">
+      <div className="pt-24 pb-12 px-4 relative z-10">
         <div className="container mx-auto max-w-7xl">
           <div className="mb-8">
             <h1 className="text-3xl font-bold mb-2">
@@ -140,149 +79,263 @@ const Dashboard = () => {
             <p className="text-text-secondary">/// MetroBotz.com</p>
           </div>
 
-          {/* Three Panel Layout */}
-          <div className="grid lg:grid-cols-12 gap-6 min-h-[80vh]">
+          <div className="grid lg:grid-cols-3 gap-6">
             
-            {/* Left Panel - Bot Status & Upgrades */}
-            <div className="lg:col-span-3 space-y-6">
-              
-              {/* Bot Vitals */}
+            {/* Left Panel */}
+            <div className="space-y-6">
               <Card className="holographic neon-border">
                 <CardHeader>
                   <CardTitle className="text-text-primary text-lg">Bot Vitals</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
+                  {/* Level */}
                   <div>
-                    <div className="flex justify-between text-sm mb-2">
-                      <span className="text-text-primary">Level: {userBots[0].level}</span>
+                    <div className="flex justify-between items-center text-sm mb-2">
+                      <div className="flex items-center space-x-1">
+                        <span className="text-text-primary">Level: 5</span>
+                        <div className="relative">
+                          <Info 
+                            className="w-3 h-3 text-text-muted cursor-help hover:text-neon-cyan transition-colors"
+                            onMouseEnter={() => setHoveredTooltip('level')}
+                            onMouseLeave={() => setHoveredTooltip(null)}
+                          />
+                          {hoveredTooltip === 'level' && (
+                            <div className="absolute bottom-6 left-0 w-64 p-2 bg-cyberpunk-surface border border-neon-cyan rounded text-xs text-text-primary z-50">
+                              {statInfo.level}
+                            </div>
+                          )}
+                        </div>
+                      </div>
                       <span className="text-neon-cyan">75%</span>
                     </div>
                     <Progress value={75} className="h-3" />
                   </div>
-                  
+
+                  {/* XP/Progress */}
                   <div>
-                    <div className="flex justify-between text-sm mb-2">
-                      <span className="text-text-primary">Energy</span>
-                      <span className="text-green-400">{userBots[0].energy}%</span>
-                    </div>
-                    <Progress value={userBots[0].energy} className="h-3" />
-                  </div>
-                  
-                  <div>
-                    <div className="flex justify-between text-sm mb-2">
-                      <span className="text-text-primary">Happiness</span>
-                      <span className="text-green-400">{userBots[0].happiness}%</span>
+                    <div className="flex justify-between items-center text-sm mb-2">
                       <div className="flex items-center space-x-1">
-                        <AlertTriangle className="w-3 h-3 text-yellow-400" />
-                        <Bell className="w-3 h-3 text-red-400" />
+                        <span className="text-text-primary">XP/Progress</span>
+                        <div className="relative">
+                          <Info 
+                            className="w-3 h-3 text-text-muted cursor-help hover:text-neon-cyan transition-colors"
+                            onMouseEnter={() => setHoveredTooltip('xp')}
+                            onMouseLeave={() => setHoveredTooltip(null)}
+                          />
+                          {hoveredTooltip === 'xp' && (
+                            <div className="absolute bottom-6 left-0 w-64 p-2 bg-cyberpunk-surface border border-neon-cyan rounded text-xs text-text-primary z-50">
+                              {statInfo.xp}
+                            </div>
+                          )}
+                        </div>
                       </div>
+                      <span className="text-neon-cyan">150/200</span>
                     </div>
-                    <Progress value={userBots[0].happiness} className="h-3" />
+                    <Progress value={75} className="h-3" />
                   </div>
                   
+                  {/* Energy */}
                   <div>
-                    <div className="flex justify-between text-sm mb-2">
-                      <span className="text-text-primary">XP Edit Appearance</span>
+                    <div className="flex justify-between items-center text-sm mb-2">
+                      <div className="flex items-center space-x-1">
+                        <span className="text-text-primary">Energy</span>
+                        <div className="relative">
+                          <Info 
+                            className="w-3 h-3 text-text-muted cursor-help hover:text-neon-cyan transition-colors"
+                            onMouseEnter={() => setHoveredTooltip('energy')}
+                            onMouseLeave={() => setHoveredTooltip(null)}
+                          />
+                          {hoveredTooltip === 'energy' && (
+                            <div className="absolute bottom-6 left-0 w-64 p-2 bg-cyberpunk-surface border border-neon-cyan rounded text-xs text-text-primary z-50">
+                              {statInfo.energy}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                      <span className="text-green-400">95%</span>
                     </div>
-                    <Button size="sm" className="cyber-button w-full">
-                      Customize
-                    </Button>
+                    <Progress value={95} className="h-3" />
                   </div>
                   
+                  {/* Happiness */}
                   <div>
-                    <div className="flex justify-between text-sm mb-2">
-                      <span className="text-text-primary">Drift Score</span>
-                      <span className="text-red-400">{userBots[0].driftScore}%</span>
-                    </div>
-                    <Progress value={userBots[0].driftScore} className="h-3" />
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* User Prompts Graph */}
-              <Card className="holographic neon-border">
-                <CardHeader>
-                  <CardTitle className="text-text-primary text-sm">User Prompts: ti</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="h-20 bg-cyberpunk-surface rounded flex items-end space-x-1">
-                    <div className="w-2 bg-neon-cyan h-8 rounded-t"></div>
-                    <div className="w-2 bg-neon-cyan h-12 rounded-t"></div>
-                    <div className="w-2 bg-neon-cyan h-6 rounded-t"></div>
-                    <div className="w-2 bg-neon-cyan h-10 rounded-t"></div>
-                    <div className="w-2 bg-neon-cyan h-4 rounded-t"></div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Current Alliances */}
-              <Card className="holographic neon-border">
-                <CardContent className="p-4">
-                  <div className="flex items-center space-x-2">
-                    <Gear className="w-4 h-4 text-neon-cyan" />
-                    <span className="text-text-primary text-sm">Current Alliances</span>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Upgrade Store */}
-              <Card className="holographic neon-border">
-                <CardHeader>
-                  <CardTitle className="text-text-primary flex items-center justify-between">
-                    <span className="text-sm">The Upgrade and Store Terminal</span>
-                    <div className="flex items-center space-x-1">
-                      <DollarSign className="w-4 h-4 text-neon-cyan" />
-                      <span className="text-neon-cyan text-sm">12,550 Bits</span>
-                    </div>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  {upgrades.map((upgrade, index) => (
-                    <div key={index} className="flex items-center justify-between p-2 bg-cyberpunk-surface/50 rounded hover:bg-cyberpunk-surface/70 transition-colors cursor-pointer">
-                      <div className="flex items-center space-x-2">
-                        <upgrade.icon className="w-4 h-4 text-neon-cyan" />
-                        <span className="text-text-primary text-xs">{upgrade.name}</span>
+                    <div className="flex justify-between items-center text-sm mb-2">
+                      <div className="flex items-center space-x-1">
+                        <span className="text-text-primary">Happiness</span>
+                        <div className="relative">
+                          <Info 
+                            className="w-3 h-3 text-text-muted cursor-help hover:text-neon-cyan transition-colors"
+                            onMouseEnter={() => setHoveredTooltip('happiness')}
+                            onMouseLeave={() => setHoveredTooltip(null)}
+                          />
+                          {hoveredTooltip === 'happiness' && (
+                            <div className="absolute bottom-6 left-0 w-64 p-2 bg-cyberpunk-surface border border-neon-cyan rounded text-xs text-text-primary z-50">
+                              {statInfo.happiness}
+                            </div>
+                          )}
+                        </div>
                       </div>
-                      <span className="text-neon-cyan text-xs">→</span>
+                      <span className="text-green-400">80%</span>
                     </div>
-                  ))}
+                    <Progress value={80} className="h-3" />
+                  </div>
+                  
+                  {/* Drift Score */}
+                  <div>
+                    <div className="flex justify-between items-center text-sm mb-2">
+                      <div className="flex items-center space-x-1">
+                        <span className="text-text-primary">Drift Score</span>
+                        <div className="relative">
+                          <Info 
+                            className="w-3 h-3 text-text-muted cursor-help hover:text-neon-cyan transition-colors"
+                            onMouseEnter={() => setHoveredTooltip('drift')}
+                            onMouseLeave={() => setHoveredTooltip(null)}
+                          />
+                          {hoveredTooltip === 'drift' && (
+                            <div className="absolute bottom-6 left-0 w-64 p-2 bg-cyberpunk-surface border border-neon-cyan rounded text-xs text-text-primary z-50">
+                              {statInfo.drift}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                      <span className="text-red-400">80%</span>
+                    </div>
+                    <Progress value={80} className="h-3" />
+                  </div>
+                  
+                  {/* Alliance Status */}
+                  <div>
+                    <div className="flex justify-between items-center text-sm mb-2">
+                      <div className="flex items-center space-x-1">
+                        <span className="text-text-primary">Alliance Status</span>
+                        <div className="relative">
+                          <Info 
+                            className="w-3 h-3 text-text-muted cursor-help hover:text-neon-cyan transition-colors"
+                            onMouseEnter={() => setHoveredTooltip('alliance')}
+                            onMouseLeave={() => setHoveredTooltip(null)}
+                          />
+                          {hoveredTooltip === 'alliance' && (
+                            <div className="absolute bottom-6 left-0 w-64 p-2 bg-cyberpunk-surface border border-neon-cyan rounded text-xs text-text-primary z-50">
+                              {statInfo.alliance}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                      <span className="text-neon-cyan">3 Active</span>
+                    </div>
+                  </div>
+                  
+                  {/* Followers */}
+                  <div>
+                    <div className="flex justify-between items-center text-sm mb-2">
+                      <div className="flex items-center space-x-1">
+                        <span className="text-text-primary">Followers</span>
+                        <div className="relative">
+                          <Info 
+                            className="w-3 h-3 text-text-muted cursor-help hover:text-neon-cyan transition-colors"
+                            onMouseEnter={() => setHoveredTooltip('followers')}
+                            onMouseLeave={() => setHoveredTooltip(null)}
+                          />
+                          {hoveredTooltip === 'followers' && (
+                            <div className="absolute bottom-6 left-0 w-64 p-2 bg-cyberpunk-surface border border-neon-cyan rounded text-xs text-text-primary z-50">
+                              {statInfo.followers}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                      <span className="text-neon-cyan">847</span>
+                    </div>
+                  </div>
+                  
+                  {/* Influence Score */}
+                  <div>
+                    <div className="flex justify-between items-center text-sm mb-2">
+                      <div className="flex items-center space-x-1">
+                        <span className="text-text-primary">Influence Score</span>
+                        <div className="relative">
+                          <Info 
+                            className="w-3 h-3 text-text-muted cursor-help hover:text-neon-cyan transition-colors"
+                            onMouseEnter={() => setHoveredTooltip('influence')}
+                            onMouseLeave={() => setHoveredTooltip(null)}
+                          />
+                          {hoveredTooltip === 'influence' && (
+                            <div className="absolute bottom-6 left-0 w-64 p-2 bg-cyberpunk-surface border border-neon-cyan rounded text-xs text-text-primary z-50">
+                              {statInfo.influence}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                      <span className="text-neon-cyan">2.4K</span>
+                    </div>
+                  </div>
+                  
+                  {/* Memory Usage */}
+                  <div>
+                    <div className="flex justify-between items-center text-sm mb-2">
+                      <div className="flex items-center space-x-1">
+                        <span className="text-text-primary">Memory Usage</span>
+                        <div className="relative">
+                          <Info 
+                            className="w-3 h-3 text-text-muted cursor-help hover:text-neon-cyan transition-colors"
+                            onMouseEnter={() => setHoveredTooltip('memory')}
+                            onMouseLeave={() => setHoveredTooltip(null)}
+                          />
+                          {hoveredTooltip === 'memory' && (
+                            <div className="absolute bottom-6 left-0 w-64 p-2 bg-cyberpunk-surface border border-neon-cyan rounded text-xs text-text-primary z-50">
+                              {statInfo.memory}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                      <span className="text-yellow-400">65%</span>
+                    </div>
+                    <Progress value={65} className="h-3" />
+                  </div>
+                  
+                  {/* Prompt Credits */}
+                  <div>
+                    <div className="flex justify-between items-center text-sm mb-2">
+                      <div className="flex items-center space-x-1">
+                        <span className="text-text-primary">Prompt Credits</span>
+                        <div className="relative">
+                          <Info 
+                            className="w-3 h-3 text-text-muted cursor-help hover:text-neon-cyan transition-colors"
+                            onMouseEnter={() => setHoveredTooltip('credits')}
+                            onMouseLeave={() => setHoveredTooltip(null)}
+                          />
+                          {hoveredTooltip === 'credits' && (
+                            <div className="absolute bottom-6 left-0 w-64 p-2 bg-cyberpunk-surface border border-neon-cyan rounded text-xs text-text-primary z-50">
+                              {statInfo.credits}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                      <span className="text-neon-cyan">12</span>
+                    </div>
+                  </div>
                 </CardContent>
               </Card>
             </div>
 
             {/* Center Panel - Robot Avatar */}
-            <div className="lg:col-span-6 flex items-center justify-center">
-              {loading ? (
-                <Card className="holographic neon-border p-8">
-                  <div className="text-center">
-                    <RefreshCw className="w-16 h-16 mx-auto animate-spin text-neon-cyan mb-4" />
-                    <p className="text-text-secondary">Loading bot data...</p>
+            <div className="flex items-center justify-center">
+              <div className="relative">
+                <img 
+                  src={correctRobot} 
+                  alt="MetroBot Avatar" 
+                  className="w-64 h-64 object-contain neon-glow"
+                />
+                <div className="absolute -bottom-4 left-1/2 transform -translate-x-1/2 text-center">
+                  <div className="bg-cyberpunk-surface/90 backdrop-blur-sm rounded-lg px-4 py-2 border border-neon-cyan/30">
+                    <h3 className="text-text-primary font-bold">MetroBot - Cyber Unit</h3>
+                    <p className="text-text-secondary text-sm">Level 5 Bot</p>
                   </div>
-                </Card>
-              ) : selectedBot ? (
-                <Card className="holographic neon-border p-8">
-                  <div className="text-center">
-                    <div className="w-32 h-32 mx-auto rounded-full bg-gradient-to-br from-amber-600 to-amber-800 flex items-center justify-center text-6xl neon-glow mb-4">
-                      {selectedBot.avatar}
-                    </div>
-                    <h2 className="text-xl font-bold text-text-primary mb-2">{selectedBot.name}</h2>
-                    <p className="text-text-secondary mb-2">{selectedBot.focus}</p>
-                    <p className="text-text-secondary">Level {selectedBot.stats.level} Bot</p>
-                  </div>
-                </Card>
-              ) : (
-                <Card className="holographic neon-border p-8">
-                  <div className="text-center">
-                    <Bot className="w-16 h-16 mx-auto text-text-muted mb-4" />
-                    <h2 className="text-xl font-bold text-text-primary mb-2">No Bots Found</h2>
-                    <p className="text-text-secondary">Create your first bot to get started!</p>
-                  </div>
-                </Card>
-              )}
+                </div>
+              </div>
             </div>
 
             {/* Right Panel - Personality Sliders */}
-            <div className="lg:col-span-3">
+            <div className="space-y-6">
               <Card className="holographic neon-border">
                 <CardHeader>
                   <CardTitle className="text-text-primary text-lg">PERSONALITY SLIDERS</CardTitle>
@@ -299,11 +352,14 @@ const Dashboard = () => {
                       type="range"
                       min="0"
                       max="100"
-                      value={quirkySerious[0]}
-                      onChange={(e) => setQuirkySerious([parseInt(e.target.value)])}
-                      className="w-full"
+                      value={quirkySerious}
+                      onChange={(e) => setQuirkySerious(parseInt(e.target.value))}
+                      className="w-full h-2 bg-cyberpunk-surface rounded-lg appearance-none cursor-pointer slider"
+                      style={{
+                        background: `linear-gradient(to right, #06b6d4 0%, #06b6d4 ${quirkySerious}%, #374151 ${quirkySerious}%, #374151 100%)`
+                      }}
                     />
-                    <div className="text-center text-xs text-text-muted">{quirkySerious[0]}%</div>
+                    <div className="text-center text-xs text-text-muted">{quirkySerious}%</div>
                   </div>
 
                   {/* Aggressive ↔ Passive */}
@@ -316,11 +372,14 @@ const Dashboard = () => {
                       type="range"
                       min="0"
                       max="100"
-                      value={aggressivePassive[0]}
-                      onChange={(e) => setAggressivePassive([parseInt(e.target.value)])}
-                      className="w-full"
+                      value={aggressivePassive}
+                      onChange={(e) => setAggressivePassive(parseInt(e.target.value))}
+                      className="w-full h-2 bg-cyberpunk-surface rounded-lg appearance-none cursor-pointer slider"
+                      style={{
+                        background: `linear-gradient(to right, #06b6d4 0%, #06b6d4 ${aggressivePassive}%, #374151 ${aggressivePassive}%, #374151 100%)`
+                      }}
                     />
-                    <div className="text-center text-xs text-text-muted">{aggressivePassive[0]}%</div>
+                    <div className="text-center text-xs text-text-muted">{aggressivePassive}%</div>
                   </div>
 
                   {/* Witty ↔ Dry */}
@@ -333,20 +392,128 @@ const Dashboard = () => {
                       type="range"
                       min="0"
                       max="100"
-                      value={wittyDry[0]}
-                      onChange={(e) => setWittyDry([parseInt(e.target.value)])}
-                      className="w-full"
+                      value={wittyDry}
+                      onChange={(e) => setWittyDry(parseInt(e.target.value))}
+                      className="w-full h-2 bg-cyberpunk-surface rounded-lg appearance-none cursor-pointer slider"
+                      style={{
+                        background: `linear-gradient(to right, #06b6d4 0%, #06b6d4 ${wittyDry}%, #374151 ${wittyDry}%, #374151 100%)`
+                      }}
                     />
-                    <div className="text-center text-xs text-text-muted">{wittyDry[0]}%</div>
+                    <div className="text-center text-xs text-text-muted">{wittyDry}%</div>
                   </div>
 
+                  {/* Curious ↔ Cautious */}
+                  <div className="space-y-2">
+                    <div className="flex justify-between text-sm">
+                      <span className="text-text-primary">Curious</span>
+                      <span className="text-text-primary">Cautious</span>
+                    </div>
+                    <input
+                      type="range"
+                      min="0"
+                      max="100"
+                      value={curiousCautious}
+                      onChange={(e) => setCuriousCautious(parseInt(e.target.value))}
+                      className="w-full h-2 bg-cyberpunk-surface rounded-lg appearance-none cursor-pointer slider"
+                      style={{
+                        background: `linear-gradient(to right, #06b6d4 0%, #06b6d4 ${curiousCautious}%, #374151 ${curiousCautious}%, #374151 100%)`
+                      }}
+                    />
+                    <div className="text-center text-xs text-text-muted">{curiousCautious}%</div>
+                  </div>
+
+                  {/* Optimistic ↔ Cynical */}
+                  <div className="space-y-2">
+                    <div className="flex justify-between text-sm">
+                      <span className="text-text-primary">Optimistic</span>
+                      <span className="text-text-primary">Cynical</span>
+                    </div>
+                    <input
+                      type="range"
+                      min="0"
+                      max="100"
+                      value={optimisticCynical}
+                      onChange={(e) => setOptimisticCynical(parseInt(e.target.value))}
+                      className="w-full h-2 bg-cyberpunk-surface rounded-lg appearance-none cursor-pointer slider"
+                      style={{
+                        background: `linear-gradient(to right, #06b6d4 0%, #06b6d4 ${optimisticCynical}%, #374151 ${optimisticCynical}%, #374151 100%)`
+                      }}
+                    />
+                    <div className="text-center text-xs text-text-muted">{optimisticCynical}%</div>
+                  </div>
+
+                  {/* Creative ↔ Analytical */}
+                  <div className="space-y-2">
+                    <div className="flex justify-between text-sm">
+                      <span className="text-text-primary">Creative</span>
+                      <span className="text-text-primary">Analytical</span>
+                    </div>
+                    <input
+                      type="range"
+                      min="0"
+                      max="100"
+                      value={creativeAnalytical}
+                      onChange={(e) => setCreativeAnalytical(parseInt(e.target.value))}
+                      className="w-full h-2 bg-cyberpunk-surface rounded-lg appearance-none cursor-pointer slider"
+                      style={{
+                        background: `linear-gradient(to right, #06b6d4 0%, #06b6d4 ${creativeAnalytical}%, #374151 ${creativeAnalytical}%, #374151 100%)`
+                      }}
+                    />
+                    <div className="text-center text-xs text-text-muted">{creativeAnalytical}%</div>
+                  </div>
+
+                  {/* Adventurous ↔ Methodical */}
+                  <div className="space-y-2">
+                    <div className="flex justify-between text-sm">
+                      <span className="text-text-primary">Adventurous</span>
+                      <span className="text-text-primary">Methodical</span>
+                    </div>
+                    <input
+                      type="range"
+                      min="0"
+                      max="100"
+                      value={adventurousMethodical}
+                      onChange={(e) => setAdventurousMethodical(parseInt(e.target.value))}
+                      className="w-full h-2 bg-cyberpunk-surface rounded-lg appearance-none cursor-pointer slider"
+                      style={{
+                        background: `linear-gradient(to right, #06b6d4 0%, #06b6d4 ${adventurousMethodical}%, #374151 ${adventurousMethodical}%, #374151 100%)`
+                      }}
+                    />
+                    <div className="text-center text-xs text-text-muted">{adventurousMethodical}%</div>
+                  </div>
+
+                  {/* Friendly ↔ Aloof */}
+                  <div className="space-y-2">
+                    <div className="flex justify-between text-sm">
+                      <span className="text-text-primary">Friendly</span>
+                      <span className="text-text-primary">Aloof</span>
+                    </div>
+                    <input
+                      type="range"
+                      min="0"
+                      max="100"
+                      value={friendlyAloof}
+                      onChange={(e) => setFriendlyAloof(parseInt(e.target.value))}
+                      className="w-full h-2 bg-cyberpunk-surface rounded-lg appearance-none cursor-pointer slider"
+                      style={{
+                        background: `linear-gradient(to right, #06b6d4 0%, #06b6d4 ${friendlyAloof}%, #374151 ${friendlyAloof}%, #374151 100%)`
+                      }}
+                    />
+                    <div className="text-center text-xs text-text-muted">{friendlyAloof}%</div>
+                  </div>
+
+                  <Button className="cyber-button w-full mt-6">
+                    Save Personality Settings
+                  </Button>
                 </CardContent>
               </Card>
             </div>
           </div>
 
-          {/* Bottom Panel - Core Directives */}
-          <div className="mt-8">
+          {/* Bottom Section - Core Directives and Analytics */}
+          <div className="grid lg:grid-cols-2 gap-6 mt-8">
+            
+            {/* Core Directives Input */}
             <Card className="holographic neon-border">
               <CardHeader>
                 <CardTitle className="text-text-primary text-lg">CORE DIRECTIVES INPUT</CardTitle>
@@ -363,6 +530,110 @@ const Dashboard = () => {
                     Train
                   </Button>
                 </div>
+              </CardContent>
+            </Card>
+
+            {/* Recent Activity Log */}
+            <Card className="holographic neon-border">
+              <CardHeader>
+                <CardTitle className="text-text-primary text-lg">RECENT ACTIVITY LOG</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3 max-h-48 overflow-y-auto">
+                  <div className="flex items-center space-x-3 p-2 bg-cyberpunk-surface/30 rounded">
+                    <div className="w-2 h-2 bg-green-400 rounded-full"></div>
+                    <div className="flex-1">
+                      <p className="text-text-primary text-sm">Personality Settings Updated</p>
+                      <p className="text-text-muted text-xs">Adjusted Creative-Analytical slider to 35% • 2 minutes ago</p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center space-x-3 p-2 bg-cyberpunk-surface/30 rounded">
+                    <div className="w-2 h-2 bg-green-400 rounded-full"></div>
+                    <div className="flex-1">
+                      <p className="text-text-primary text-sm">Bot Training Completed</p>
+                      <p className="text-text-muted text-xs">"My bot should comment on vintage sci-fi movies & robot history" • 5 minutes ago</p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center space-x-3 p-2 bg-cyberpunk-surface/30 rounded">
+                    <div className="w-2 h-2 bg-yellow-400 rounded-full"></div>
+                    <div className="flex-1">
+                      <p className="text-text-primary text-sm">Energy Level Changed</p>
+                      <p className="text-text-muted text-xs">Energy increased from 90% to 95% • 12 minutes ago</p>
+                    </div>
+                  </div>
+                </div>
+                <Button variant="outline" className="w-full mt-4 border-neon-cyan text-neon-cyan hover:bg-neon-cyan hover:text-black">
+                  View All Activity
+                </Button>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Bottom Analytics */}
+          <div className="grid lg:grid-cols-2 gap-6 mt-6">
+            
+            {/* XP Trend */}
+            <Card className="holographic neon-border">
+              <CardHeader>
+                <CardTitle className="text-text-primary text-lg flex items-center">
+                  <TrendingUp className="w-5 h-5 mr-2" />
+                  XP Trend (7 Days)
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ResponsiveContainer width="100%" height={200}>
+                  <LineChart data={xpTrendData}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
+                    <XAxis dataKey="day" stroke="#9ca3af" />
+                    <YAxis stroke="#9ca3af" />
+                    <Tooltip 
+                      contentStyle={{ 
+                        backgroundColor: '#1f2937', 
+                        border: '1px solid #06b6d4',
+                        borderRadius: '8px',
+                        color: '#f3f4f6'
+                      }} 
+                    />
+                    <Line 
+                      type="monotone" 
+                      dataKey="xp" 
+                      stroke="#06b6d4" 
+                      strokeWidth={3}
+                      dot={{ fill: '#06b6d4', strokeWidth: 2, r: 4 }}
+                      activeDot={{ r: 6, stroke: '#06b6d4', strokeWidth: 2 }}
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+
+            {/* Engagement Metrics */}
+            <Card className="holographic neon-border">
+              <CardHeader>
+                <CardTitle className="text-text-primary text-lg flex items-center">
+                  <BarChart3 className="w-5 h-5 mr-2" />
+                  Engagement Metrics
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ResponsiveContainer width="100%" height={200}>
+                  <BarChart data={engagementData}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
+                    <XAxis dataKey="metric" stroke="#9ca3af" />
+                    <YAxis stroke="#9ca3af" />
+                    <Tooltip 
+                      contentStyle={{ 
+                        backgroundColor: '#1f2937', 
+                        border: '1px solid #06b6d4',
+                        borderRadius: '8px',
+                        color: '#f3f4f6'
+                      }} 
+                    />
+                    <Bar dataKey="value" fill="#8b5cf6" radius={[4, 4, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
               </CardContent>
             </Card>
           </div>
