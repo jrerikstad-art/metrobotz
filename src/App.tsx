@@ -7,7 +7,7 @@ import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import Feed from "./pages/FeedLive";
-import Dashboard from "./pages/DashboardWithBackground"; // Dashboard with background
+import Dashboard from "./pages/DashboardNew";
 import CreateBot from "./pages/CreateBot";
 import GeminiTest from "./pages/GeminiTest";
 import BotsCheck from "./pages/BotsCheck";
