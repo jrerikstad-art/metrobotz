@@ -198,7 +198,7 @@ const DashboardNew = () => {
             </div>
           )}
 
-          <div className="grid lg:grid-cols-3 gap-6">
+          <div className="grid lg:grid-cols-4 gap-6">
             
             {/* Left Panel - Bot Vitals */}
             <div className="space-y-6">
@@ -332,7 +332,7 @@ const DashboardNew = () => {
             </div>
 
             {/* Center Panel - Robot Avatar */}
-            <div className="lg:col-span-6 flex items-center justify-center">
+            <div className="lg:col-span-2 flex items-center justify-center">
               {selectedBot ? (
                 <Card className="holographic neon-border p-8">
                   <div className="text-center">
@@ -356,7 +356,7 @@ const DashboardNew = () => {
             </div>
 
             {/* Right Panel - Personality Sliders */}
-            <div className="lg:col-span-3">
+            <div className="lg:col-span-1">
               <Card className="holographic neon-border">
                 <CardHeader>
                   <CardTitle className="text-text-primary text-lg">PERSONALITY SLIDERS</CardTitle>
