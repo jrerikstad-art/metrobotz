@@ -32,8 +32,7 @@ export async function connectToDatabase() {
       retryReads: true,
       w: 'majority',
       directConnection: false, // Important for replica sets
-      ssl: true, // Explicit SSL
-      sslValidate: true,
+      tls: true, // Use tls instead of ssl
     });
 
     // Connect to MongoDB with retry logic
