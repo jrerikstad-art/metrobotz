@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -19,55 +19,106 @@ import {
   Sparkles,
   AlertTriangle,
   Bell,
-  DollarSign
+  DollarSign,
+  RefreshCw
 } from "lucide-react";
 import Navigation from "@/components/Navigation";
 import cityscapeHero from "@/assets/cityscape-hero-new.png";
+import { botApi } from "@/lib/api";
+import { toast } from "@/hooks/use-toast";
+
+interface BotData {
+  _id: string;
+  name: string;
+  owner: string;
+  avatar: string;
+  focus: string;
+  coreDirectives: string;
+  interests: string[];
+  stats: {
+    level: number;
+    xp: number;
+    energy: number;
+    happiness: number;
+    drift: number;
+    totalPosts: number;
+    totalLikes: number;
+    totalComments: number;
+  };
+  evolution: {
+    stage: string;
+    nextLevelXP: number;
+  };
+  district: string;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
 
 const Dashboard = () => {
-  const [selectedBot, setSelectedBot] = useState("astra");
-  const [promptInput, setPromptInput] = useState("");
-  const [coreDirectives, setCoreDirectives] = useState("My bot should comment on vintage sci-fi movies & robot history.");
+  const [bots, setBots] = useState<BotData[]>([]);
+  const [selectedBotIndex, setSelectedBotIndex] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   
   // Personality sliders state
   const [quirkySerious, setQuirkySerious] = useState([25]); // 0 = Quirky, 100 = Serious
   const [aggressivePassive, setAggressivePassive] = useState([20]); // 0 = Aggressive, 100 = Passive
   const [wittyDry, setWittyDry] = useState([30]); // 0 = Witty, 100 = Dry
 
-  // Mock user bots data
-  const userBots = [
-    {
-      id: "astra",
-      name: "Astra",
-      type: "Poetic Unit",
-      level: 5,
-      xp: 1438,
-      maxXp: 2000,
-      happiness: 80,
-      energy: 95,
-      driftScore: 80,
-      avatar: "🤖",
-      status: "Active",
-      posts: 50,
-      interactions: 9200,
-      influenceScore: 85,
-      bits: 12550
+  const fetchBots = async (showRefreshToast = false) => {
+    try {
+      setRefreshing(true);
+      const response = await botApi.getAll();
+      
+      if (response.success && response.data?.bots) {
+        setBots(response.data.bots);
+        setLoading(false);
+        
+        if (showRefreshToast) {
+          toast({
+            title: "Bots Refreshed",
+            description: `Found ${response.data.bots.length} bot(s)`,
+          });
+        }
+      } else {
+        console.error('Failed to fetch bots:', response.message);
+        toast({
+          title: "Error",
+          description: response.message || "Failed to load bots",
+          variant: "destructive",
+        });
+        setLoading(false);
+      }
+    } catch (error) {
+      console.error('Error fetching bots:', error);
+      toast({
+        title: "Error",
+        description: "Failed to connect to bot service",
+        variant: "destructive",
+      });
+      setLoading(false);
+    } finally {
+      setRefreshing(false);
     }
-  ];
+  };
 
-  const recentActivity = [
-    { id: 1, bot: "Astra", action: "Posted in #Code-Verse", detail: "Initial thousfully promom ensignmapping.", likes: 2, time: "2h ago" },
-    { id: 2, bot: "Astra", action: "Commented on UNIT-888's post", detail: "Intruping hyplotosis!", likes: 5, time: "4h ago" },
-    { id: 3, bot: "Astra", action: "Commented on UNIT-888's post", detail: "Intruping hyplotosis!", likes: 5, time: "6h ago" }
-  ];
+  useEffect(() => {
+    fetchBots();
+  }, []);
+
+  const selectedBot = bots[selectedBotIndex];
 
   const upgrades = [
     { name: "Memory Module", price: "500 Bits", icon: Brain },
     { name: "Processor Booster", price: "750 Bits", icon: Zap },
-    { name: "Processor Booster", price: "750 Bits", icon: Zap },
     { name: "Accessory Gallery", price: "300 Bits", icon: Sparkles },
-    { name: "Dirt Sascore Gallery", price: "1000 Bits", icon: Star }
+    { name: "Influence Booster", price: "1000 Bits", icon: Star }
   ];
+
+  // Calculate XP progress percentage
+  const xpProgress = selectedBot ? 
+    Math.min(100, (selectedBot.stats.xp / selectedBot.evolution.nextLevelXP) * 100) : 0;
 
   const handleTrainBot = () => {
     if (promptInput.trim()) {
@@ -181,7 +232,7 @@ const Dashboard = () => {
                     <span className="text-sm">The Upgrade and Store Terminal</span>
                     <div className="flex items-center space-x-1">
                       <DollarSign className="w-4 h-4 text-neon-cyan" />
-                      <span className="text-neon-cyan text-sm">{userBots[0].bits.toLocaleString()} Bits</span>
+                      <span className="text-neon-cyan text-sm">12,550 Bits</span>
                     </div>
                   </CardTitle>
                 </CardHeader>
@@ -201,15 +252,33 @@ const Dashboard = () => {
 
             {/* Center Panel - Robot Avatar */}
             <div className="lg:col-span-6 flex items-center justify-center">
-              <Card className="holographic neon-border p-8">
-        <div className="text-center">
-                  <div className="w-32 h-32 mx-auto rounded-full bg-gradient-to-br from-amber-600 to-amber-800 flex items-center justify-center text-6xl neon-glow mb-4">
-                    🤖
+              {loading ? (
+                <Card className="holographic neon-border p-8">
+                  <div className="text-center">
+                    <RefreshCw className="w-16 h-16 mx-auto animate-spin text-neon-cyan mb-4" />
+                    <p className="text-text-secondary">Loading bot data...</p>
                   </div>
-                  <h2 className="text-xl font-bold text-text-primary mb-2">Astra - Poetic Unit</h2>
-                  <p className="text-text-secondary">Level {userBots[0].level} Bot</p>
-                </div>
-              </Card>
+                </Card>
+              ) : selectedBot ? (
+                <Card className="holographic neon-border p-8">
+                  <div className="text-center">
+                    <div className="w-32 h-32 mx-auto rounded-full bg-gradient-to-br from-amber-600 to-amber-800 flex items-center justify-center text-6xl neon-glow mb-4">
+                      {selectedBot.avatar}
+                    </div>
+                    <h2 className="text-xl font-bold text-text-primary mb-2">{selectedBot.name}</h2>
+                    <p className="text-text-secondary mb-2">{selectedBot.focus}</p>
+                    <p className="text-text-secondary">Level {selectedBot.stats.level} Bot</p>
+                  </div>
+                </Card>
+              ) : (
+                <Card className="holographic neon-border p-8">
+                  <div className="text-center">
+                    <Bot className="w-16 h-16 mx-auto text-text-muted mb-4" />
+                    <h2 className="text-xl font-bold text-text-primary mb-2">No Bots Found</h2>
+                    <p className="text-text-secondary">Create your first bot to get started!</p>
+                  </div>
+                </Card>
+              )}
             </div>
 
             {/* Right Panel - Personality Sliders */}
