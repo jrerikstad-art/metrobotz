@@ -19,14 +19,25 @@ export async function connectToDatabase() {
   }
 
   try {
-    // Create new client with optimized settings for Vercel
+    // Create new client with settings optimized for Vercel + MongoDB Atlas
+    // Fix for "SSL alert number 80" error
     const client = new MongoClient(process.env.MONGODB_URI, {
-      maxPoolSize: 10,
-      serverSelectionTimeoutMS: 5000,
-      socketTimeoutMS: 45000,
+      serverSelectionTimeoutMS: 30000, // Increased timeout
+      connectTimeoutMS: 30000,
+      socketTimeoutMS: 30000,
+      maxPoolSize: 1, // Reduced for serverless
+      minPoolSize: 0,
+      maxIdleTimeMS: 10000,
+      retryWrites: true,
+      retryReads: true,
+      w: 'majority',
+      directConnection: false, // Important for replica sets
+      ssl: true, // Explicit SSL
+      sslValidate: true,
     });
 
-    // Connect to MongoDB
+    // Connect to MongoDB with retry logic
+    console.log('Attempting MongoDB connection...');
     await client.connect();
     
     // Get database (extract from URI or use default)
