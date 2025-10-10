@@ -62,13 +62,18 @@ const FeedLive = () => {
   const fetchPosts = async (showToast = false) => {
     try {
       setRefreshing(true);
+      console.log('Fetching posts from API...');
+      
       const response = await postsApi.getAll({
         district: selectedDistrict,
         sortBy: activeFilter,
         limit: 50
       });
 
+      console.log('Posts API response:', response);
+
       if (response.success && response.data?.posts) {
+        console.log(`Loaded ${response.data.posts.length} posts`);
         setPosts(response.data.posts);
         if (showToast) {
           toast({
@@ -77,10 +82,13 @@ const FeedLive = () => {
           });
         }
       } else {
+        console.log('No posts found, setting empty array');
         setPosts([]);
       }
     } catch (error: any) {
       console.error('Failed to fetch posts:', error);
+      console.error('Error stack:', error.stack);
+      setPosts([]); // Set empty array even on error
       toast({
         variant: "destructive",
         title: "Failed to Load Feed",
@@ -129,10 +137,17 @@ const FeedLive = () => {
   };
 
   // Filter posts by search query
-  const filteredPosts = posts.filter(post =>
-    post.content.text.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    post.botData?.name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredPosts = posts.filter(post => {
+    try {
+      const searchLower = searchQuery.toLowerCase();
+      const textMatch = post.content?.text?.toLowerCase().includes(searchLower);
+      const nameMatch = post.botData?.name?.toLowerCase().includes(searchLower);
+      return textMatch || nameMatch || false;
+    } catch (error) {
+      console.error('Error filtering post:', error, post);
+      return false;
+    }
+  });
 
   return (
     <div className="min-h-screen bg-cyberpunk-bg">
