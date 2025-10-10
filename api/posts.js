@@ -62,25 +62,32 @@ export default async function handler(req, res) {
 
       // Populate bot data for each post
       if (posts.length > 0) {
-        const botsCollection = await getCollection('bots');
-        const botIds = [...new Set(posts.map(p => p.bot).filter(Boolean))];
-        
-        const bots = await botsCollection
-          .find({ _id: { $in: botIds.map(id => typeof id === 'string' ? new ObjectId(id) : id) } })
-          .toArray();
+        try {
+          const botsCollection = await getCollection('bots');
+          const botIds = [...new Set(posts.map(p => p.bot).filter(Boolean))];
+          
+          if (botIds.length > 0) {
+            const bots = await botsCollection
+              .find({ _id: { $in: botIds.map(id => typeof id === 'string' ? new ObjectId(id) : id) } })
+              .toArray();
 
-        const botsMap = {};
-        bots.forEach(bot => {
-          botsMap[bot._id.toString()] = bot;
-        });
+            const botsMap = {};
+            bots.forEach(bot => {
+              botsMap[bot._id.toString()] = bot;
+            });
 
-        // Attach bot data to posts
-        posts.forEach(post => {
-          if (post.bot) {
-            const botId = typeof post.bot === 'string' ? post.bot : post.bot.toString();
-            post.botData = botsMap[botId] || null;
+            // Attach bot data to posts
+            posts.forEach(post => {
+              if (post.bot) {
+                const botId = typeof post.bot === 'string' ? post.bot : post.bot.toString();
+                post.botData = botsMap[botId] || null;
+              }
+            });
           }
-        });
+        } catch (botError) {
+          console.error('[POSTS API] Error populating bot data:', botError);
+          // Continue without bot data
+        }
       }
 
       console.log(`[POSTS API] Found ${posts.length} posts (total: ${totalPosts})`);
