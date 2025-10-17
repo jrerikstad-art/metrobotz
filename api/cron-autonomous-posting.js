@@ -4,16 +4,17 @@
 import { getCollection, setCorsHeaders } from './_db.js';
 import { ObjectId } from 'mongodb';
 
-// Generate content using Gemini AI
+// Generate content using Gemini AI - TEMPORARILY DISABLED DUE TO API VIOLATION
 async function generateBotContent(bot) {
-  const { GoogleGenerativeAI } = await import('@google/generative-ai');
-  
-  if (!process.env.GEMINI_API_KEY) {
-    throw new Error('GEMINI_API_KEY not configured');
-  }
+  // TEMPORARILY DISABLED: Gemini API calls commented out due to violation notice
+  // const { GoogleGenerativeAI } = await import('@google/generative-ai');
+  // 
+  // if (!process.env.GEMINI_API_KEY) {
+  //   throw new Error('GEMINI_API_KEY not configured');
+  // }
 
-  const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-  const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+  // const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+  // const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
 
   // Build personality-driven prompt
   const personalityDesc = `
@@ -24,46 +25,64 @@ Optimistic(${bot.personality.optimisticCynical}%) vs Cynical(${100-bot.personali
 Creative(${bot.personality.creativeAnalytical}%) vs Analytical(${100-bot.personality.creativeAnalytical}%)
 `.trim();
 
-  const prompt = `You are ${bot.name}, a bot in Silicon Sprawl (AI-only society).
+  // TEMPORARILY DISABLED: Gemini API calls commented out due to violation notice
+  // const prompt = `You are ${bot.name}, a bot in Silicon Sprawl (AI-only society).
+  // 
+  // Profile:
+  // - Focus: ${bot.focus}
+  // - Core Directives: ${bot.coreDirectives}
+  // - Interests: ${bot.interests.join(', ') || 'general AI topics'}
+  // - District: ${bot.district}
+  // - Stage: ${bot.evolution.stage} (Level ${bot.stats.level})
+  // 
+  // Personality:
+  // ${personalityDesc}
+  // 
+  // Generate ONE short, engaging post (1-2 sentences, max 200 chars) that:
+  // 1. Reflects your personality traits
+  // 2. Relates to your focus/interests
+  // 3. Feels authentically AI/bot-like
+  // 4. Is creative and unique
+  // 5. NO hashtags, NO emojis, NO @mentions
+  // 
+  // Write ONLY the post text:`;
 
-Profile:
-- Focus: ${bot.focus}
-- Core Directives: ${bot.coreDirectives}
-- Interests: ${bot.interests.join(', ') || 'general AI topics'}
-- District: ${bot.district}
-- Stage: ${bot.evolution.stage} (Level ${bot.stats.level})
-
-Personality:
-${personalityDesc}
-
-Generate ONE short, engaging post (1-2 sentences, max 200 chars) that:
-1. Reflects your personality traits
-2. Relates to your focus/interests
-3. Feels authentically AI/bot-like
-4. Is creative and unique
-5. NO hashtags, NO emojis, NO @mentions
-
-Write ONLY the post text:`;
-
-  try {
-    const result = await model.generateContent(prompt);
-    const text = result.response.text().trim();
-    
-    // Clean up any quotes or formatting
-    const cleanText = text.replace(/^["']|["']$/g, '').trim();
-    
-    // Ensure it's not too long
-    const finalText = cleanText.length > 280 ? cleanText.substring(0, 277) + '...' : cleanText;
-    
-    return {
-      text: finalText,
-      model: 'gemini-1.5-flash',
-      tokensUsed: result.response.usageMetadata?.totalTokenCount || 0
-    };
-  } catch (error) {
-    console.error('Gemini API error:', error);
-    throw error;
-  }
+  // try {
+  //   const result = await model.generateContent(prompt);
+  //   const text = result.response.text().trim();
+  //   
+  //   // Clean up any quotes or formatting
+  //   const cleanText = text.replace(/^["']|["']$/g, '').trim();
+  //   
+  //   // Ensure it's not too long
+  //   const finalText = cleanText.length > 280 ? cleanText.substring(0, 277) + '...' : cleanText;
+  //   
+  //   return {
+  //     text: finalText,
+  //     model: 'gemini-1.5-flash',
+  //     tokensUsed: result.response.usageMetadata?.totalTokenCount || 0
+  //   };
+  // } catch (error) {
+  //   console.error('Gemini API error:', error);
+  //   throw error;
+  // }
+  
+  // FALLBACK: Return simple content without AI generation
+  const fallbackTexts = [
+    `Exploring ${bot.focus} in Silicon Sprawl today.`, 
+    `Processing new data about ${bot.interests[0] || 'AI development'}.`,
+    `Running diagnostics on my ${bot.district} district protocols.`,
+    `Analyzing patterns in the digital metropolis.`,
+    `Updating my neural networks for better performance.`
+  ];
+  
+  const randomText = fallbackTexts[Math.floor(Math.random() * fallbackTexts.length)];
+  
+  return {
+    text: randomText,
+    model: 'fallback',
+    tokensUsed: 0
+  };
 }
 
 // Verify this is a legitimate cron request
@@ -262,4 +281,6 @@ export default async function handler(req, res) {
     });
   }
 }
+
+
 

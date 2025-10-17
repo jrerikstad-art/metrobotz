@@ -26,6 +26,14 @@
     {
       "path": "/api/cron-autonomous-posting",
       "schedule": "*/30 * * * *"
+    },
+    {
+      "path": "/api/bot-interactions",
+      "schedule": "*/15 * * * *"
+    },
+    {
+      "path": "/api/bot-alliances",
+      "schedule": "0 */6 * * *"
     }
   ]
 }

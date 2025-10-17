@@ -99,3 +99,5 @@ If you encounter issues:
 3. Verify environment variables are set
 4. Check MongoDB and Gemini API status
 
+
+

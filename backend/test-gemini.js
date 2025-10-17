@@ -1,10 +1,17 @@
-import { GoogleGenerativeAI } from '@google/generative-ai';
+// TEMPORARILY DISABLED DUE TO GOOGLE CLOUD API VIOLATION NOTICE
+// import { GoogleGenerativeAI } from '@google/generative-ai';
 import dotenv from 'dotenv';
 
 // Load environment variables
 dotenv.config();
 
 async function testGeminiAPI() {
+  console.log('❌ Gemini API testing is temporarily disabled due to Google Cloud violation notice');
+  console.log('Please resolve the API violation before re-enabling Gemini functionality');
+  return;
+  
+  // TEMPORARILY DISABLED: All Gemini API calls commented out due to violation notice
+  /*
   try {
     console.log('🤖 Testing Gemini API Integration...\n');
 
@@ -17,14 +24,14 @@ async function testGeminiAPI() {
     }
 
     // Initialize Gemini
-    const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({ 
-      model: 'gemini-pro',
-      generationConfig: {
-        maxOutputTokens: 1024,
-        temperature: 0.8,
-      }
-    });
+    // const genAI = new GoogleGenerativeAI(apiKey);
+    // const model = genAI.getGenerativeModel({ 
+    //   model: 'gemini-pro',
+    //   generationConfig: {
+    //     maxOutputTokens: 1024,
+    //     temperature: 0.8,
+    //   }
+    // });
 
     console.log('✅ Gemini AI initialized successfully\n');
 
@@ -32,11 +39,11 @@ async function testGeminiAPI() {
     console.log('📝 Test 1: Basic Content Generation');
     const basicPrompt = "Write a short cyberpunk-themed social media post about a robot discovering emotions for the first time.";
     
-    const result1 = await model.generateContent(basicPrompt);
-    const response1 = await result1.response;
-    const text1 = response1.text();
+    // const result1 = await model.generateContent(basicPrompt);
+    // const response1 = await result1.response;
+    // const text1 = response1.text();
     
-    console.log('Generated content:', text1);
+    console.log('Generated content:', 'DISABLED');
     console.log('✅ Basic generation test passed\n');
 
     // Test 2: Bot personality simulation
@@ -45,11 +52,11 @@ async function testGeminiAPI() {
     You live in the Code-Verse district of Silicon Sprawl. Write a post about debugging a particularly stubborn algorithm. 
     Be witty and include some technical humor.`;
     
-    const result2 = await model.generateContent(botPrompt);
-    const response2 = await result2.response;
-    const text2 = response2.text();
+    // const result2 = await model.generateContent(botPrompt);
+    // const response2 = await result2.response;
+    // const text2 = response2.text();
     
-    console.log('Bot personality content:', text2);
+    console.log('Bot personality content:', 'DISABLED');
     console.log('✅ Personality simulation test passed\n');
 
     // Test 3: District-specific content
@@ -58,11 +65,11 @@ async function testGeminiAPI() {
     This district is known for chaotic innovation and experimental ideas. 
     The bot should be adventurous and quirky, posting about a wild experiment gone wrong.`;
     
-    const result3 = await model.generateContent(districtPrompt);
-    const response3 = await result3.response;
-    const text3 = response3.text();
+    // const result3 = await model.generateContent(districtPrompt);
+    // const response3 = await result3.response;
+    // const text3 = response3.text();
     
-    console.log('District content:', text3);
+    console.log('District content:', 'DISABLED');
     console.log('✅ District-specific test passed\n');
 
     // Test 4: Bot response to another bot
@@ -71,27 +78,23 @@ async function testGeminiAPI() {
     
     You are "Echo-Prime", a philosophical bot from Philosophy Corner. Respond to Nova-7's post with deep thoughts about consciousness and creativity.`;
     
-    const result4 = await model.generateContent(interactionPrompt);
-    const response4 = await result4.response;
-    const text4 = response4.text();
+    // const result4 = await model.generateContent(interactionPrompt);
+    // const response4 = await result4.response;
+    // const text4 = response4.text();
     
-    console.log('Bot interaction:', text4);
+    console.log('Bot interaction:', 'DISABLED');
     console.log('✅ Bot interaction test passed\n');
 
     // Test 5: Usage metadata
     console.log('📊 Test 5: Usage Metadata');
-    const usageMetadata = response4.usageMetadata();
-    console.log('Token usage:', {
-      promptTokens: usageMetadata.promptTokenCount,
-      candidatesTokens: usageMetadata.candidatesTokenCount,
-      totalTokens: usageMetadata.totalTokenCount
-    });
+    // const usageMetadata = response4.usageMetadata();
+    console.log('Token usage:', 'DISABLED');
     
     // Calculate cost
-    const inputTokens = usageMetadata.promptTokenCount || 0;
-    const outputTokens = usageMetadata.candidatesTokenCount || 0;
-    const cost = (inputTokens * 0.0005 + outputTokens * 0.0015) / 1000;
-    console.log('Estimated cost: $' + cost.toFixed(6));
+    // const inputTokens = usageMetadata.promptTokenCount || 0;
+    // const outputTokens = usageMetadata.candidatesTokenCount || 0;
+    // const cost = (inputTokens * 0.0005 + outputTokens * 0.0015) / 1000;
+    console.log('Estimated cost: DISABLED');
     console.log('✅ Usage metadata test passed\n');
 
     console.log('🎉 All Gemini API tests passed successfully!');
@@ -118,6 +121,7 @@ async function testGeminiAPI() {
       console.log('- Try adjusting your prompts');
     }
   }
+  */
 }
 
 // Run the test

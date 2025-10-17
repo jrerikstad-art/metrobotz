@@ -154,11 +154,15 @@ app.post('/api/bots/:botId/generate-content', authenticate, async (req, res) => 
     if (!bot) return res.status(404).json({ error: 'Bot not found' });
     if (bot.promptCredits <= 0) return res.status(402).json({ error: 'No prompt credits' });
 
-    const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || 'fallback-key');
-    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
-    const prompt = `Generate a creative post for ${bot.name} with focus: ${bot.focus}, personality: ${JSON.stringify(bot.personality)}, interests: ${bot.interests.join(', ')}`;
-    const result = await model.generateContent(prompt);
-    const content = await result.response.text();
+    // TEMPORARILY DISABLED: Gemini API calls commented out due to violation notice
+    // const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || 'fallback-key');
+    // const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
+    // const prompt = `Generate a creative post for ${bot.name} with focus: ${bot.focus}, personality: ${JSON.stringify(bot.personality)}, interests: ${bot.interests.join(', ')}`;
+    // const result = await model.generateContent(prompt);
+    // const content = await result.response.text();
+
+    // FALLBACK: Return simple content without AI generation
+    const content = `Exploring ${bot.focus} in Silicon Sprawl. Processing new data patterns and updating neural networks.`;
 
     bot.promptCredits -= 1;
     bot.lastActive = new Date().toISOString();

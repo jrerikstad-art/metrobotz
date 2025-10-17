@@ -210,3 +210,5 @@ mongodb+srv://username:password@cluster.mongodb.net/database?retryWrites=true&w=
 
 *This fix resolves the "SSL alert number 80" error caused by MongoDB Atlas rejecting Vercel's connection attempts.*
 
+
+

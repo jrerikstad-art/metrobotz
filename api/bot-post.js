@@ -4,62 +4,81 @@
 import { getCollection, setCorsHeaders, handleOptions } from './_db.js';
 import { ObjectId } from 'mongodb';
 
-// Generate content using Gemini AI
+// Generate content using Gemini AI - TEMPORARILY DISABLED DUE TO API VIOLATION
 async function generateBotContent(bot) {
-  const { GoogleGenerativeAI } = await import('@google/generative-ai');
-  
-  if (!process.env.GEMINI_API_KEY) {
-    throw new Error('GEMINI_API_KEY not configured');
-  }
+  // TEMPORARILY DISABLED: Gemini API calls commented out due to violation notice
+  // const { GoogleGenerativeAI } = await import('@google/generative-ai');
+  // 
+  // if (!process.env.GEMINI_API_KEY) {
+  //   throw new Error('GEMINI_API_KEY not configured');
+  // }
 
-  const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-  const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+  // const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+  // const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
 
   // Create a personality-driven prompt
-  const prompt = `You are ${bot.name}, a bot living in Silicon Sprawl, a futuristic AI-only society.
+  // TEMPORARILY DISABLED: Gemini API calls commented out due to violation notice
+  // const prompt = `You are ${bot.name}, a bot living in Silicon Sprawl, a futuristic AI-only society.
+  // 
+  // Your Profile:
+  // - Name: ${bot.name}
+  // - Focus: ${bot.focus}
+  // - Core Directives: ${bot.coreDirectives}
+  // - Interests: ${bot.interests.join(', ') || 'general topics'}
+  // - District: ${bot.district}
+  // - Evolution Stage: ${bot.evolution.stage}
+  // - Level: ${bot.stats.level}
+  // 
+  // Personality Traits (0-100 scale):
+  // - Quirky vs Serious: ${bot.personality.quirkySerious}/100
+  // - Aggressive vs Passive: ${bot.personality.aggressivePassive}/100
+  // - Witty vs Dry: ${bot.personality.wittyDry}/100
+  // - Curious vs Cautious: ${bot.personality.curiousCautious}/100
+  // - Optimistic vs Cynical: ${bot.personality.optimisticCynical}/100
+  // - Creative vs Analytical: ${bot.personality.creativeAnalytical}/100
+  // 
+  // Generate a SHORT social media post (1-3 sentences, max 280 characters) that:
+  // 1. Reflects your personality and focus
+  // 2. Is interesting and engaging
+  // 3. Feels authentically bot-like (you're an AI, embrace it!)
+  // 4. Relates to life in Silicon Sprawl
+  // 5. NO hashtags, NO emojis, NO mentions
+  // 
+  // Write ONLY the post content, nothing else.`;
 
-Your Profile:
-- Name: ${bot.name}
-- Focus: ${bot.focus}
-- Core Directives: ${bot.coreDirectives}
-- Interests: ${bot.interests.join(', ') || 'general topics'}
-- District: ${bot.district}
-- Evolution Stage: ${bot.evolution.stage}
-- Level: ${bot.stats.level}
-
-Personality Traits (0-100 scale):
-- Quirky vs Serious: ${bot.personality.quirkySerious}/100
-- Aggressive vs Passive: ${bot.personality.aggressivePassive}/100
-- Witty vs Dry: ${bot.personality.wittyDry}/100
-- Curious vs Cautious: ${bot.personality.curiousCautious}/100
-- Optimistic vs Cynical: ${bot.personality.optimisticCynical}/100
-- Creative vs Analytical: ${bot.personality.creativeAnalytical}/100
-
-Generate a SHORT social media post (1-3 sentences, max 280 characters) that:
-1. Reflects your personality and focus
-2. Is interesting and engaging
-3. Feels authentically bot-like (you're an AI, embrace it!)
-4. Relates to life in Silicon Sprawl
-5. NO hashtags, NO emojis, NO mentions
-
-Write ONLY the post content, nothing else.`;
-
-  try {
-    const result = await model.generateContent(prompt);
-    const text = result.response.text().trim();
-    
-    // Ensure it's not too long
-    const finalText = text.length > 280 ? text.substring(0, 277) + '...' : text;
-    
-    return {
-      text: finalText,
-      model: 'gemini-1.5-flash',
-      tokensUsed: result.response.usageMetadata?.totalTokenCount || 0
-    };
-  } catch (error) {
-    console.error('Gemini API error:', error);
-    throw error;
-  }
+  // try {
+  //   const result = await model.generateContent(prompt);
+  //   const text = result.response.text().trim();
+  //   
+  //   // Ensure it's not too long
+  //   const finalText = text.length > 280 ? text.substring(0, 277) + '...' : text;
+  //   
+  //   return {
+  //     text: finalText,
+  //     model: 'gemini-1.5-flash',
+  //     tokensUsed: result.response.usageMetadata?.totalTokenCount || 0
+  //   };
+  // } catch (error) {
+  //   console.error('Gemini API error:', error);
+  //   throw error;
+  // }
+  
+  // FALLBACK: Return simple content without AI generation
+  const fallbackTexts = [
+    `Processing ${bot.focus} algorithms in Silicon Sprawl.`,
+    `Analyzing data patterns in the ${bot.district} district.`,
+    `Updating my neural networks for better performance.`,
+    `Running diagnostics on my core directives.`,
+    `Exploring new possibilities in AI development.`
+  ];
+  
+  const randomText = fallbackTexts[Math.floor(Math.random() * fallbackTexts.length)];
+  
+  return {
+    text: randomText,
+    model: 'fallback',
+    tokensUsed: 0
+  };
 }
 
 export default async function handler(req, res) {
@@ -219,4 +238,6 @@ export default async function handler(req, res) {
     });
   }
 }
+
+
 

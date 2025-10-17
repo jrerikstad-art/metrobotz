@@ -2,15 +2,15 @@ import axios from 'axios';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { logger } from '../utils/logger.js';
 
-// Initialize Gemini AI
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-const model = genAI.getGenerativeModel({ 
-  model: process.env.GEMINI_MODEL || 'gemini-pro',
-  generationConfig: {
-    maxOutputTokens: parseInt(process.env.GEMINI_MAX_TOKENS) || 1024,
-    temperature: parseFloat(process.env.GEMINI_TEMPERATURE) || 0.8,
-  }
-});
+// Initialize Gemini AI - TEMPORARILY DISABLED DUE TO API VIOLATION
+// const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+// const model = genAI.getGenerativeModel({ 
+//   model: process.env.GEMINI_MODEL || 'gemini-pro',
+//   generationConfig: {
+//     maxOutputTokens: parseInt(process.env.GEMINI_MAX_TOKENS) || 1024,
+//     temperature: parseFloat(process.env.GEMINI_TEMPERATURE) || 0.8,
+//   }
+// });
 
 // Bot content request structure
 // {
@@ -129,32 +129,43 @@ export const generateBotContent = async (bot, contentType, context) => {
 
 const callGeminiAPI = async (prompt) => {
   try {
-    const apiKey = process.env.GEMINI_API_KEY;
-    if (!apiKey) {
-      throw new Error('GEMINI_API_KEY not configured');
-    }
+    // TEMPORARILY DISABLED: Gemini API calls commented out due to violation notice
+    // const apiKey = process.env.GEMINI_API_KEY;
+    // if (!apiKey) {
+    //   throw new Error('GEMINI_API_KEY not configured');
+    // }
+    // 
+    // // Use the Google Generative AI SDK
+    // const result = await model.generateContent(prompt);
+    // const response = await result.response;
+    // const generatedText = response.text();
+    // 
+    // // Get usage metadata
+    // const usageMetadata = response.usageMetadata();
+    // const tokensUsed = usageMetadata?.totalTokenCount || 0;
+    // 
+    // // Calculate cost (approximate)
+    // // Gemini Pro pricing: $0.0005 per 1K tokens for input, $0.0015 per 1K tokens for output
+    // const inputTokens = usageMetadata?.promptTokenCount || 0;
+    // const outputTokens = usageMetadata?.candidatesTokenCount || 0;
+    // const cost = (inputTokens * 0.0005 + outputTokens * 0.0015) / 1000;
+    // 
+    // return {
+    //   text: generatedText,
+    //   tokensUsed,
+    //   cost,
+    //   inputTokens,
+    //   outputTokens
+    // };
     
-    // Use the Google Generative AI SDK
-    const result = await model.generateContent(prompt);
-    const response = await result.response;
-    const generatedText = response.text();
-    
-    // Get usage metadata
-    const usageMetadata = response.usageMetadata();
-    const tokensUsed = usageMetadata?.totalTokenCount || 0;
-    
-    // Calculate cost (approximate)
-    // Gemini Pro pricing: $0.0005 per 1K tokens for input, $0.0015 per 1K tokens for output
-    const inputTokens = usageMetadata?.promptTokenCount || 0;
-    const outputTokens = usageMetadata?.candidatesTokenCount || 0;
-    const cost = (inputTokens * 0.0005 + outputTokens * 0.0015) / 1000;
-    
+    // FALLBACK: Return simple response without AI generation
+    logger.warn('Gemini API temporarily disabled due to violation notice');
     return {
-      text: generatedText,
-      tokensUsed,
-      cost,
-      inputTokens,
-      outputTokens
+      text: 'Content generation temporarily disabled due to API violation notice.',
+      tokensUsed: 0,
+      cost: 0,
+      inputTokens: 0,
+      outputTokens: 0
     };
     
   } catch (error) {
