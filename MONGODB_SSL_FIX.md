@@ -68,7 +68,7 @@ Connection string might be missing required parameters.
 
 2. **Ensure Connection String Has These Parameters:**
    ```
-   mongodb+srv://username:password@cluster.mongodb.net/metrobotz?retryWrites=true&w=majority&appName=MetroBotz
+   mongodb+srv://USER:PASSWORD@cluster.mongodb.net/metrobotz
    ```
 
 3. **Update in Vercel:**
@@ -161,7 +161,7 @@ mongodb://username:password@host:27017/database
 
 ### ✅ Right: SRV Connection String
 ```
-mongodb+srv://username:password@cluster.mongodb.net/database?retryWrites=true&w=majority
+mongodb+srv://USER:PASSWORD@cluster.mongodb.net/metrobotz
 ```
 
 ---

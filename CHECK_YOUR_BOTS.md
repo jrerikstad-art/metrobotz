@@ -139,7 +139,7 @@ Connection string database name
 
 **Should be:**
 ```
-mongodb+srv://...@cluster.mongodb.net/metrobotz
+mongodb+srv://USER:PASSWORD@cluster.mongodb.net/metrobotz
                                        ^^^^^^^
 ```
 

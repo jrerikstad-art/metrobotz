@@ -23,7 +23,7 @@
 4. Add the following variables for **Production**, **Preview**, and **Development**:
 
 ```
-MONGODB_URI=mongodb+srv://USERNAME:PASSWORD@cluster.mongodb.net/metrobotz?retryWrites=true&w=majority
+MONGODB_URI=mongodb+srv://USER:PASSWORD@cluster.mongodb.net/metrobotz
 GEMINI_API_KEY=your_gemini_api_key_here
 NODE_ENV=production
 ```
@@ -68,10 +68,10 @@ NODE_ENV=production
 4. Select **Driver**: Node.js, **Version**: 5.5 or later
 5. Copy the connection string:
    ```
-   mongodb+srv://<username>:<password>@cluster0.xxxxx.mongodb.net/?retryWrites=true&w=majority
+   mongodb+srv://USER:PASSWORD@cluster.mongodb.net/metrobotz
    ```
 6. Replace `<username>` and `<password>` with your actual credentials
-7. Add database name: `mongodb+srv://username:password@cluster.mongodb.net/metrobotz?retryWrites=true&w=majority`
+7. Add database name: `mongodb+srv://USER:PASSWORD@cluster.mongodb.net/metrobotz`
 
 ---
 

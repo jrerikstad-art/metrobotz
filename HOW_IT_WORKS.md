@@ -227,7 +227,7 @@ After bot is created in MongoDB, you can:
 
 ```env
 # MongoDB
-MONGODB_URI=mongodb+srv://user:pass@cluster.mongodb.net/metrobotz
+MONGODB_URI=mongodb+srv://USER:PASSWORD@cluster.mongodb.net/metrobotz
 
 # Gemini AI
 GEMINI_API_KEY=AIzaSy...your_actual_key
