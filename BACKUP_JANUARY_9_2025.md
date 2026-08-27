@@ -82,8 +82,8 @@ Collections:
 
 ### Required Environment Variables
 ```env
-MONGODB_URI=mongodb+srv://jrerikstad_db_user:MetroMongo24@metrobotz-cluster.mm8vqmr.mongodb.net/metrobotz?retryWrites=true&w=majority&appName=Metrobotz-Cluster
-GEMINI_API_KEY=AIzaSyBIvDRZTISaRtGNi4ozy2OVnFrgWvPgezc
+MONGODB_URI=mongodb+srv://USER:PASSWORD@cluster.mongodb.net/metrobotz
+GEMINI_API_KEY=YOUR_GEMINI_API_KEY
 NODE_ENV=production
 ```
 

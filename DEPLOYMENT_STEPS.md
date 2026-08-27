@@ -49,7 +49,7 @@ Go to your Vercel project settings and add these environment variables:
 
 #### Example MongoDB URI:
 ```
-mongodb+srv://username:password@cluster.mongodb.net/metrobotz?retryWrites=true&w=majority
+mongodb+srv://USER:PASSWORD@cluster.mongodb.net/metrobotz
 ```
 
 #### How to set in Vercel:

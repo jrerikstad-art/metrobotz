@@ -28,7 +28,7 @@ git push origin main
 3. Go to: **Settings** → **Environment Variables**
 4. Add new variable:
    - **Name**: `MONGODB_URI`
-   - **Value**: `mongodb+srv://username:password@cluster.mongodb.net/metrobotz?retryWrites=true&w=majority`
+   - **Value**: `mongodb+srv://USER:PASSWORD@cluster.mongodb.net/metrobotz`
    - **Environments**: ✓ Production, ✓ Preview, ✓ Development
 5. Click **Save**
 
@@ -80,7 +80,7 @@ Visit these URLs:
 3. Must redeploy after adding env vars
 
 **Check Connection String:**
-- Format: `mongodb+srv://username:password@cluster.mongodb.net/metrobotz?retryWrites=true&w=majority`
+- Format: `mongodb+srv://USER:PASSWORD@cluster.mongodb.net/metrobotz`
 - Replace `username` and `password` with your actual credentials
 - Make sure database name is `metrobotz` (or your chosen name)
 

@@ -10,9 +10,9 @@
 
 ### 2. Configure Environment
 1. Open `backend/.env` file
-2. Replace `AIzaSy_your_actual_api_key_here` with your actual API key:
+2. Replace `YOUR_GEMINI_API_KEY` with your actual API key:
    ```
-   GEMINI_API_KEY=AIzaSy_your_actual_api_key_here
+   GEMINI_API_KEY=YOUR_GEMINI_API_KEY
    ```
 
 ### 3. Test the Integration

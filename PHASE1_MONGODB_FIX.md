@@ -55,14 +55,14 @@
    - MongoDB Atlas → **Database** → **Connect**
    - Choose "Connect your application"
    - Copy connection string
-   - Format: `mongodb+srv://username:password@cluster.mongodb.net/metrobotz?retryWrites=true&w=majority`
+   - Format: `mongodb+srv://USER:PASSWORD@cluster.mongodb.net/metrobotz`
 
 5. **Set in Vercel:**
    - Vercel Dashboard → Your Project → **Settings** → **Environment Variables**
    - Add variable:
      ```
      Name: MONGODB_URI
-     Value: mongodb+srv://username:password@cluster.mongodb.net/metrobotz?retryWrites=true&w=majority
+     Value: mongodb+srv://USER:PASSWORD@cluster.mongodb.net/metrobotz
      ```
    - Set for: **Production**, **Preview**, **Development**
    - Click **Save**

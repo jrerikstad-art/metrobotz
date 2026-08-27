@@ -7,10 +7,10 @@ Set these in your Vercel dashboard under Settings → Environment Variables:
 
 ```bash
 # MongoDB Connection (CRITICAL)
-MONGODB_URI=mongodb+srv://jrerikstad_db_user:MetroMongo24@metrobotz-cluster.mm8vqmr.mongodb.net/metrobotz?retryWrites=true&w=majority&appName=Metrobotz-Cluster
+MONGODB_URI=mongodb+srv://USER:PASSWORD@cluster.mongodb.net/metrobotz
 
 # Gemini AI API (CRITICAL)
-GEMINI_API_KEY=AIzaSyBIvDRZTISaRtGNi4ozy2OVnFrgWvPgezc
+GEMINI_API_KEY=YOUR_GEMINI_API_KEY
 
 # JWT Secret (for future authentication)
 JWT_SECRET=your-super-secret-jwt-key-change-in-production

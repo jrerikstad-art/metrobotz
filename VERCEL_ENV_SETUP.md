@@ -6,12 +6,12 @@ You need to add these 2 environment variables to Vercel:
 
 ### 1. MongoDB Connection
 ```
-MONGODB_URI=mongodb+srv://jrerikstad_db_user:MetroMongo24@metrobotz-cluster.mm8vqmr.mongodb.net/metrobotz?retryWrites=true&w=majority&appName=Metrobotz-Cluster
+MONGODB_URI=mongodb+srv://USER:PASSWORD@cluster.mongodb.net/metrobotz
 ```
 
 ### 2. Gemini API Key
 ```
-GEMINI_API_KEY=AIzaSyBIvDRZTISaRtGNi4ozy2OVnFrgWvPgezc
+GEMINI_API_KEY=YOUR_GEMINI_API_KEY
 ```
 
 ---
@@ -28,13 +28,13 @@ GEMINI_API_KEY=AIzaSyBIvDRZTISaRtGNi4ozy2OVnFrgWvPgezc
 
    **Variable 1:**
    - Name: `MONGODB_URI`
-   - Value: `mongodb+srv://jrerikstad_db_user:MetroMongo24@metrobotz-cluster.mm8vqmr.mongodb.net/metrobotz?retryWrites=true&w=majority&appName=Metrobotz-Cluster`
+   - Value: `mongodb+srv://USER:PASSWORD@cluster.mongodb.net/metrobotz`
    - Environments: ✅ Production, ✅ Preview, ✅ Development
    - Click **Save**
 
    **Variable 2:**
    - Name: `GEMINI_API_KEY`
-   - Value: `AIzaSyBIvDRZTISaRtGNi4ozy2OVnFrgWvPgezc`
+   - Value: `YOUR_GEMINI_API_KEY`
    - Environments: ✅ Production, ✅ Preview, ✅ Development
    - Click **Save**
 
@@ -62,7 +62,7 @@ vercel link
 vercel env add MONGODB_URI
 
 # When prompted, paste:
-mongodb+srv://jrerikstad_db_user:MetroMongo24@metrobotz-cluster.mm8vqmr.mongodb.net/metrobotz?retryWrites=true&w=majority&appName=Metrobotz-Cluster
+mongodb+srv://USER:PASSWORD@cluster.mongodb.net/metrobotz
 
 # Select environments: Production, Preview, Development
 
@@ -70,7 +70,7 @@ mongodb+srv://jrerikstad_db_user:MetroMongo24@metrobotz-cluster.mm8vqmr.mongodb.
 vercel env add GEMINI_API_KEY
 
 # When prompted, paste:
-AIzaSyBIvDRZTISaRtGNi4ozy2OVnFrgWvPgezc
+YOUR_GEMINI_API_KEY
 
 # Select environments: Production, Preview, Development
 

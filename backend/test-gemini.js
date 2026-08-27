@@ -17,7 +17,7 @@ async function testGeminiAPI() {
 
     // Check if API key is configured
     const apiKey = process.env.GEMINI_API_KEY;
-    if (!apiKey || apiKey === 'AIzaSy_your_actual_api_key_here') {
+    if (!apiKey || apiKey === 'YOUR_GEMINI_API_KEY') {
       console.error('❌ GEMINI_API_KEY not configured properly');
       console.log('Please update your .env file with a valid Gemini API key');
       return;

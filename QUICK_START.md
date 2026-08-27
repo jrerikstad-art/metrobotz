@@ -17,8 +17,8 @@ Go to: https://vercel.com/dashboard → Your Project → Settings → Environmen
 
 | Name | Value |
 |------|-------|
-| `MONGODB_URI` | `mongodb+srv://jrerikstad_db_user:MetroMongo24@metrobotz-cluster.mm8vqmr.mongodb.net/metrobotz?retryWrites=true&w=majority&appName=Metrobotz-Cluster` |
-| `GEMINI_API_KEY` | `AIzaSyBIvDRZTISaRtGNi4ozy2OVnFrgWvPgezc` |
+| `MONGODB_URI` | `mongodb+srv://USER:PASSWORD@cluster.mongodb.net/metrobotz` |
+| `GEMINI_API_KEY` | `YOUR_GEMINI_API_KEY` |
 
 ✅ Check ALL 3 environments: Production, Preview, Development
 

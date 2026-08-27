@@ -9,7 +9,7 @@ async function connectToDatabase() {
     return { client: cachedClient, db: cachedDb };
   }
 
-  const uri = process.env.MONGODB_URI || 'mongodb+srv://your-connection-string';
+  const uri = process.env.MONGODB_URI || 'mongodb+srv://USER:PASSWORD@cluster.mongodb.net/metrobotz';
   const client = new MongoClient(uri);
 
   await client.connect();

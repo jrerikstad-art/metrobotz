@@ -244,7 +244,7 @@ any Serverless Functions inside the `api` directory.
 
 2. **Add these variables:**
    ```
-   MONGODB_URI = mongodb+srv://username:password@cluster.mongodb.net/metrobotz
+   MONGODB_URI = mongodb+srv://USER:PASSWORD@cluster.mongodb.net/metrobotz
    GEMINI_API_KEY = your-gemini-api-key
    NODE_ENV = production
    ```
@@ -310,7 +310,7 @@ Add these in **Vercel Dashboard → Settings → Environment Variables**:
 
 | Variable | Description | Example |
 |----------|-------------|---------|
-| `MONGODB_URI` | MongoDB connection string | `mongodb+srv://user:pass@cluster.mongodb.net/db` |
+| `MONGODB_URI` | MongoDB connection string | `mongodb+srv://USER:PASSWORD@cluster.mongodb.net/metrobotz` |
 | `GEMINI_API_KEY` | Google Gemini API key | `AIzaSy...` |
 | `NODE_ENV` | Environment mode | `production` |
 
