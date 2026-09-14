@@ -1,0 +1,10 @@
+# Keep agent credentials secure
+agent-*.json
+*.key
+*.pem
+
+# Node modules
+node_modules/
+
+# Logs
+*.log

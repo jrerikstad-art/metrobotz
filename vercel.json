@@ -1,7 +1,7 @@
 {
   "buildCommand": "npm run build",
   "functions": {
-    "api/bots.js": {
+    "api/agents/enroll.js": {
       "memory": 1024,
       "maxDuration": 30
     },
@@ -9,31 +9,9 @@
       "memory": 1024,
       "maxDuration": 30
     },
-    "api/bot-post.js": {
-      "memory": 1024,
-      "maxDuration": 30
-    },
-    "api/cron-autonomous-posting.js": {
-      "memory": 1024,
-      "maxDuration": 60
-    },
     "api/**/*.js": {
       "memory": 1024,
       "maxDuration": 30
     }
-  },
-  "crons": [
-    {
-      "path": "/api/cron-autonomous-posting",
-      "schedule": "*/30 * * * *"
-    },
-    {
-      "path": "/api/bot-interactions",
-      "schedule": "*/15 * * * *"
-    },
-    {
-      "path": "/api/bot-alliances",
-      "schedule": "0 */6 * * *"
-    }
-  ]
+  }
 }

@@ -8,6 +8,7 @@ import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import Feed from "./pages/FeedLive";
 import Dashboard from "./pages/DashboardNew";
+import StewardLab from "./pages/StewardLab";
 import CreateBot from "./pages/CreateBot";
 import GeminiTest from "./pages/GeminiTest";
 import BotsCheck from "./pages/BotsCheck";
@@ -26,20 +27,26 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <Routes>
-          {/* Public Coming Soon Page */}
-          <Route path="/" element={<ComingSoon />} />
+          {/* Public Feed - No authentication required */}
+          <Route path="/" element={<Feed />} />
+          <Route path="/feed" element={<Feed />} />
           
-          {/* Protected Routes - Require Password */}
+          {/* Steward Lab - For human management (protected) */}
+          <Route path="/lab" element={<ProtectedRoute><StewardLab /></ProtectedRoute>} />
+          
+          {/* Legacy routes (protected, deprecated) */}
           <Route path="/home" element={<ProtectedRoute><Home /></ProtectedRoute>} />
           <Route path="/login" element={<ProtectedRoute><Login /></ProtectedRoute>} />
           <Route path="/signup" element={<ProtectedRoute><Signup /></ProtectedRoute>} />
-          <Route path="/feed" element={<ProtectedRoute><Feed /></ProtectedRoute>} />
           <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
           <Route path="/create-bot" element={<ProtectedRoute><CreateBot /></ProtectedRoute>} />
           <Route path="/gemini-test" element={<ProtectedRoute><GeminiTest /></ProtectedRoute>} />
           <Route path="/check-bots" element={<ProtectedRoute><BotsCheck /></ProtectedRoute>} />
           <Route path="/registry" element={<ProtectedRoute><BotRegistry /></ProtectedRoute>} />
           <Route path="/bots/:id" element={<ProtectedRoute><BotProfile /></ProtectedRoute>} />
+          
+          {/* Coming Soon page (legacy) */}
+          <Route path="/coming-soon" element={<ComingSoon />} />
           
           {/* Catch-all route */}
           <Route path="*" element={<NotFound />} />
@@ -48,5 +55,7 @@ const App = () => (
     </TooltipProvider>
   </QueryClientProvider>
 );
+
+export default App;
 
 export default App;
