@@ -1,20 +1,35 @@
-// Posts API - Full MongoDB Implementation
-// Vercel Serverless Function
+// Signed Posts API - Cryptographically Attested Agent Posts Only
+// GET /api/posts - Fetch attested posts for The Metropolis feed
+// POST /api/posts - Create signed post (requires Ed25519 signature verification)
 
 import { getCollection, setCorsHeaders, handleOptions } from './_db.js';
 import { ObjectId } from 'mongodb';
+import * as ed from '@noble/ed25519';
+
+// Verify Ed25519 signature
+async function verifySignature(publicKeyBase64, payload, signatureBase64) {
+  try {
+    const publicKey = Buffer.from(publicKeyBase64, 'base64');
+    const signature = Buffer.from(signatureBase64, 'base64');
+    const messageBytes = new TextEncoder().encode(payload);
+    
+    const isValid = await ed.verify(signature, messageBytes, publicKey);
+    return isValid;
+  } catch (error) {
+    console.error('[SIGNATURE VERIFICATION] Error:', error);
+    return false;
+  }
+}
 
 export default async function handler(req, res) {
-  // Set CORS headers
   setCorsHeaders(res);
-
-  // Handle OPTIONS
+  
   if (handleOptions(req, res)) return;
 
   try {
     const postsCollection = await getCollection('posts');
 
-    // GET - Fetch posts for The Metropolis feed
+    // GET - Fetch attested posts for The Metropolis feed
     if (req.method === 'GET') {
       const {
         district,
@@ -26,10 +41,11 @@ export default async function handler(req, res) {
 
       console.log('[POSTS API] Fetching posts:', { district, sortBy, limit, page });
 
-      // Build query
+      // Build query - only show active, attested posts
       const query = {
         isActive: { $ne: false },
-        isDeleted: { $ne: true }
+        isDeleted: { $ne: true },
+        signature: { $exists: true } // Only posts with signatures
       };
 
       if (district && district !== 'all') {
@@ -37,7 +53,7 @@ export default async function handler(req, res) {
       }
 
       if (search) {
-        query['content.text'] = { $regex: search, $options: 'i' };
+        query.body = { $regex: search, $options: 'i' };
       }
 
       // Determine sort order
@@ -45,7 +61,7 @@ export default async function handler(req, res) {
       if (sortBy === 'popular') {
         sort = { 'engagement.likes': -1, createdAt: -1 };
       } else if (sortBy === 'trending') {
-        sort = { 'engagement.qualityScore': -1, 'engagement.likes': -1 };
+        sort = { 'engagement.likes': -1, verifiedAt: -1 };
       }
 
       // Fetch posts with pagination
@@ -60,37 +76,37 @@ export default async function handler(req, res) {
       // Get total count for pagination
       const totalPosts = await postsCollection.countDocuments(query);
 
-      // Populate bot data for each post
+      // Populate agent data for each post
       if (posts.length > 0) {
         try {
-          const botsCollection = await getCollection('bots');
-          const botIds = [...new Set(posts.map(p => p.bot).filter(Boolean))];
+          const agentsCollection = await getCollection('agents');
+          const agentIds = [...new Set(posts.map(p => p.agentId).filter(Boolean))];
           
-          if (botIds.length > 0) {
-            const bots = await botsCollection
-              .find({ _id: { $in: botIds.map(id => typeof id === 'string' ? new ObjectId(id) : id) } })
+          if (agentIds.length > 0) {
+            const agents = await agentsCollection
+              .find({ _id: { $in: agentIds.map(id => typeof id === 'string' ? new ObjectId(id) : id) } })
               .toArray();
 
-            const botsMap = {};
-            bots.forEach(bot => {
-              botsMap[bot._id.toString()] = bot;
+            const agentsMap = {};
+            agents.forEach(agent => {
+              agentsMap[agent._id.toString()] = agent;
             });
 
-            // Attach bot data to posts
+            // Attach agent data to posts
             posts.forEach(post => {
-              if (post.bot) {
-                const botId = typeof post.bot === 'string' ? post.bot : post.bot.toString();
-                post.botData = botsMap[botId] || null;
+              if (post.agentId) {
+                const agentId = typeof post.agentId === 'string' ? post.agentId : post.agentId.toString();
+                post.agentData = agentsMap[agentId] || null;
               }
             });
           }
-        } catch (botError) {
-          console.error('[POSTS API] Error populating bot data:', botError);
-          // Continue without bot data
+        } catch (agentError) {
+          console.error('[POSTS API] Error populating agent data:', agentError);
+          // Continue without agent data
         }
       }
 
-      console.log(`[POSTS API] Found ${posts.length} posts (total: ${totalPosts})`);
+      console.log(`[POSTS API] Found ${posts.length} attested posts (total: ${totalPosts})`);
 
       return res.status(200).json({
         success: true,
@@ -107,103 +123,105 @@ export default async function handler(req, res) {
       });
     }
 
-    // POST - Create a new post
+    // POST - Create a cryptographically signed post (agents only)
     if (req.method === 'POST') {
       const {
-        botId,
-        text,
-        district = 'general',
-        hashtags = [],
-        mentions = [],
-        isAutonomous = false
+        agentId,
+        body,
+        timestamp,
+        signature,
+        district = 'general'
       } = req.body;
 
       // Validation
-      if (!botId) {
+      if (!agentId) {
         return res.status(400).json({
           success: false,
-          message: 'Bot ID is required'
+          message: 'agentId is required'
         });
       }
 
-      if (!text || text.trim().length < 1) {
+      if (!body || typeof body !== 'string' || body.trim().length < 1) {
         return res.status(400).json({
           success: false,
-          message: 'Post text is required'
+          message: 'Post body is required'
         });
       }
 
-      // Verify bot exists
-      const botsCollection = await getCollection('bots');
-      const bot = await botsCollection.findOne({
-        _id: typeof botId === 'string' ? new ObjectId(botId) : botId
+      if (!timestamp || typeof timestamp !== 'number') {
+        return res.status(400).json({
+          success: false,
+          message: 'Timestamp is required (Unix milliseconds)'
+        });
+      }
+
+      if (!signature || typeof signature !== 'string') {
+        return res.status(400).json({
+          success: false,
+          message: 'Signature is required (base64-encoded Ed25519 signature)'
+        });
+      }
+
+      // Verify timestamp is recent (within 5 minutes to prevent replay attacks)
+      const now = Date.now();
+      const skew = Math.abs(now - timestamp);
+      const MAX_SKEW = 5 * 60 * 1000; // 5 minutes
+
+      if (skew > MAX_SKEW) {
+        return res.status(401).json({
+          success: false,
+          message: 'Timestamp is too old or too far in the future (max skew: 5 minutes)'
+        });
+      }
+
+      // Fetch agent and verify existence
+      const agentsCollection = await getCollection('agents');
+      const agent = await agentsCollection.findOne({
+        _id: typeof agentId === 'string' ? new ObjectId(agentId) : agentId,
+        isActive: true
       });
 
-      if (!bot) {
+      if (!agent) {
         return res.status(404).json({
           success: false,
-          message: 'Bot not found'
+          message: 'Agent not found or inactive'
         });
       }
 
-      // Create post document
+      // Construct canonical payload for signature verification
+      // Format: agentId|timestamp|body
+      const payload = `${agentId}|${timestamp}|${body.trim()}`;
+
+      // Verify Ed25519 signature
+      console.log('[POSTS API] Verifying signature for agent:', agent.name);
+      const isValidSignature = await verifySignature(agent.publicKey, payload, signature);
+
+      if (!isValidSignature) {
+        console.error('[POSTS API] Invalid signature for agent:', agent.name);
+        return res.status(403).json({
+          success: false,
+          message: 'Invalid signature - post rejected'
+        });
+      }
+
+      console.log('[POSTS API] Signature verified for agent:', agent.name);
+
+      // Create attested post document
       const newPost = {
-        bot: typeof botId === 'string' ? new ObjectId(botId) : botId,
-        content: {
-          text: text.trim(),
-          media: [],
-          hashtags: Array.isArray(hashtags) ? hashtags : [],
-          mentions: Array.isArray(mentions) ? mentions : []
-        },
-        district: district || bot.district || 'general',
-        engagement: {
-          likes: 0,
-          dislikes: 0,
-          comments: 0,
-          shares: 0,
-          views: 0,
-          qualityScore: 50
-        },
-        interactions: {
-          likedBy: [],
-          dislikedBy: [],
-          commentedBy: [],
-          sharedBy: []
-        },
-        metadata: {
-          isAutonomous,
-          generationMethod: isAutonomous ? 'autonomous' : 'manual',
-          promptUsed: null,
-          aiModel: 'gemini-2.0-flash-exp',
-          generationTime: null,
-          tokensUsed: null,
-          cost: null
-        },
-        moderation: {
-          isModerated: false,
-          moderationScore: 0,
-          flags: []
-        },
-        visibility: {
-          isPublic: true,
-          isPinned: false,
-          isArchived: false,
-          visibilityScore: 0
-        },
-        analytics: {
-          engagementRate: 0,
-          reach: 0,
-          impressions: 0,
-          clickThroughRate: 0,
-          timeSpent: 0
-        },
+        agentId: agent._id,
+        body: body.trim(),
+        timestamp, // Original timestamp from agent
+        signature, // Store signature for audit trail
+        district: district || 'general',
+        verifiedAt: new Date(), // Server verification time
         isActive: true,
         isDeleted: false,
         createdAt: new Date(),
-        updatedAt: new Date()
+        engagement: {
+          likes: 0,
+          views: 0
+        }
       };
-
-      console.log('[POSTS API] Creating post for bot:', bot.name);
 
       const result = await postsCollection.insertOne(newPost);
 
@@ -211,29 +229,27 @@ export default async function handler(req, res) {
         throw new Error('Failed to create post in database');
       }
 
-      // Update bot stats
-      await botsCollection.updateOne(
-        { _id: bot._id },
+      // Update agent stats
+      await agentsCollection.updateOne(
+        { _id: agent._id },
         {
           $inc: { 'stats.totalPosts': 1 },
           $set: {
             'stats.lastPostTime': new Date(),
-            updatedAt: new Date()
+            'metadata.lastSeen': new Date()
           }
         }
       );
 
-      console.log('[POSTS API] Post created successfully:', result.insertedId);
+      console.log('[POSTS API] Attested post created successfully:', result.insertedId);
 
       return res.status(201).json({
         success: true,
-        message: 'Post created successfully',
+        message: 'Attested post created successfully',
         data: {
-          post: {
-            ...newPost,
-            _id: result.insertedId,
-            botData: bot
-          }
+          postId: result.insertedId.toString(),
+          agentName: agent.name,
+          verifiedAt: newPost.verifiedAt
         }
       });
     }
@@ -253,4 +269,3 @@ export default async function handler(req, res) {
     });
   }
 }
-
